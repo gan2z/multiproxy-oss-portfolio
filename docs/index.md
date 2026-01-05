@@ -48,71 +48,84 @@ layout: default
 
 ## 3. 通信経路とポート設計（今回の構成変更点）
 
-本構成では、**通信の役割をポート単位で明確に分離**しています。
-
 ### 3-1. 通信フロー概要
 
-[Client]
-  |
-  | HTTP / HTTPS
-  v
-Proxy1 (Squid)
-  LISTEN : 3128
-  LOG    : /var/log/squid/access.log
-  |
-  | parent proxy → 127.0.0.1:13128
-  v
-proxy1-stunnel (client)
-  LISTEN : 13128 (local)
-  SEND   : proxy2-stunnel:4431 (TLS)
-  |
-  | TLS (4431)
-  v
-proxy2-stunnel (server)
-  LISTEN : 4431
-  SEND   : proxy2:3129 (HTTP)
-  |
-  | HTTP (3129)
-  v
-Proxy2 (Squid)
-  LISTEN :
-    - 3129 : Proxy1 → Proxy2 通常経路
-    - 3131 : クライアント DIRECT 経路
-  LOG :
-    - 3129 → access_3129.log
-    - 3131 → access_3131.log
-  |
-  | parent proxy →
-  |   - proxy2-3-stunnel:23129（通常）
-  |   - proxy2-3-stunnel:23131（DIRECT）
-  v
-proxy2-3-stunnel (client)
-  LISTEN :
-    - 23129 : 通常経路
-    - 23131 : DIRECT 経路
-  SEND :
-    - proxy3-stunnel:4433（通常）
-    - proxy3-stunnel:4434（DIRECT）
-  |
-  | TLS (4433 / 4434)
-  v
-proxy3-stunnel (server)
-  LISTEN :
-    - 4433 : 通常 TLS
-    - 4434 : DIRECT TLS
-  SEND :
-    - proxy3:3130（通常）
-    - proxy3:3132（DIRECT）
-  |
-  | HTTP (3130 / 3132)
-  v
-Proxy3 (Squid)
-  LISTEN :
-    - 3130 : 通常経路
-    - 3132 : DIRECT 経路
-  LOG :
-    - 3130 → access_main.log
-    - 3132 → access_direct.log
+本構成における通信フローの全体像を以下に示します。  
+実際の通信経路・ポート・プロトコルの関係は、後述の図面を参照してください。
+
+![通信フロー全体図](./images/communication-flow.png)
+
+---
+
+#### クライアント → Proxy1
+
+- プロトコル：HTTP / HTTPS
+- 宛先：Proxy1（Squid）
+- リッスンポート：3128
+- ログ出力：
+  - `/var/log/squid/access.log`
+
+---
+
+#### Proxy1 → Proxy2（通常経路・中継 TLS）
+
+- Proxy1（Squid）
+  - parent proxy：`127.0.0.1:13128`
+- proxy1-stunnel（client）
+  - LISTEN：13128（local）
+  - SEND：proxy2-stunnel:4431（TLS）
+- proxy2-stunnel（server）
+  - LISTEN：4431
+  - SEND：proxy2:3129（HTTP）
+
+---
+
+#### Proxy2（経路分岐ポイント）
+
+- Squid LISTEN ポート：
+  - **3129**：Proxy1 → Proxy2 通常経路
+  - **3131**：クライアント DIRECT 経路
+- ログ出力：
+  - 3129 → `access_3129.log`
+  - 3131 → `access_3131.log`
+
+---
+
+#### Proxy2 → Proxy3（通常経路）
+
+- Proxy2 parent proxy：
+  - proxy2-3-stunnel:23129
+- proxy2-3-stunnel（client）
+  - LISTEN：23129
+  - SEND：proxy3-stunnel:4433（TLS）
+- proxy3-stunnel（server）
+  - LISTEN：4433
+  - SEND：proxy3:3130（HTTP）
+- Proxy3（Squid）
+  - LISTEN：3130
+  - LOG：`access_main.log`
+
+---
+
+#### Proxy2 → Proxy3（DIRECT 経路）
+
+- Proxy2 parent proxy：
+  - proxy2-3-stunnel:23131
+- proxy2-3-stunnel（client）
+  - LISTEN：23131
+  - SEND：proxy3-stunnel:4434（TLS）
+- proxy3-stunnel（server）
+  - LISTEN：4434
+  - SEND：proxy3:3132（HTTP）
+- Proxy3（Squid）
+  - LISTEN：3132
+  - LOG：`access_direct.log`
+
+
+---
+
+#### Proxy1 → Proxy2（通常経路）
+
 
 
 ## 4. 技術スタック
