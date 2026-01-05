@@ -52,7 +52,6 @@ layout: default
 
 ### 3-1. 通信フロー概要
 
-```text
 [Client]
   |
   | HTTP / HTTPS
