@@ -3,29 +3,58 @@
 
 @import "{{ site.theme }}";
 
+/* ===============================
+ * 全体レイアウト（横幅を広げる）
+ * =============================== */
 .page-content {
-  max-width: 90%;
+  max-width: 92%;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
-/* --- compact table: reduce row height --- */
+/* ===============================
+ * 全体の縦余白を詰める
+ * =============================== */
+h1, h2, h3 {
+  margin-top: 1.2rem;
+  margin-bottom: 0.6rem;
+}
+
+p {
+  margin-bottom: 0.6rem;
+}
+
+/* ===============================
+ * details / summary をコンパクトに
+ * =============================== */
+details {
+  margin: 0.6rem 0 1rem 0;
+}
+
+summary {
+  cursor: pointer;
+  margin-bottom: 0.4rem;
+}
+
+/* ===============================
+ * 表を「業務資料レベル」に圧縮
+ * =============================== */
 .table-compact table {
-  font-size: 0.92rem;      /* 文字を少し小さく */
-  line-height: 1.2;        /* 行間を詰める */
+  font-size: 0.9rem;
+  line-height: 1.25;
 }
 
 .table-compact th,
 .table-compact td {
-  padding: 0.25rem 0.45rem; /* 余白を削る → 行高が下がる */
-  vertical-align: top;      /* 上詰め */
+  padding: 0.25rem 0.45rem;
+  vertical-align: top;
 }
 
-/* 長文が勝手に縦に伸びるのを抑制（必要なら） */
-.table-compact td {
-  overflow-wrap: anywhere;
-  word-break: break-word;
+.table-compact th {
+  white-space: nowrap;
 }
 
-/* 試験ID と ファイル名列は “なるべく横” に（任意） */
+/* ファイル名・試験ID列は縦に伸ばさない */
 .table-compact td:nth-child(2),
 .table-compact td:nth-child(4) {
   white-space: nowrap;
