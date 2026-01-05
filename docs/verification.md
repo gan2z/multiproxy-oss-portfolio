@@ -26,7 +26,6 @@ README 各章が **どの検証観点（試験ID）を満たしているか** �
 スクリーンショット／ログと対応付けて整理しています。  
 詳細な対応表は折りたたんで掲載します。
 
-<details markdown="1">
 <summary><strong>README章 × 検証観点（試験ID） 対応表</strong></summary>
 
 | README章 | 試験ID | 何を証明するか（スクショ／ログ） | 想定ファイル名 |
@@ -44,8 +43,6 @@ README 各章が **どの検証観点（試験ID）を満たしているか** �
 | 7. ログ・監視 | P11-1〜P11-3 | 可視化・追跡 | `graylog-search.png`, `grafana-proxy-deny.png`, `zabbix-hosts.png` |
 | 8. 自動化 | P12-1, P12-2 | 再現性ある起動・検証・復旧 | `healthcheck-output.png`, `dnsmasq-pac-healthcheck.png` |
 | 学習成果 | P13-1 | 想定外事象の分析と言語化 | `wpad-shortname-issue.png` |
-
-</details>
 
 > ※ P8 / P9 は再現で環境を壊す可能性があるため、当時のログ・メモがある場合のみ掲載しています。
 ---
