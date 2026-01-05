@@ -26,11 +26,17 @@ README 各章が **どの検証観点（試験ID）を満たしているか** �
 スクリーンショット／ログと対応付けて整理しています。  
 詳細な対応表は折りたたんで掲載します。
 
-<!-- ✅ GitHub Pages(Jekyll/kramdown)で崩れない完成版：details + HTML table -->
-<!-- そのまま verification.md / verification.html に貼り付けてOK -->
+<!-- ✅ GitHub Pages(Jekyll/kramdown)で崩れにくい：開閉が分かりやすい版 -->
 
-<details class="table-compact">
-  <summary><strong>README章 × 検証観点（試験ID） 対応表</strong></summary>
+<details class="table-compact" id="map-table">
+  <summary>
+    <strong>▶ README章 × 検証観点（試験ID） 対応表</strong>
+    <span style="opacity:0.7;">（クリックして開く）</span>
+  </summary>
+
+  <p style="margin:8px 0 0; font-size:0.95em; opacity:0.8;">
+    ✅ <strong>開いています</strong>（再度クリックで閉じます）
+  </p>
 
   <table>
     <thead>
@@ -124,7 +130,6 @@ README 各章が **どの検証観点（試験ID）を満たしているか** �
   </table>
 </details>
 
-<!-- 任意：注意書き（必要ならこのまま） -->
 <p><em>
 ※ P8 / P9 は再現で環境を壊す可能性があるため、当時のログ・メモがある場合のみ掲載しています。
 </em></p>
