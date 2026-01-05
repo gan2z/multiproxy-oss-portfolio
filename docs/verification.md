@@ -1,4 +1,3 @@
-
 ---
 title: 検証観点 & スクリーンショット取得チェックリスト
 layout: default
@@ -23,23 +22,33 @@ Author: gan2
 
 ## 1. README章と検証観点（試験ID）の対応
 
+README 各章が **どの検証観点（試験ID）を満たしているか** を、  
+スクリーンショット／ログと対応付けて整理しています。  
+詳細な対応表は折りたたんで掲載します。
+
+<details>
+<summary><strong>README章 × 検証観点（試験ID） 対応表</strong></summary>
+
 | README章 | 試験ID | 何を証明するか（スクショ／ログ） | 想定ファイル名 |
 |---|---|---|---|
-| 1. プロジェクト概要 | P1-1, P1-2 | 全体が稼働している俯瞰（ヘルスチェック＋コンテナ稼働） | `healthcheck-output.png`, `docker-ps.png` |
-| 2. システムアーキテクチャ | P2-1 | アーキ図と稼働コンポーネントが 1:1 で対応 | `architecture.png`, `docker-ps-arch-match.png` |
-| 4. 技術スタック | P3-1, P3-2 | OSS の採用理由・役割がバージョン含めて説明できる | `version-matrix.png`, `squid-version.png` |
-| 5-1. SSLBump（経路別に復号） | P4-1, P4-2, P4-3 | 経路①は Proxy1 が復号、経路②（DIRECT）は Proxy2 が復号 | `sslbump-cert.png`, `sslbump-proxy1-log.png`, `sslbump-proxy2-log.png` |
-| 5-2. stunnel（中継TLS） | P5-1, P5-2 | Proxy間が stunnel で TLS 化されている（商用の中継暗号化相当を分離実装） | `stunnel-flow.png`, `stunnel-sclient.png`, `stunnel-log.png` |
-| 5-3. WSL2 mirrored | P6-1, P6-2 | 同一L2前提（Kerberos/WPAD/DNS）が成立する環境設計 | `wsl2-mirrored-ip.png`, `ad-domain-join.png` |
-| 5-4. PAC/WPAD | P7-1, P7-2 | PAC 取得・経路切替（通常/Proxy2-DIRECT）が再現できている | `wpad-dat.png`, `pac-flow-normal-vs-direct.png` |
-| 6-1. stunnel導入に至る過程 | P8-1（任意） | “なぜ必要か”を脅威モデル＋制約（Squid）で説明できる | `no-stunnel-note.png` |
-| 6-2. 多段SSLBump失敗 | P9-1（任意） | “復号は1回だけ”の制約を失敗から理解し設計修正 | `double-bump-error.png` |
-| 6-3. 認証（AD/LDAP/Kerberos） | P10-1〜P10-3 | 認証フローを CLI とログで追跡できる | `kerberos-flow.png`, `ldapwhoami.png`, `ldapsearch-testuser1.png`, `proxy-auth-log.png` |
-| 7. ログ・監視 | P11-1〜P11-3 | Graylog/Loki/Zabbix/Grafana で追跡・可視化できる | `graylog-search.png`, `grafana-proxy-deny.png`, `zabbix-hosts.png` |
-| 8. 自動化 | P12-1, P12-2 | スクリプトで再現性ある起動・検証・復旧ができる | `healthcheck-output.png`, `dnsmasq-pac-healthcheck.png` |
-| 学習成果（強み） | P13-1 | 想定外挙動を調査して原因を言語化できる | `wpad-shortname-issue.png` |
+| 1. プロジェクト概要 | P1-1, P1-2 | 全体稼働（ヘルスチェック／コンテナ稼働） | `healthcheck-output.png`, `docker-ps.png` |
+| 2. システムアーキテクチャ | P2-1 | 構成図と稼働コンポーネントの一致 | `architecture.png`, `docker-ps-arch-match.png` |
+| 4. 技術スタック | P3-1, P3-2 | OSS 採用理由・役割（バージョン含む） | `version-matrix.png`, `squid-version.png` |
+| 5-1. SSLBump | P4-1〜P4-3 | 経路別の復号境界（Proxy1 / Proxy2） | `sslbump-cert.png`, `sslbump-proxy1-log.png`, `sslbump-proxy2-log.png` |
+| 5-2. stunnel | P5-1, P5-2 | Proxy間 TLS 化（中継暗号化） | `stunnel-flow.png`, `stunnel-sclient.png`, `stunnel-log.png` |
+| 5-3. WSL2 mirrored | P6-1, P6-2 | 同一 L2 前提の環境成立 | `wsl2-mirrored-ip.png`, `ad-domain-join.png` |
+| 5-4. PAC/WPAD | P7-1, P7-2 | PAC 取得・経路切替 | `wpad-dat.png`, `pac-flow-normal-vs-direct.png` |
+| 6-1. stunnel導入経緯 | P8-1（任意） | 必要性の説明（脅威モデル／制約） | `no-stunnel-note.png` |
+| 6-2. 多段SSLBump失敗 | P9-1（任意） | 復号制約の理解と設計修正 | `double-bump-error.png` |
+| 6-3. 認証 | P10-1〜P10-3 | 認証フローの追跡 | `kerberos-flow.png`, `ldapwhoami.png`, `ldapsearch-testuser1.png`, `proxy-auth-log.png` |
+| 7. ログ・監視 | P11-1〜P11-3 | 可視化・追跡 | `graylog-search.png`, `grafana-proxy-deny.png`, `zabbix-hosts.png` |
+| 8. 自動化 | P12-1, P12-2 | 再現性ある起動・検証・復旧 | `healthcheck-output.png`, `dnsmasq-pac-healthcheck.png` |
+| 学習成果 | P13-1 | 想定外事象の分析と言語化 | `wpad-shortname-issue.png` |
 
-> 任意（P8/P9）は「再現で壊れる」可能性があるため、**当時のログやメモが残っていればそれを採用**し、無理に再現しない方針。
+</details>
+
+> ※ P8 / P9 は再現で環境を壊す可能性があるため、  
+> **当時のログ・メモがある場合のみ掲載**しています。
 
 ---
 
