@@ -6,3 +6,27 @@
 .page-content {
   max-width: 90%;
 }
+
+/* --- compact table: reduce row height --- */
+.table-compact table {
+  font-size: 0.92rem;      /* 文字を少し小さく */
+  line-height: 1.2;        /* 行間を詰める */
+}
+
+.table-compact th,
+.table-compact td {
+  padding: 0.25rem 0.45rem; /* 余白を削る → 行高が下がる */
+  vertical-align: top;      /* 上詰め */
+}
+
+/* 長文が勝手に縦に伸びるのを抑制（必要なら） */
+.table-compact td {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* 試験ID と ファイル名列は “なるべく横” に（任意） */
+.table-compact td:nth-child(2),
+.table-compact td:nth-child(4) {
+  white-space: nowrap;
+}
