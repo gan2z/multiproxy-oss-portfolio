@@ -231,3 +231,27 @@ details:not([open]) summary {
     min-width: 900px; /* 横スクロール前提 */
   }
 }
+
+/* === 見えにくい環境対策：淡色を一段濃くする === */
+
+/* ヘッダー背景を濃く */
+.table-compact thead th {
+  background: rgba(21, 128, 61, 0.18) !important;
+  border-bottom: 1px solid rgba(21, 128, 61, 0.35) !important;
+}
+
+/* 縞を濃く */
+.table-compact tbody tr:nth-child(even) td {
+  background: rgba(0,0,0,.06) !important;
+}
+
+/* hoverも少し濃く */
+.table-compact tbody tr:hover td {
+  background: rgba(21, 128, 61, 0.14) !important;
+}
+
+/* codeの背景も濃く */
+.table-compact td code {
+  background: rgba(21, 128, 61, 0.16) !important;
+  border: 1px solid rgba(21, 128, 61, 0.28) !important;
+}
