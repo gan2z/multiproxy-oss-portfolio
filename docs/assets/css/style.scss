@@ -3,14 +3,35 @@
 
 @import "{{ site.theme }}";
 
-/* Caymanは main-content に当てるのが確実 */
+/* ===============================
+ * 全体レイアウト（レスポンシブ）
+ * =============================== */
+
+/* 基本（スマホ〜小画面） */
 .main-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  max-width: 100%;
+  padding: 0 0.8rem;
 }
 
-/* 余白調整は main-content 配下に限定 */
+/* ノートPC以上 */
+@media (min-width: 900px) {
+  .main-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+}
+
+/* 大画面（フルHD以上） */
+@media (min-width: 1400px) {
+  .main-content {
+    max-width: 92vw;   /* ← ここが効く */
+  }
+}
+
+/* ===============================
+ * 見出し・段落（本文だけに適用）
+ * =============================== */
 .main-content h1,
 .main-content h2,
 .main-content h3 {
@@ -22,41 +43,61 @@
   margin-bottom: 0.6rem;
 }
 
-/* details：閉じてる/開いてるを明確に */
+/* ===============================
+ * details / summary（閉じ感を強化）
+ * =============================== */
 details {
-  margin: 0.6rem 0 1rem 0;
+  margin: 0.8rem 0 1.2rem 0;
   border: 1px solid rgba(0,0,0,.12);
-  border-radius: 10px;
-  padding: 0.4rem 0.7rem;
-  background: rgba(0,0,0,.02);
+  border-radius: 12px;
+  padding: 0.5rem 0.8rem;
+  background: rgba(0,0,0,.03);
 }
 
 summary {
   cursor: pointer;
-  margin-bottom: 0.4rem;
   list-style: none;
   font-weight: 700;
 }
 
 summary::-webkit-details-marker { display: none; }
-details > summary::before { content: "▶"; margin-right: .5rem; opacity: .75; }
-details[open] > summary::before { content: "▼"; }
+details > summary::before {
+  content: "▶";
+  margin-right: .5rem;
+  opacity: .7;
+}
+details[open] > summary::before {
+  content: "▼";
+}
 
-/* 表を圧縮 */
+/* ===============================
+ * 表：PCは広く、スマホは横スクロール
+ * =============================== */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 12px;
+}
+
 .table-compact table {
-  font-size: 0.9rem;
+  width: 100%;
+  min-width: 900px;  /* ← PCでは広く見せる鍵 */
+  border-collapse: collapse;
+  font-size: 0.92rem;
   line-height: 1.25;
 }
 
 .table-compact th,
 .table-compact td {
-  padding: 0.25rem 0.45rem;
+  padding: 0.35rem 0.55rem;
   vertical-align: top;
+  white-space: nowrap;
 }
 
-.table-compact th { white-space: nowrap; }
-
-.table-compact td:nth-child(2),
-.table-compact td:nth-child(4) {
-  white-space: nowrap;
+/* スマホだけ文字を少し小さく */
+@media (max-width: 600px) {
+  .table-compact table {
+    font-size: 0.85rem;
+  }
 }
