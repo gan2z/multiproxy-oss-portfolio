@@ -5,18 +5,17 @@
 
 /* =========================================================
  * Cayman上書き：レイアウト/タイポ/表の見やすさ（レスポンシブ）
+ * 目的：明るいモニターでも色が飛ばない（透明度依存を減らす）
  * ========================================================= */
 
 /* -------------------------------
  * 1) ヘッダー（上の詰まり・タイトル折り返し対策）
  * ------------------------------- */
 .page-header {
-  /* ヘッダー上下の詰まりを緩和 */
   padding: clamp(1.6rem, 3.2vw, 3.0rem) 1rem;
 }
 
 .project-name {
-  /* 画面幅に応じて文字サイズを自動調整 */
   font-size: clamp(1.8rem, 3.8vw, 3.2rem);
   line-height: 1.15;
   margin: 0 0 0.45rem 0;
@@ -45,32 +44,28 @@
   padding: 1.6rem clamp(0.9rem, 2vw, 1.4rem) 2.6rem;
 }
 
-/* ノートPC以上：中央寄せ + 適度に広げる */
 @media (min-width: 900px) {
   .main-content {
     max-width: min(94vw, 1200px);
   }
 }
 
-/* 大画面：さらに広げる（ただし広げすぎない） */
 @media (min-width: 1400px) {
   .main-content {
     max-width: min(92vw, 1400px);
   }
 }
 
-/* セクション間：少し余白を足して読みやすく */
 .main-content hr {
   margin: 1.35rem 0;
 }
 
-/* 見出しの詰まりを調整（本文のみ） */
 .main-content h1,
 .main-content h2,
 .main-content h3 {
   margin-top: 1.25rem;
   margin-bottom: 0.65rem;
-  scroll-margin-top: 90px; /* アンカー時に見出しが隠れない */
+  scroll-margin-top: 90px;
 }
 
 .main-content p {
@@ -96,11 +91,12 @@ summary {
   align-items: center;
   gap: .55rem;
 
-  /* summary自体を“バー”っぽくして閉じ感UP */
   padding: 0.50rem 0.60rem;
   border-radius: 10px;
-  background: rgba(0,0,0,.02);
-  border: 1px solid rgba(0,0,0,.10);
+
+  /* 透明度依存を減らす（薄すぎて飛ぶのを防止） */
+  background: #f5f7f6;
+  border: 1px solid rgba(0,0,0,.12);
 }
 
 summary::-webkit-details-marker { display: none; }
@@ -115,16 +111,14 @@ details[open] > summary::before {
   content: "▼";
 }
 
-/* detailsが閉じてる時：中身が見えない感じを強める */
 details:not([open]) summary {
   box-shadow: 0 1px 0 rgba(0,0,0,.04);
 }
 
 /* -------------------------------
- * 4) 表：見やすさ（グレーだらけ解消＋メリハリ）
+ * 4) 表：見やすさ（色飛び対策＝ベタ色＋輪郭強化）
  * ------------------------------- */
 
-/* テーブル外枠：横スクロール領域 */
 .table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -132,15 +126,15 @@ details:not([open]) summary {
   background: #fff;
 }
 
-/* テーブル本体：白ベース＋罫線＋角丸 */
+/* テーブル本体 */
 .table-compact table {
   width: 100%;
-  min-width: 980px; /* PCでは広く。スマホは横スクロール */
+  min-width: 980px;
   border-collapse: separate;
   border-spacing: 0;
 
   background: #fff;
-  border: 1px solid rgba(0,0,0,.14);
+  border: 1px solid rgba(0,0,0,.18);
   border-radius: 12px;
   overflow: hidden;
 
@@ -148,75 +142,77 @@ details:not([open]) summary {
   line-height: 1.35;
 }
 
-/* ヘッダー：強調（Caymanに馴染む薄緑系） */
+/* ヘッダー：rgba(薄い)をやめて「実色」にする */
 .table-compact thead th {
   position: sticky;
   top: 0;
   z-index: 2;
 
-  background: rgba(21, 128, 61, 0.08);
-  color: rgba(0,0,0,.86);
+  /* ✅ 色飛びしにくいベタ色 */
+  background: #e6f4ea !important;
+  color: rgba(0,0,0,.90);
   font-weight: 800;
 
-  border-bottom: 1px solid rgba(0,0,0,.18);
+  border-bottom: 1px solid rgba(0,0,0,.22) !important;
 }
 
-/* セル：罫線＋余白（Caymanの灰色背景を上書き） */
+/* セル：罫線を少し濃くして輪郭を出す */
 .table-compact th,
 .table-compact td {
   padding: 0.50rem 0.70rem;
-  border-right: 1px solid rgba(0,0,0,.10);
-  border-bottom: 1px solid rgba(0,0,0,.10);
+  border-right: 1px solid rgba(0,0,0,.14);
+  border-bottom: 1px solid rgba(0,0,0,.14);
   vertical-align: top;
   background: #fff;
 }
 
-/* 右端の罫線を消す */
 .table-compact tr > *:last-child {
   border-right: none;
 }
 
-/* 最下段の罫線を消す */
 .table-compact tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* 行の視認性：薄い縞 + ホバー */
+/* 行の視認性：縞もベタ色にして飛ばないように */
 .table-compact tbody tr:nth-child(even) td {
-  background: rgba(0,0,0,.02);
+  background: #f7f8f7 !important;
 }
 
+/* hover：薄緑のベタ色（alpha依存を減らす） */
 .table-compact tbody tr:hover td {
-  background: rgba(21, 128, 61, 0.06);
+  background: #eef8f0 !important;
 }
 
-/* ✅ “折り返し戦略”
-   - 試験ID(2列目)は折り返さない
-   - それ以外は自然に折り返し（単語単位に近い挙動）
-*/
+/* 折り返し：試験IDだけは折り返さない */
 .table-compact td:nth-child(2),
 .table-compact th:nth-child(2) {
   white-space: nowrap;
 }
 
+/* その他は自然に。長い英数字（ファイル名等）は anywhere で救う */
 .table-compact td,
 .table-compact th {
   white-space: normal;
-  overflow-wrap: anywhere;
   word-break: normal;
+  overflow-wrap: anywhere;
   hyphens: auto;
 }
 
-/* code表示：グレー強すぎを抑えて見やすく */
+/* code表示：緑系の薄いベタ色＋枠で“タグ感” */
 .table-compact td code {
   font-size: 0.88em;
-  padding: 0.12em 0.35em;
-  border-radius: 8px;
-  background: rgba(0,0,0,.04);
-  border: 1px solid rgba(0,0,0,.10);
+  padding: 0.14em 0.40em;
+  border-radius: 999px;
+
+  /* ✅ 色飛びしにくいベタ色 */
+  background: #e8f3ec !important;
+  border: 1px solid rgba(21, 128, 61, 0.35) !important;
 }
 
-/* スマホ：文字を少し小さく＆ヘッダー余白を控えめ */
+/* -------------------------------
+ * 5) スマホ：文字を少し小さく＆余白を控えめ
+ * ------------------------------- */
 @media (max-width: 600px) {
   .page-header {
     padding: 1.6rem 0.85rem;
@@ -228,30 +224,6 @@ details:not([open]) summary {
 
   .table-compact table {
     font-size: 0.86rem;
-    min-width: 900px; /* 横スクロール前提 */
+    min-width: 900px;
   }
-}
-
-/* === 見えにくい環境対策：淡色を一段濃くする === */
-
-/* ヘッダー背景を濃く */
-.table-compact thead th {
-  background: rgba(21, 128, 61, 0.18) !important;
-  border-bottom: 1px solid rgba(21, 128, 61, 0.35) !important;
-}
-
-/* 縞を濃く */
-.table-compact tbody tr:nth-child(even) td {
-  background: rgba(0,0,0,.06) !important;
-}
-
-/* hoverも少し濃く */
-.table-compact tbody tr:hover td {
-  background: rgba(21, 128, 61, 0.14) !important;
-}
-
-/* codeの背景も濃く */
-.table-compact td code {
-  background: rgba(21, 128, 61, 0.16) !important;
-  border: 1px solid rgba(21, 128, 61, 0.28) !important;
 }
