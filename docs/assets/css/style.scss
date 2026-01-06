@@ -101,3 +101,47 @@ details[open] > summary::before {
     font-size: 0.85rem;
   }
 }
+
+
+/* ===============================
+ * Cayman header の詰まり解消（上部余白）
+ * =============================== */
+.page-header {
+  padding: 2.6rem 1rem; /* ← ここで上の詰まりを解消 */
+}
+
+@media (max-width: 600px) {
+  .page-header {
+    padding: 2.0rem 0.9rem; /* スマホは少し控えめ */
+  }
+}
+
+/* タイトル/説明の行間を少しだけゆるめる */
+.project-name {
+  margin: 0 0 0.4rem 0;
+  line-height: 1.15;
+}
+
+.project-tagline {
+  margin: 0.2rem 0 0 0;
+  line-height: 1.35;
+}
+
+/* ===============================
+ * 本文の上余白（ヘッダー直下の詰まり対策）
+ * =============================== */
+.main-content {
+  padding-top: 1.2rem;  /* ← 上の余白を追加 */
+  padding-bottom: 2rem; /* ← 下も少し余白 */
+}
+
+/* セクション間の余白を「少しだけ」増やす */
+.main-content hr {
+  margin: 1.2rem 0;
+}
+
+.main-content h1,
+.main-content h2,
+.main-content h3 {
+  scroll-margin-top: 90px; /* アンカー移動時に見出しが隠れない */
+}
