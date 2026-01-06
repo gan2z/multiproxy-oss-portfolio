@@ -65,81 +65,32 @@ layout: default
 
 ---
 
-## 3. 通信経路とポート設計（今回の構成変更点）
+## 3. 通信経路とポート設計（構成変更点）
 
-### 3-1. 通信フロー概要
+本構成は「通常経路（Proxy1 経由）」と「DIRECT 経路（Client→Proxy2 直）」の2系統です。  
+Proxy2 が分岐点（3129=通常 / 3131=DIRECT）で、Proxy間は stunnel により TLS 中継します。  
+ログはポート単位で分離し、障害時に追跡しやすい設計です。
 
-本構成における通信フローの全体像を以下に示します。  
-実際の通信経路・ポート・プロトコルの関係は、後述の図面を参照してください。
+※ 通信経路を 2 系統（通常 / DIRECT）に分離することで、  
+   業務通信（通常）と例外的・検証用途の通信（DIRECT）の責務を明確化し、  
+   障害時の切り分けやログ追跡を容易にする設計としています。  
+   また、DIRECT 経路は将来的に仮想ブラウザ等を用いた  
+   高リスクサイト閲覧向け経路として拡張可能な構成としています。
 
 ![通信フロー全体図](./images/communication-flow.png)
 
----
+- 通常経路：Client → Proxy1:3128 → Proxy2:3129 → Proxy3:3130
+- DIRECT：Client → Proxy2:3131 → Proxy3:3132
 
-#### クライアント → Proxy1
 
-- プロトコル：HTTP / HTTPS
-- 宛先：Proxy1（Squid）
-- リッスンポート：3128
-- ログ出力：
-  - `/var/log/squid/access.log`
+<details>
+<summary>付録：stunnel を含む詳細ポート（運用者向け）</summary>
 
----
+- Proxy1→Proxy2：13128 → 4431(TLS) → 3129
+- Proxy2→Proxy3：23129 → 4433(TLS) → 3130
+- Proxy2→Proxy3(DIRECT)：23131 → 4434(TLS) → 3132
 
-#### Proxy1 → Proxy2（通常経路・中継 TLS）
-
-- Proxy1（Squid）
-  - parent proxy：`127.0.0.1:13128`
-- proxy1-stunnel（client）
-  - LISTEN：13128（local）
-  - SEND：proxy2-stunnel:4431（TLS）
-- proxy2-stunnel（server）
-  - LISTEN：4431
-  - SEND：proxy2:3129（HTTP）
-
----
-
-#### Proxy2（経路分岐ポイント）
-
-- Squid LISTEN ポート：
-  - **3129**：Proxy1 → Proxy2 通常経路
-  - **3131**：クライアント DIRECT 経路
-- ログ出力：
-  - 3129 → `access_3129.log`
-  - 3131 → `access_3131.log`
-
----
-
-#### Proxy2 → Proxy3（通常経路）
-
-- Proxy2 parent proxy：
-  - proxy2-3-stunnel:23129
-- proxy2-3-stunnel（client）
-  - LISTEN：23129
-  - SEND：proxy3-stunnel:4433（TLS）
-- proxy3-stunnel（server）
-  - LISTEN：4433
-  - SEND：proxy3:3130（HTTP）
-- Proxy3（Squid）
-  - LISTEN：3130
-  - LOG：`access_main.log`
-
----
-
-#### Proxy2 → Proxy3（DIRECT 経路）
-
-- Proxy2 parent proxy：
-  - proxy2-3-stunnel:23131
-- proxy2-3-stunnel（client）
-  - LISTEN：23131
-  - SEND：proxy3-stunnel:4434（TLS）
-- proxy3-stunnel（server）
-  - LISTEN：4434
-  - SEND：proxy3:3132（HTTP）
-- Proxy3（Squid）
-  - LISTEN：3132
-  - LOG：`access_direct.log`
-
+</details>
 
 ---
 
