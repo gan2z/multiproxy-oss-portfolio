@@ -208,3 +208,44 @@ details:not([open]) summary {
     min-width: 900px; /* 横スクロール前提 */
   }
 }
+/* ===============================
+ * 追加：テーブルにメリハリ（Cayman寄せ）
+ * =============================== */
+
+/* 테ーブル全体をカードっぽく */
+.table-compact table {
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ヘッダーを“薄いグリーン”に */
+.table-compact thead th {
+  background: rgba(21, 128, 61, 0.10); /* 緑の薄塗り */
+  color: rgba(0,0,0,.88);
+  font-weight: 800;
+  border-bottom: 1px solid rgba(21, 128, 61, 0.25);
+}
+
+/* しましまを少し濃く */
+.table-compact tbody tr:nth-child(even) td {
+  background: rgba(0,0,0,.035);
+}
+
+/* ホバーでさらに見やすく */
+.table-compact tbody tr:hover td {
+  background: rgba(21, 128, 61, 0.08);
+}
+
+/* セル罫線を少し強める */
+.table-compact th,
+.table-compact td {
+  border-bottom: 1px solid rgba(0,0,0,.10);
+}
+
+/* 想定ファイル名（code）の見た目を強調 */
+.table-compact td code {
+  background: rgba(21, 128, 61, 0.10);
+  border: 1px solid rgba(21, 128, 61, 0.20);
+  color: rgba(0,0,0,.85);
+}
