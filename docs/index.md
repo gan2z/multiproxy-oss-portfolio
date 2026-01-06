@@ -6,6 +6,9 @@ layout: default
 # OSS Multi-Layer Proxy & Authentication System  
 ── 構築・課題・設計思想まとめ
 
+Version: 2025-02  
+Author: gan2
+
 ---
 
 ## 1. プロジェクト概要（Summary）
