@@ -10,22 +10,27 @@
 /* 基本（スマホ〜小画面） */
 .main-content {
   max-width: 100%;
-  padding: 0 0.8rem;
+  margin: 0 auto;
+  padding: 1.6rem 0.9rem 2rem; /* ← 上余白を追加（ヘッダー直下の詰まり対策） */
 }
 
 /* ノートPC以上 */
 @media (min-width: 900px) {
   .main-content {
     max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 1rem;
+    padding: 1.8rem 1.2rem 2.2rem;
   }
 }
 
-/* 大画面（フルHD以上） */
+/* 大画面（フルHD以上）
+ * 92vw にすると「左寄り + 右が空く/視線が流れる」ので、
+ * 中央寄せ + 上限幅を維持して読みやすさ優先にする
+ */
 @media (min-width: 1400px) {
   .main-content {
-    max-width: 92vw;   /* ← ここが効く */
+    max-width: 1240px;          /* ← 大画面でも読みやすい最大幅 */
+    padding-left: 1.6rem;
+    padding-right: 1.6rem;
   }
 }
 
@@ -37,10 +42,23 @@
 .main-content h3 {
   margin-top: 1.2rem;
   margin-bottom: 0.6rem;
+  scroll-margin-top: 90px; /* アンカー移動時に見出しが隠れない */
+}
+
+/* 見出しの折り返しを「不自然に割れにくく」する */
+.main-content h1 {
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .main-content p {
   margin-bottom: 0.6rem;
+}
+
+/* セクション間の余白を「少しだけ」増やす */
+.main-content hr {
+  margin: 1.2rem 0;
 }
 
 /* ===============================
@@ -61,11 +79,13 @@ summary {
 }
 
 summary::-webkit-details-marker { display: none; }
+
 details > summary::before {
   content: "▶";
   margin-right: .5rem;
   opacity: .7;
 }
+
 details[open] > summary::before {
   content: "▼";
 }
@@ -82,7 +102,7 @@ details[open] > summary::before {
 
 .table-compact table {
   width: 100%;
-  min-width: 900px;  /* ← PCでは広く見せる鍵 */
+  min-width: 900px; /* ← PCでは広く見せる鍵 */
   border-collapse: collapse;
   font-size: 0.92rem;
   line-height: 1.25;
@@ -102,17 +122,16 @@ details[open] > summary::before {
   }
 }
 
-
 /* ===============================
  * Cayman header の詰まり解消（上部余白）
  * =============================== */
 .page-header {
-  padding: 2.6rem 1rem; /* ← ここで上の詰まりを解消 */
+  padding: 2.8rem 1rem; /* ← ここで上の詰まりを解消 */
 }
 
 @media (max-width: 600px) {
   .page-header {
-    padding: 2.0rem 0.9rem; /* スマホは少し控えめ */
+    padding: 2.1rem 0.9rem; /* スマホは少し控えめ */
   }
 }
 
@@ -120,28 +139,10 @@ details[open] > summary::before {
 .project-name {
   margin: 0 0 0.4rem 0;
   line-height: 1.15;
+  overflow-wrap: anywhere; /* ← ヘッダー見出しの不自然な折り返し対策 */
 }
 
 .project-tagline {
   margin: 0.2rem 0 0 0;
   line-height: 1.35;
-}
-
-/* ===============================
- * 本文の上余白（ヘッダー直下の詰まり対策）
- * =============================== */
-.main-content {
-  padding-top: 1.2rem;  /* ← 上の余白を追加 */
-  padding-bottom: 2rem; /* ← 下も少し余白 */
-}
-
-/* セクション間の余白を「少しだけ」増やす */
-.main-content hr {
-  margin: 1.2rem 0;
-}
-
-.main-content h1,
-.main-content h2,
-.main-content h3 {
-  scroll-margin-top: 90px; /* アンカー移動時に見出しが隠れない */
 }
