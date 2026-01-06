@@ -3,42 +3,46 @@
 
 @import "{{ site.theme }}";
 
-/* ===============================
- * 全体レイアウト（横幅を広げる）
- * =============================== */
-.page-content {
-  max-width: 92%;
-  padding-left: 1rem;
-  padding-right: 1rem;
+/* Caymanは main-content に当てるのが確実 */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
-/* ===============================
- * 全体の縦余白を詰める
- * =============================== */
-h1, h2, h3 {
+/* 余白調整は main-content 配下に限定 */
+.main-content h1,
+.main-content h2,
+.main-content h3 {
   margin-top: 1.2rem;
   margin-bottom: 0.6rem;
 }
 
-p {
+.main-content p {
   margin-bottom: 0.6rem;
 }
 
-/* ===============================
- * details / summary をコンパクトに
- * =============================== */
+/* details：閉じてる/開いてるを明確に */
 details {
   margin: 0.6rem 0 1rem 0;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  padding: 0.4rem 0.7rem;
+  background: rgba(0,0,0,.02);
 }
 
 summary {
   cursor: pointer;
   margin-bottom: 0.4rem;
+  list-style: none;
+  font-weight: 700;
 }
 
-/* ===============================
- * 表を「業務資料レベル」に圧縮
- * =============================== */
+summary::-webkit-details-marker { display: none; }
+details > summary::before { content: "▶"; margin-right: .5rem; opacity: .75; }
+details[open] > summary::before { content: "▼"; }
+
+/* 表を圧縮 */
 .table-compact table {
   font-size: 0.9rem;
   line-height: 1.25;
@@ -50,11 +54,8 @@ summary {
   vertical-align: top;
 }
 
-.table-compact th {
-  white-space: nowrap;
-}
+.table-compact th { white-space: nowrap; }
 
-/* ファイル名・試験ID列は縦に伸ばさない */
 .table-compact td:nth-child(2),
 .table-compact td:nth-child(4) {
   white-space: nowrap;
