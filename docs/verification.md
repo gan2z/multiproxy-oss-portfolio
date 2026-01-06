@@ -26,113 +26,129 @@ README 各章が **どの検証観点（試験ID）を満たしているか** �
 スクリーンショット／ログと対応付けて整理しています。  
 詳細な対応表は折りたたんで掲載します。
 
-<!-- ✅ GitHub Pages(Jekyll/kramdown)で崩れにくい：開閉が分かりやすい版 -->
+<!-- ✅ GitHub Pages(Jekyll/kramdown)で崩れにくい：開閉が分かりやすい版（修正版） -->
+<!-- ポイント：
+  - summary内の「▶」はCSS側で出すので本文から除去（重複防止）
+  - 開いた時だけ「開いています」を表示（details[open]で制御）
+  - 表は .table-wrap で包んでスマホは横スクロール、PCは見やすく
+-->
 
 <details class="table-compact" id="map-table">
   <summary>
-    <strong>▶ README章 × 検証観点（試験ID） 対応表</strong>
-    <span style="opacity:0.7;">（クリックして開く）</span>
+    <strong>README章 × 検証観点（試験ID） 対応表</strong>
+    <span class="hint">（クリックして開く）</span>
   </summary>
 
-  <p style="margin:8px 0 0; font-size:0.95em; opacity:0.8;">
+  <p class="open-hint">
     ✅ <strong>開いています</strong>（再度クリックで閉じます）
   </p>
 
-  <table>
-    <thead>
-      <tr>
-        <th>README章</th>
-        <th>試験ID</th>
-        <th>何を証明するか（スクショ／ログ）</th>
-        <th>想定ファイル名</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>1. プロジェクト概要</td>
-        <td>P1-1, P1-2</td>
-        <td>全体稼働（ヘルスチェック／コンテナ稼働）</td>
-        <td><code>healthcheck-output.png</code>, <code>docker-ps.png</code></td>
-      </tr>
-      <tr>
-        <td>2. システムアーキテクチャ</td>
-        <td>P2-1</td>
-        <td>構成図と稼働コンポーネントの一致</td>
-        <td><code>architecture.png</code>, <code>docker-ps-arch-match.png</code></td>
-      </tr>
-      <tr>
-        <td>4. 技術スタック</td>
-        <td>P3-1, P3-2</td>
-        <td>OSS 採用理由・役割（バージョン含む）</td>
-        <td><code>version-matrix.png</code>, <code>squid-version.png</code></td>
-      </tr>
-      <tr>
-        <td>5-1. SSLBump</td>
-        <td>P4-1〜P4-3</td>
-        <td>経路別の復号境界（Proxy1 / Proxy2）</td>
-        <td><code>sslbump-cert.png</code>, <code>sslbump-proxy1-log.png</code>, <code>sslbump-proxy2-log.png</code></td>
-      </tr>
-      <tr>
-        <td>5-2. stunnel</td>
-        <td>P5-1, P5-2</td>
-        <td>Proxy間 TLS 化（中継暗号化）</td>
-        <td><code>stunnel-flow.png</code>, <code>stunnel-sclient.png</code>, <code>stunnel-log.png</code></td>
-      </tr>
-      <tr>
-        <td>5-3. WSL2 mirrored</td>
-        <td>P6-1, P6-2</td>
-        <td>同一 L2 前提の環境成立</td>
-        <td><code>wsl2-mirrored-ip.png</code>, <code>ad-domain-join.png</code></td>
-      </tr>
-      <tr>
-        <td>5-4. PAC/WPAD</td>
-        <td>P7-1, P7-2</td>
-        <td>PAC 取得・経路切替</td>
-        <td><code>wpad-dat.png</code>, <code>pac-flow-normal-vs-direct.png</code></td>
-      </tr>
-      <tr>
-        <td>6-1. stunnel導入経緯</td>
-        <td>P8-1（任意）</td>
-        <td>必要性の説明（脅威モデル／制約）</td>
-        <td><code>no-stunnel-note.png</code></td>
-      </tr>
-      <tr>
-        <td>6-2. 多段SSLBump失敗</td>
-        <td>P9-1（任意）</td>
-        <td>復号制約の理解と設計修正</td>
-        <td><code>double-bump-error.png</code></td>
-      </tr>
-      <tr>
-        <td>6-3. 認証</td>
-        <td>P10-1〜P10-3</td>
-        <td>認証フローの追跡</td>
-        <td><code>kerberos-flow.png</code>, <code>ldapwhoami.png</code>, <code>ldapsearch-testuser1.png</code>, <code>proxy-auth-log.png</code></td>
-      </tr>
-      <tr>
-        <td>7. ログ・監視</td>
-        <td>P11-1〜P11-3</td>
-        <td>可視化・追跡</td>
-        <td><code>graylog-search.png</code>, <code>grafana-proxy-deny.png</code>, <code>zabbix-hosts.png</code></td>
-      </tr>
-      <tr>
-        <td>8. 自動化</td>
-        <td>P12-1, P12-2</td>
-        <td>再現性ある起動・検証・復旧</td>
-        <td><code>healthcheck-output.png</code>, <code>dnsmasq-pac-healthcheck.png</code></td>
-      </tr>
-      <tr>
-        <td>学習成果</td>
-        <td>P13-1</td>
-        <td>想定外事象の分析と言語化</td>
-        <td><code>wpad-shortname-issue.png</code></td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>README章</th>
+          <th>試験ID</th>
+          <th>何を証明するか（スクショ／ログ）</th>
+          <th>想定ファイル名</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1. プロジェクト概要</td>
+          <td>P1-1, P1-2</td>
+          <td>全体稼働（ヘルスチェック／コンテナ稼働）</td>
+          <td><code>healthcheck-output.png</code>, <code>docker-ps.png</code></td>
+        </tr>
+        <tr>
+          <td>2. システムアーキテクチャ</td>
+          <td>P2-1</td>
+          <td>構成図と稼働コンポーネントの一致</td>
+          <td><code>architecture.png</code>, <code>docker-ps-arch-match.png</code></td>
+        </tr>
+        <tr>
+          <td>4. 技術スタック</td>
+          <td>P3-1, P3-2</td>
+          <td>OSS 採用理由・役割（バージョン含む）</td>
+          <td><code>version-matrix.png</code>, <code>squid-version.png</code></td>
+        </tr>
+        <tr>
+          <td>5-1. SSLBump</td>
+          <td>P4-1〜P4-3</td>
+          <td>経路別の復号境界（Proxy1 / Proxy2）</td>
+          <td><code>sslbump-cert.png</code>, <code>sslbump-proxy1-log.png</code>, <code>sslbump-proxy2-log.png</code></td>
+        </tr>
+        <tr>
+          <td>5-2. stunnel</td>
+          <td>P5-1, P5-2</td>
+          <td>Proxy間 TLS 化（中継暗号化）</td>
+          <td><code>stunnel-flow.png</code>, <code>stunnel-sclient.png</code>, <code>stunnel-log.png</code></td>
+        </tr>
+        <tr>
+          <td>5-3. WSL2 mirrored</td>
+          <td>P6-1, P6-2</td>
+          <td>同一 L2 前提の環境成立</td>
+          <td><code>wsl2-mirrored-ip.png</code>, <code>ad-domain-join.png</code></td>
+        </tr>
+        <tr>
+          <td>5-4. PAC/WPAD</td>
+          <td>P7-1, P7-2</td>
+          <td>PAC 取得・経路切替</td>
+          <td><code>wpad-dat.png</code>, <code>pac-flow-normal-vs-direct.png</code></td>
+        </tr>
+        <tr>
+          <td>6-1. stunnel導入経緯</td>
+          <td>P8-1（任意）</td>
+          <td>必要性の説明（脅威モデル／制約）</td>
+          <td><code>no-stunnel-note.png</code></td>
+        </tr>
+        <tr>
+          <td>6-2. 多段SSLBump失敗</td>
+          <td>P9-1（任意）</td>
+          <td>復号制約の理解と設計修正</td>
+          <td><code>double-bump-error.png</code></td>
+        </tr>
+        <tr>
+          <td>6-3. 認証</td>
+          <td>P10-1〜P10-3</td>
+          <td>認証フローの追跡</td>
+          <td><code>kerberos-flow.png</code>, <code>ldapwhoami.png</code>, <code>ldapsearch-testuser1.png</code>, <code>proxy-auth-log.png</code></td>
+        </tr>
+        <tr>
+          <td>7. ログ・監視</td>
+          <td>P11-1〜P11-3</td>
+          <td>可視化・追跡</td>
+          <td><code>graylog-search.png</code>, <code>grafana-proxy-deny.png</code>, <code>zabbix-hosts.png</code></td>
+        </tr>
+        <tr>
+          <td>8. 自動化</td>
+          <td>P12-1, P12-2</td>
+          <td>再現性ある起動・検証・復旧</td>
+          <td><code>healthcheck-output.png</code>, <code>dnsmasq-pac-healthcheck.png</code></td>
+        </tr>
+        <tr>
+          <td>学習成果</td>
+          <td>P13-1</td>
+          <td>想定外事象の分析と言語化</td>
+          <td><code>wpad-shortname-issue.png</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </details>
 
-<p><em>
+<p class="note"><em>
 ※ P8 / P9 は再現で環境を壊す可能性があるため、当時のログ・メモがある場合のみ掲載しています。
 </em></p>
+
+<!-- ✅ 追加CSS（このブロックは不要なら削除OK。style.scss側で同等を管理しているなら不要）
+<style>
+  #map-table .hint { opacity:.7; font-weight:400; margin-left:.4rem; }
+  #map-table .open-hint { display:none; margin:8px 0 0; font-size:.95em; opacity:.85; }
+  #map-table[open] .open-hint { display:block; }
+  .note { margin-top:.5rem; opacity:.85; }
+</style>
+-->
 
 ---
 
