@@ -3,146 +3,208 @@
 
 @import "{{ site.theme }}";
 
-/* ===============================
- * 全体レイアウト（レスポンシブ）
- * =============================== */
+/* =========================================================
+ * Cayman上書き：レイアウト/タイポ/表の見やすさ（レスポンシブ）
+ * ========================================================= */
 
-/* 基本（スマホ〜小画面） */
+/* -------------------------------
+ * 1) ヘッダー（上の詰まり・タイトル折り返し対策）
+ * ------------------------------- */
+.page-header {
+  /* ヘッダー上下の詰まりを緩和 */
+  padding: clamp(1.6rem, 3.2vw, 3.0rem) 1rem;
+}
+
+.project-name {
+  /* 画面幅に応じて文字サイズを自動調整し、変な位置で折り返さない */
+  font-size: clamp(1.8rem, 3.8vw, 3.2rem);
+  line-height: 1.15;
+  margin: 0 0 0.45rem 0;
+
+  /* 日本語の途中分割を抑制（必要に応じて） */
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.project-tagline {
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  line-height: 1.4;
+  margin: 0.15rem 0 0 0;
+}
+
+/* -------------------------------
+ * 2) 本文：大画面で左寄りにならない＋余白も作る
+ * ------------------------------- */
 .main-content {
+  /* 小〜中画面：100%に近く使う */
+  width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  padding: 1.6rem 0.9rem 2rem; /* ← 上余白を追加（ヘッダー直下の詰まり対策） */
+
+  /* “読みやすい余白” */
+  padding: 1.2rem clamp(0.9rem, 2vw, 1.4rem) 2.4rem;
 }
 
-/* ノートPC以上 */
+/* ノートPC以上：中央寄せ + 適度に広げる */
 @media (min-width: 900px) {
   .main-content {
-    max-width: 1100px;
-    padding: 1.8rem 1.2rem 2.2rem;
+    max-width: min(94vw, 1200px);
   }
 }
 
-/* 大画面（フルHD以上）
- * 92vw にすると「左寄り + 右が空く/視線が流れる」ので、
- * 中央寄せ + 上限幅を維持して読みやすさ優先にする
- */
+/* 大画面：さらに広げる（ただし広げすぎない） */
 @media (min-width: 1400px) {
   .main-content {
-    max-width: 1240px;          /* ← 大画面でも読みやすい最大幅 */
-    padding-left: 1.6rem;
-    padding-right: 1.6rem;
+    max-width: min(92vw, 1400px);
   }
 }
 
-/* ===============================
- * 見出し・段落（本文だけに適用）
- * =============================== */
+/* セクション間：少し余白を足して読みやすく */
+.main-content hr {
+  margin: 1.35rem 0;
+}
+
+/* 見出しの詰まりを調整（本文のみ） */
 .main-content h1,
 .main-content h2,
 .main-content h3 {
-  margin-top: 1.2rem;
-  margin-bottom: 0.6rem;
-  scroll-margin-top: 90px; /* アンカー移動時に見出しが隠れない */
-}
-
-/* 見出しの折り返しを「不自然に割れにくく」する */
-.main-content h1 {
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-  word-break: normal;
+  margin-top: 1.25rem;
+  margin-bottom: 0.65rem;
+  scroll-margin-top: 90px; /* アンカー時に見出しが隠れない */
 }
 
 .main-content p {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.75rem;
 }
 
-/* セクション間の余白を「少しだけ」増やす */
-.main-content hr {
-  margin: 1.2rem 0;
-}
-
-/* ===============================
- * details / summary（閉じ感を強化）
- * =============================== */
+/* -------------------------------
+ * 3) details / summary：閉じてる感を強化（UIっぽく）
+ * ------------------------------- */
 details {
-  margin: 0.8rem 0 1.2rem 0;
-  border: 1px solid rgba(0,0,0,.12);
+  margin: 0.9rem 0 1.25rem 0;
+  border: 1px solid rgba(0,0,0,.14);
   border-radius: 12px;
-  padding: 0.5rem 0.8rem;
   background: rgba(0,0,0,.03);
+  padding: 0.55rem 0.85rem;
 }
 
 summary {
   cursor: pointer;
   list-style: none;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+
+  /* summary自体を“バー”っぽくして閉じ感UP */
+  padding: 0.45rem 0.55rem;
+  border-radius: 10px;
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(0,0,0,.08);
 }
 
 summary::-webkit-details-marker { display: none; }
 
 details > summary::before {
   content: "▶";
-  margin-right: .5rem;
-  opacity: .7;
+  opacity: .75;
+  transform: translateY(-1px);
 }
 
 details[open] > summary::before {
   content: "▼";
 }
 
-/* ===============================
- * 表：PCは広く、スマホは横スクロール
- * =============================== */
+/* detailsが閉じてる時：中身が見えない感じを強める */
+details:not([open]) summary {
+  box-shadow: 0 1px 0 rgba(0,0,0,.04);
+}
+
+/* -------------------------------
+ * 4) 表：見やすさ（説明列は折り返し、スマホは横スクロール）
+ * ------------------------------- */
+
+/* テーブル外枠：横スクロール領域 */
 .table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid rgba(0,0,0,.12);
   border-radius: 12px;
+  background: #fff;
 }
 
+/* テーブル本体 */
 .table-compact table {
   width: 100%;
-  min-width: 900px; /* ← PCでは広く見せる鍵 */
   border-collapse: collapse;
+
+  /* PCでは“広く見える”が、狭い時はスクロールに逃がす */
+  min-width: 980px;
+
   font-size: 0.92rem;
-  line-height: 1.25;
+  line-height: 1.35;
 }
 
+/* 見出し：固定表示（スクロール時もわかりやすい） */
+.table-compact thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
+  background: rgba(245, 247, 250, 0.98);
+  border-bottom: 1px solid rgba(0,0,0,.14);
+}
+
+/* セル共通 */
 .table-compact th,
 .table-compact td {
-  padding: 0.35rem 0.55rem;
+  padding: 0.50rem 0.70rem;
+  border-bottom: 1px solid rgba(0,0,0,.08);
   vertical-align: top;
+}
+
+/* 行の視認性（しましま） */
+.table-compact tbody tr:nth-child(even) {
+  background: rgba(0,0,0,.02);
+}
+
+/* ✅ “折り返し戦略”
+   - 試験ID(2列目)とファイル名(4列目)は折り返さず
+   - 説明列(3列目)は折り返して読みやすく
+*/
+.table-compact td:nth-child(2),
+.table-compact th:nth-child(2),
+.table-compact td:nth-child(4),
+.table-compact th:nth-child(4) {
   white-space: nowrap;
 }
 
-/* スマホだけ文字を少し小さく */
-@media (max-width: 600px) {
-  .table-compact table {
-    font-size: 0.85rem;
-  }
+.table-compact td:nth-child(3),
+.table-compact th:nth-child(3) {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
-/* ===============================
- * Cayman header の詰まり解消（上部余白）
- * =============================== */
-.page-header {
-  padding: 2.8rem 1rem; /* ← ここで上の詰まりを解消 */
+/* code表示を見やすく */
+.table-compact code {
+  font-size: 0.88em;
+  padding: 0.12em 0.35em;
+  border-radius: 8px;
+  background: rgba(27,31,35,.06);
 }
 
+/* スマホ：文字を少し小さく＆ヘッダー余白を控えめ */
 @media (max-width: 600px) {
   .page-header {
-    padding: 2.1rem 0.9rem; /* スマホは少し控えめ */
+    padding: 1.6rem 0.85rem;
   }
-}
 
-/* タイトル/説明の行間を少しだけゆるめる */
-.project-name {
-  margin: 0 0 0.4rem 0;
-  line-height: 1.15;
-  overflow-wrap: anywhere; /* ← ヘッダー見出しの不自然な折り返し対策 */
-}
+  .main-content {
+    padding: 1.0rem 0.85rem 2.2rem;
+  }
 
-.project-tagline {
-  margin: 0.2rem 0 0 0;
-  line-height: 1.35;
+  .table-compact table {
+    font-size: 0.86rem;
+    min-width: 900px; /* 横スクロール前提 */
+  }
 }
