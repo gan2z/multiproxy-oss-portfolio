@@ -26,7 +26,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 スクリーンショット／ログと対応付けて整理しています。
 
 <div class="table-compact" id="map-table">
-
   <div class="table-wrap">
     <table>
       <thead>
@@ -40,79 +39,108 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
       <tbody>
         <tr>
           <td><a href="./#1-プロジェクト概要summary">1. プロジェクト概要</a></td>
-          <td>P1-1, P1-2</td>
+          <td>
+            <a href="#p1-1">P1-1</a>, <a href="#p1-2">P1-2</a>
+          </td>
           <td>全体稼働（ヘルスチェック／全コンテナ稼働）</td>
           <td><code>healthcheck-output.png</code>, <code>docker-ps.png</code></td>
         </tr>
         <tr>
           <td><a href="./#2-システムアーキテクチャ全体像">2. システムアーキテクチャ</a></td>
-          <td>P2-1</td>
+          <td>
+            <a href="#p2-1">P2-1</a>
+          </td>
           <td>構成図と実稼働コンポーネントの一致</td>
           <td><code>architecture.png</code>, <code>docker-ps-arch-match.png</code></td>
         </tr>
         <tr>
           <td><a href="./#構成要素すべて-oss">2. 構成要素（技術スタック）</a></td>
-          <td>P3-1, P3-2</td>
+          <td>
+            <a href="#p3-1">P3-1</a>, <a href="#p3-2">P3-2</a>
+          </td>
           <td>OSS 採用理由・役割整理（技術選定の妥当性）</td>
           <td><code>version-matrix.png</code>, <code>squid-version.png</code></td>
         </tr>
         <tr>
           <td><a href="./#4-1-復号sslbump位置の整理">4-1. SSLBump</a></td>
-          <td>P4-1〜P4-3</td>
+          <td>
+            <a href="#p4-1">P4-1</a>〜<a href="#p4-3">P4-3</a>
+            （<a href="#p4-1">P4-1</a>, <a href="#p4-2">P4-2</a>, <a href="#p4-3">P4-3</a>）
+          </td>
           <td>経路別の復号境界（通常／DIRECT）</td>
           <td><code>sslbump-cert.png</code>, <code>sslbump-proxy1-log.png</code>, <code>sslbump-proxy2-log.png</code></td>
         </tr>
         <tr>
           <td><a href="./#4-2-プロキシ間通信の暗号化">4-2. stunnel</a></td>
-          <td>P5-1, P5-2</td>
+          <td>
+            <a href="#p5-1">P5-1</a>, <a href="#p5-2">P5-2</a>
+          </td>
           <td>Proxy 間 TLS 中継（中継暗号化）</td>
           <td><code>stunnel-flow.png</code>, <code>stunnel-sclient.png</code>, <code>stunnel-log.png</code></td>
         </tr>
         <tr>
           <td><a href="./#4-3-ネットワーク前提条件">4-3. WSL2 mirrored</a></td>
-          <td>P6-1, P6-2</td>
+          <td>
+            <a href="#p6-1">P6-1</a>, <a href="#p6-2">P6-2</a>
+          </td>
           <td>同一 L2 前提での Kerberos / DNS / WPAD 成立</td>
           <td><code>wsl2-mirrored-ip.png</code>, <code>ad-domain-join.png</code></td>
         </tr>
         <tr>
           <td><a href="./#3-通信経路と設計構成変更点">3. PAC / WPAD</a></td>
-          <td>P7-1, P7-2</td>
+          <td>
+            <a href="#p7-1">P7-1</a>, <a href="#p7-2">P7-2</a>
+          </td>
           <td>PAC 取得・経路切替（通常／DIRECT）</td>
           <td><code>wpad-dat.png</code>, <code>pac-flow-normal-vs-direct.png</code></td>
         </tr>
         <tr>
           <td><a href="./#5-1-プロキシ間通信の暗号化が必要だと理解するまで">5-1. stunnel導入経緯</a></td>
-          <td>P8-1（任意）</td>
+          <td>
+            <a href="#p8-1">P8-1</a>（任意）
+          </td>
           <td>中継暗号化が必要となった理由整理</td>
           <td><code>no-stunnel-note.png</code></td>
         </tr>
         <tr>
           <td><a href="./#5-2-多段-sslbump-が成立しない理由の理解">5-2. 多段SSLBump失敗</a></td>
-          <td>P9-1（任意）</td>
+          <td>
+            <a href="#p9-1">P9-1</a>（任意）
+          </td>
           <td>復号制約の理解と設計修正</td>
           <td><code>double-bump-error.png</code></td>
         </tr>
         <tr>
           <td><a href="./#5-3-認証基盤ad--ldap--kerberosの切り分け">5-3. 認証</a></td>
-          <td>P10-1〜P10-3</td>
+          <td>
+            <a href="#p10-1">P10-1</a>〜<a href="#p10-3">P10-3</a>
+            （<a href="#p10-1">P10-1</a>, <a href="#p10-2">P10-2</a>, <a href="#p10-3">P10-3</a>）
+          </td>
           <td>認証フロー・失敗レイヤの追跡</td>
           <td><code>kerberos-flow.png</code>, <code>ldapwhoami.png</code>, <code>ldapsearch-testuser1.png</code>, <code>proxy-auth-log.png</code></td>
         </tr>
         <tr>
           <td><a href="./#6-ログ監視observability">6. ログ・監視</a></td>
-          <td>P11-1〜P11-3</td>
+          <td>
+            <a href="#p11-1">P11-1</a>〜<a href="#p11-3">P11-3</a>
+            （<a href="#p11-1">P11-1</a>, <a href="#p11-2">P11-2</a>, <a href="#p11-3">P11-3</a>）
+          </td>
           <td>可視化・追跡（ログ／メトリクス）</td>
           <td><code>graylog-search.png</code>, <code>grafana-proxy-deny.png</code>, <code>zabbix-hosts.png</code></td>
         </tr>
         <tr>
           <td><a href="./#8-自動化運用性再現性の確保">8. 自動化</a></td>
-          <td>P12-1, P12-2</td>
+          <td>
+            <a href="#p12-1">P12-1</a>, <a href="#p12-2">P12-2</a>
+          </td>
           <td>再現性ある起動・検証・復旧</td>
           <td><code>healthcheck-output.png</code>, <code>dnsmasq-pac-healthcheck.png</code></td>
         </tr>
         <tr>
           <td><a href="./#9-学習成果本プロジェクトを通じて得られた理解">9. 学習成果</a></td>
-          <td>P13-1</td>
+          <td>
+            <a href="#p13-1">P13-1</a>
+          </td>
           <td>想定外事象の分析と言語化</td>
           <td><code>wpad-shortname-issue.png</code></td>
         </tr>
@@ -122,8 +150,7 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 </div>
 
 <p class="note"><em>
-※ P8 / P9 は再現により環境へ影響を与える可能性があるため、  
-当時のログ・メモが存在する場合のみ掲載しています。
+※ P8 / P9 は再現により環境へ影響を与える可能性があるため、当時のログ・メモが存在する場合のみ掲載しています。
 </em></p>
 
 ---
