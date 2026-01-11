@@ -119,7 +119,12 @@ details:not([open]) summary {
  * 4) 表：見やすさ（色飛び対策＝ベタ色＋輪郭強化）
  * ------------------------------- */
 
+.table-compact {
+  width: 100%;
+}
+
 .table-wrap {
+  width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: 12px;
@@ -128,8 +133,11 @@ details:not([open]) summary {
 
 /* テーブル本体 */
 .table-compact table {
-  width: 100%;
+  width: 100% !important;
   min-width: 980px;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+
   border-collapse: separate;
   border-spacing: 0;
 
@@ -148,7 +156,6 @@ details:not([open]) summary {
   top: 0;
   z-index: 2;
 
-  /* ✅ 色飛びしにくいベタ色 */
   background: #e6f4ea !important;
   color: rgba(0,0,0,.90);
   font-weight: 800;
@@ -205,7 +212,6 @@ details:not([open]) summary {
   padding: 0.14em 0.40em;
   border-radius: 999px;
 
-  /* ✅ 色飛びしにくいベタ色 */
   background: #e8f3ec !important;
   border: 1px solid rgba(21, 128, 61, 0.35) !important;
 }
