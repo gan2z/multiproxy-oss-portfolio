@@ -48,7 +48,6 @@ OSS 単体で成立しない部分については、
 ### 構成要素（すべて OSS）
 
 <div class="table-compact" id="stack-table">
-  <strong>構成要素（すべて OSS）</strong>
 
   <div class="table-wrap">
     <table>
