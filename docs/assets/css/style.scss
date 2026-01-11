@@ -123,14 +123,16 @@ details:not([open]) summary {
   width: 100%;
 }
 
-/* 外枠を table-wrap に持たせる */
+/* 外枠は「内容にフィット」＋ 画面にはみ出すときだけ 100% で止める */
 .table-wrap {
-  width: 100%;
+  display: inline-block;              /* ★ shrink-to-fit */
+  width: fit-content;                 /* ★ 表の幅に合わせる */
+  max-width: 100%;                    /* ★ 画面幅を超えない */
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 
   background: #fff;
-  border: 2px solid rgba(0,0,0,.35);   /* ← ★ここが重要 */
+  border: 2px solid rgba(0,0,0,.35);
   border-radius: 12px;
 }
 
@@ -221,9 +223,9 @@ details:not([open]) summary {
   background: #e8f3ec !important;
   border: 1px solid rgba(21, 128, 61, 0.35) !important;
 }
-/* 構成要素テーブルは画面幅いっぱいに使う */
+/* 構成要素テーブルは「画面幅いっぱい」にも「内容幅」にも追従させたいので min-width を外す */
 #stack-table table {
-  min-width: 100% !important;
+  min-width: 0 !important;            /* ★余白の原因になりやすい */
 }
 
 /* -------------------------------
@@ -238,20 +240,13 @@ details:not([open]) summary {
     padding: 1.2rem 0.85rem 2.2rem;
   }
 
-  /* テーブル本体は外枠を持たない */
+/* Cayman側の table display:block / width:max-content を確実に潰す */
 .table-compact table {
-  width: 100% !important;
-  min-width: 980px;
-
-  border-collapse: separate;
-  border-spacing: 0;
-
-  background: #fff;
-  border: none;                        /* ← 外枠は消す */
-  border-radius: 0;                   /* ← wrap に任せる */
-
-  font-size: 0.92rem;
-  line-height: 1.35;
+  display: table !important;          /* ★重要 */
+  width: 100% !important;             /* ★wrap に対して100% */
+  margin: 0 !important;
+  border: none;                       /* 外枠は wrap 側 */
+  border-radius: 0;
 }
 
 }
