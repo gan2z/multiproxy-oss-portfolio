@@ -123,12 +123,15 @@ details:not([open]) summary {
   width: 100%;
 }
 
+/* 外枠を table-wrap に持たせる */
 .table-wrap {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 12px;
+
   background: #fff;
+  border: 2px solid rgba(0,0,0,.35);   /* ← ★ここが重要 */
+  border-radius: 12px;
 }
 
 /* ===============================
@@ -235,8 +238,20 @@ details:not([open]) summary {
     padding: 1.2rem 0.85rem 2.2rem;
   }
 
-  .table-compact table {
-    font-size: 0.86rem;
-    min-width: 900px;
-  }
+  /* テーブル本体は外枠を持たない */
+.table-compact table {
+  width: 100% !important;
+  min-width: 980px;
+
+  border-collapse: separate;
+  border-spacing: 0;
+
+  background: #fff;
+  border: none;                        /* ← 外枠は消す */
+  border-radius: 0;                   /* ← wrap に任せる */
+
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
 }
