@@ -47,69 +47,73 @@ OSS 単体で成立しない部分については、
 
 ### 構成要素（すべて OSS）
 
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>区分</th>
-        <th>役割・位置づけ</th>
-        <th>採用技術</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>プロキシ</td>
-        <td>入口／分岐／出口の3段構成による通信制御</td>
-        <td>Squid（3段、経路別ポート設計）</td>
-      </tr>
-      <tr>
-        <td>中継暗号化</td>
-        <td>Proxy 間通信の TLS 化（中継区間の暗号化）</td>
-        <td>stunnel（Proxy1→2 / Proxy2→3）</td>
-      </tr>
-      <tr>
-        <td>コンテンツ検査</td>
-        <td>ウイルス・コンテンツ検査（横断機能）</td>
-        <td>ICAP / ClamAV</td>
-      </tr>
-      <tr>
-        <td>認証</td>
-        <td>ユーザ認証・認可（SSO）</td>
-        <td>OpenLDAP / Samba AD/DC / Kerberos</td>
-      </tr>
-      <tr>
-        <td>DNS / 経路制御</td>
-        <td>PAC 配布・名前解決</td>
-        <td>dnsmasq（WPAD / Split DNS）</td>
-      </tr>
-      <tr>
-        <td>ログ</td>
-        <td>アクセス・通信ログの集中管理</td>
-        <td>Promtail / Loki / Graylog / OpenSearch</td>
-      </tr>
-      <tr>
-        <td>監視</td>
-        <td>稼働・性能の可視化</td>
-        <td>Zabbix（TLS-PSK + Sidecar）</td>
-      </tr>
-      <tr>
-        <td>自動化</td>
-        <td>起動・検証・復旧の再現性確保</td>
-        <td>Bash</td>
-      </tr>
-      <tr>
-        <td>実行環境</td>
-        <td>検証用基盤</td>
-        <td>Ubuntu 24.04（WSL2 mirrored mode）</td>
-      </tr>
-    </tbody>
-  </table>
+<div class="table-compact" id="stack-table">
+  <strong>構成要素（すべて OSS）</strong>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>区分</th>
+          <th>役割・位置づけ</th>
+          <th>採用技術</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>プロキシ</td>
+          <td>入口／分岐／出口の3段構成による通信制御</td>
+          <td>Squid（3段、経路別ポート設計）</td>
+        </tr>
+        <tr>
+          <td>中継暗号化</td>
+          <td>Proxy 間通信の TLS 化（中継区間の暗号化）</td>
+          <td>stunnel（Proxy1→2 / Proxy2→3）</td>
+        </tr>
+        <tr>
+          <td>コンテンツ検査</td>
+          <td>ウイルス・コンテンツ検査（横断機能）</td>
+          <td>ICAP / ClamAV</td>
+        </tr>
+        <tr>
+          <td>認証</td>
+          <td>ユーザ認証・認可（SSO）</td>
+          <td>OpenLDAP / Samba AD/DC / Kerberos</td>
+        </tr>
+        <tr>
+          <td>DNS / 経路制御</td>
+          <td>PAC 配布・名前解決</td>
+          <td>dnsmasq（WPAD / Split DNS）</td>
+        </tr>
+        <tr>
+          <td>ログ</td>
+          <td>アクセス・通信ログの集中管理</td>
+          <td>Promtail / Loki / Graylog / OpenSearch</td>
+        </tr>
+        <tr>
+          <td>監視</td>
+          <td>稼働・性能の可視化</td>
+          <td>Zabbix（TLS-PSK + Sidecar）</td>
+        </tr>
+        <tr>
+          <td>自動化</td>
+          <td>起動・検証・復旧の再現性確保</td>
+          <td>Bash</td>
+        </tr>
+        <tr>
+          <td>実行環境</td>
+          <td>検証用基盤</td>
+          <td>Ubuntu 24.04（WSL2 mirrored mode）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <p class="note"><em>
-※ 左図で実務上まとめて提供されている機能を、  
-右図では OSS を用いて役割単位に分けて構成しています。
+※ 左図で実務上まとめて提供されている機能を、右図では OSS を用いて役割単位に分けて構成しています。
 </em></p>
+
 ---
 
 ## ✅ 動作検証（スクリーンショット集）
