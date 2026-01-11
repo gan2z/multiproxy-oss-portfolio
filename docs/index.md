@@ -396,18 +396,6 @@ Proxy1（SSLBump） → Proxy2（SSLBump） → Proxy3
 
 ---
 
-## 11. 画像テンプレ（必要に応じて参照）
-
-```md
-![architecture](./images/architecture.png)
-![stunnel-flow](./images/stunnel-flow.png)
-![pac-wpad-flow](./images/pac-wpad-flow.png)
-![kerberos-flow](./images/kerberos-flow.png)
-![proxy3-traffic-log](./images/proxy3-traffic-log.png)
-![healthcheck-output](./images/healthcheck-output.png)
-![docker-network](./images/docker-network.png)
-
-
 ## 11. 今後の展望（Next Steps）
 
 本構成は検証・理解を目的としたオンプレミス／ローカル環境での再現を主眼としていますが、  
