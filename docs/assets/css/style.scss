@@ -131,24 +131,27 @@ details:not([open]) summary {
   background: #fff;
 }
 
-/* テーブル本体 */
-.table-compact table {
+/* ===============================
+ * 構成要素（stack-table）だけは “幅いっぱい” を優先
+ * =============================== */
+
+/* 980px固定の影響を確実に打ち消す */
+#stack-table table {
   width: 100% !important;
-  min-width: 980px;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-
-  border-collapse: separate;
-  border-spacing: 0;
-
-  background: #fff;
-  border: 1px solid rgba(0,0,0,.18);
-  border-radius: 12px;
-  overflow: hidden;
-
-  font-size: 0.92rem;
-  line-height: 1.35;
+  min-width: 0 !important;          /* ★重要：980px を潰す */
+  table-layout: fixed;              /* ★列を幅に合わせて伸縮 */
 }
+
+/* 3列の比率（任意：見た目が安定） */
+#stack-table th:nth-child(1),
+#stack-table td:nth-child(1) { width: 14%; }
+
+#stack-table th:nth-child(2),
+#stack-table td:nth-child(2) { width: 46%; }
+
+#stack-table th:nth-child(3),
+#stack-table td:nth-child(3) { width: 40%; }
+
 
 /* ヘッダー：rgba(薄い)をやめて「実色」にする */
 .table-compact thead th {
