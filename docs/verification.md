@@ -22,7 +22,7 @@ Author: gan2
 
 ## 1. index.mdの各章と検証観点（試験ID）の対応
 
-README 各章が **どの検証観点（試験ID）を満たしているか** を、  
+index.md 各章が **どの検証観点（試験ID）を満たしているか** を、  
 スクリーンショット／ログと対応付けて整理しています。
 
 <div class="table-compact" id="map-table">
@@ -31,7 +31,7 @@ README 各章が **どの検証観点（試験ID）を満たしているか** �
     <table>
       <thead>
         <tr>
-          <th>README章</th>
+          <th>index.md章</th>
           <th>試験ID</th>
           <th>何を証明するか（スクショ／ログ）</th>
           <th>想定ファイル名</th>
