@@ -225,134 +225,140 @@ WSL2 で実行：
 > `docker compose ps --format json` の出力を **jq/awk で整形**して読みやすくしたもの。
 
 <details>
-<summary>（参考）json出力をカテゴリ別に整形して表示するコマンド</summary>
+  <summary>（参考）json出力をカテゴリ別に整形して表示するコマンド（bash）</summary>
 
-    cd /home/login00/multiproxy
+  <p style="margin: .5rem 0 0;">
+    ※ <code>docker compose ps</code> の表示は、<code>--format json</code> を <code>jq/awk</code> で整形しています。
+  </p>
 
-    docker compose ps --format json \
-    | jq -r '
-      def s($v): ($v // "" | tostring);
+  <pre style="margin-top:.6rem; padding:.8rem; overflow-x:auto; border:1px solid rgba(127,127,127,.25); border-radius:10px;">
+<code class="language-bash">cd /home/login00/multiproxy
 
-      def ports_str($r):
-        (
-          if ($r.Publishers? and ($r.Publishers|type)=="array" and ($r.Publishers|length)>0) then
-            ($r.Publishers
-             | map(
-                 (
-                   (s(.URL) | sub("^0\\.0\\.0\\.0:";"") | sub("^\\[::\\]:";"") ) as $h
-                   | (s(.PublishedPort)) as $pp
-                   | (s(.TargetPort))    as $tp
-                   | (s(.Protocol))      as $pr
-                   | if ($h != "" and $pp != "" and $tp != "") then "\($h):\($pp)->\($tp)/\($pr)"
-                     elif ($pp != "" and $tp != "") then "\($pp)->\($tp)/\($pr)"
-                     else "" end
-                 )
-               )
-             | map(select(. != ""))
-             | if length>0 then join(", ") else "-" end
-            )
-          elif ($r.Ports? and ($r.Ports|type)=="string" and ($r.Ports|length)>0) then
-            s($r.Ports)
-          else
-            "-"
-          end
-        );
+docker compose ps --format json \
+| jq -r '
+  def s($v): ($v // "" | tostring);
 
-      def is_agent($x):
-        (s($x) | test("(^|[-_])agent($|[-_])") or test("agent") or test("sidecar") or test("opensearch-agent"));
+  def ports_str($r):
+    (
+      if ($r.Publishers? and ($r.Publishers|type)=="array" and ($r.Publishers|length)>0) then
+        ($r.Publishers
+         | map(
+             (
+               (s(.URL) | sub("^0\\.0\\.0\\.0:";"") | sub("^\\[::\\]:";"") ) as $h
+               | (s(.PublishedPort)) as $pp
+               | (s(.TargetPort))    as $tp
+               | (s(.Protocol))      as $pr
+               | if ($h != "" and $pp != "" and $tp != "") then "\($h):\($pp)->\($tp)/\($pr)"
+                 elif ($pp != "" and $tp != "") then "\($pp)->\($tp)/\($pr)"
+                 else "" end
+             )
+           )
+         | map(select(. != ""))
+         | if length>0 then join(", ") else "-" end
+        )
+      elif ($r.Ports? and ($r.Ports|type)=="string" and ($r.Ports|length)>0) then
+        s($r.Ports)
+      else
+        "-"
+      end
+    );
 
-      def cat($svc; $name):
-        if is_agent($svc) or is_agent($name) then "Monitoring"
-        elif s($svc) | test("^proxy[123]$") then "Proxy"
-        elif s($svc) | test("stunnel") then "Tunnel"
-        elif (s($svc) | test("^(icap|clamav)")) or (s($svc) | test("clamav")) then "Content-Scan"
-        elif s($svc) | test("^(ldap|phpldapadmin)") then "Auth"
-        elif s($svc) | test("^(pac|pac-renderer)") then "DNS-Routing"
-        elif s($svc) | test("^(promtail|loki|graylog|opensearch|mongo|grafana|portainer)") then "Logging"
-        elif s($svc) | test("^zabbix") then "Monitoring"
-        else "Logging" end;
+  def is_agent($x):
+    (s($x) | test("(^|[-_])agent($|[-_])") or test("agent") or test("sidecar") or test("opensearch-agent"));
 
-      def ord($c):
-        if $c=="Proxy" then 1
-        elif $c=="Tunnel" then 2
-        elif $c=="Content-Scan" then 3
-        elif $c=="Auth" then 4
-        elif $c=="DNS-Routing" then 5
-        elif $c=="Logging" then 6
-        elif $c=="Monitoring" then 7
-        else 99 end;
+  def cat($svc; $name):
+    if is_agent($svc) or is_agent($name) then "Monitoring"
+    elif s($svc) | test("^proxy[123]$") then "Proxy"
+    elif s($svc) | test("stunnel") then "Tunnel"
+    elif (s($svc) | test("^(icap|clamav)")) or (s($svc) | test("clamav")) then "Content-Scan"
+    elif s($svc) | test("^(ldap|phpldapadmin)") then "Auth"
+    elif s($svc) | test("^(pac|pac-renderer)") then "DNS-Routing"
+    elif s($svc) | test("^(promtail|loki|graylog|opensearch|mongo|grafana|portainer)") then "Logging"
+    elif s($svc) | test("^zabbix") then "Monitoring"
+    else "Logging" end;
 
-      def sub($c; $svc; $name):
-        if $c=="Monitoring" and (is_agent($svc) or is_agent($name)) then 9 else 0 end;
+  def ord($c):
+    if $c=="Proxy" then 1
+    elif $c=="Tunnel" then 2
+    elif $c=="Content-Scan" then 3
+    elif $c=="Auth" then 4
+    elif $c=="DNS-Routing" then 5
+    elif $c=="Logging" then 6
+    elif $c=="Monitoring" then 7
+    else 99 end;
 
-      . as $r
-      | ($r.Service|s(.)) as $svc
-      | ($r.Name|s(.))    as $name
-      | (cat($svc; $name)) as $c
-      | [ ord($c),
-          sub($c; $svc; $name),
-          $c,
-          $svc,
-          $name,
-          s($r.State),
-          s($r.Health),
-          s($r.CreatedAt // $r.Created // "-"),
-          ports_str($r),
-          s($r.Image)
-        ]
-      | @tsv
-    ' \
-    | sort -t$'\t' -k1,1n -k2,2n -k4,4 -k5,5 \
-    | awk -F'\t' '
-    BEGIN{
-      W_CAT=13; W_SVC=20; W_CONT=26; W_STATE=10; W_HEALTH=10; W_CREATED=16; W_PORTS=32; W_IMAGE=38;
+  def sub($c; $svc; $name):
+    if $c=="Monitoring" and (is_agent($svc) or is_agent($name)) then 9 else 0 end;
 
-      printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
-             W_CAT,"CATEGORY", W_SVC,"SERVICE", W_CONT,"CONTAINER", W_STATE,"STATE",
-             W_HEALTH,"HEALTH", W_CREATED,"CREATED", W_PORTS,"PORTS", "IMAGE";
+  . as $r
+  | ($r.Service|s(.)) as $svc
+  | ($r.Name|s(.))    as $name
+  | (cat($svc; $name)) as $c
+  | [ ord($c),
+      sub($c; $svc; $name),
+      $c,
+      $svc,
+      $name,
+      s($r.State),
+      s($r.Health),
+      s($r.CreatedAt // $r.Created // "-"),
+      ports_str($r),
+      s($r.Image)
+    ]
+  | @tsv
+' \
+| sort -t$'\t' -k1,1n -k2,2n -k4,4 -k5,5 \
+| awk -F'\t' '
+BEGIN{
+  W_CAT=13; W_SVC=20; W_CONT=26; W_STATE=10; W_HEALTH=10; W_CREATED=16; W_PORTS=32; W_IMAGE=38;
 
-      printf "%.*s+%.*s+%.*s+%.*s+%.*s+%.*s+%.*s+%.*s\n",
-             W_CAT+1, "------------------------------",
-             W_SVC+2, "------------------------------",
-             W_CONT+2,"------------------------------",
-             W_STATE+2,"------------------------------",
-             W_HEALTH+2,"------------------------------",
-             W_CREATED+2,"------------------------------",
-             W_PORTS+2,"------------------------------",
-             W_IMAGE+2,"----------------------------------------------";
+  printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
+         W_CAT,"CATEGORY", W_SVC,"SERVICE", W_CONT,"CONTAINER", W_STATE,"STATE",
+         W_HEALTH,"HEALTH", W_CREATED,"CREATED", W_PORTS,"PORTS", "IMAGE";
 
-      prev="";
-    }
+  printf "%.*s+%.*s+%.*s+%.*s+%.*s+%.*s+%.*s+%.*s\n",
+         W_CAT+1, "------------------------------",
+         W_SVC+2, "------------------------------",
+         W_CONT+2,"------------------------------",
+         W_STATE+2,"------------------------------",
+         W_HEALTH+2,"------------------------------",
+         W_CREATED+2,"------------------------------",
+         W_PORTS+2,"------------------------------",
+         W_IMAGE+2,"----------------------------------------------";
 
-    function cut(s, w,   r){
-      if (w<=0) return "";
-      if (length(s) <= w) return s;
-      if (w <= 3) return substr(s,1,w);
-      return substr(s,1,w-3) "...";
-    }
+  prev="";
+}
 
-    {
-      cat=$3; svc=$4; cont=$5; state=$6; health=$7; created=$8; ports=$9; image=$10;
+function cut(s, w){
+  if (w<=0) return "";
+  if (length(s) <= w) return s;
+  if (w <= 3) return substr(s,1,w);
+  return substr(s,1,w-3) "...";
+}
 
-      if (created != "-" && length(created) >= 16) created = substr(created,1,16);
+{
+  cat=$3; svc=$4; cont=$5; state=$6; health=$7; created=$8; ports=$9; image=$10;
 
-      if (prev != "" && cat != prev) print "";
+  if (created != "-" && length(created) >= 16) created = substr(created,1,16);
 
-      cat_disp = (cat==prev ? "" : cat);
+  if (prev != "" && cat != prev) print "";
 
-      printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
-             W_CAT,cat_disp,
-             W_SVC,cut(svc, W_SVC),
-             W_CONT,cut(cont, W_CONT),
-             W_STATE,cut(state, W_STATE),
-             W_HEALTH,cut(health, W_HEALTH),
-             W_CREATED,cut(created, W_CREATED),
-             W_PORTS,cut(ports, W_PORTS),
-             cut(image, W_IMAGE);
+  cat_disp = (cat==prev ? "" : cat);
 
-      prev=cat;
-    }'
+  printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
+         W_CAT,cat_disp,
+         W_SVC,cut(svc, W_SVC),
+         W_CONT,cut(cont, W_CONT),
+         W_STATE,cut(state, W_STATE),
+         W_HEALTH,cut(health, W_HEALTH),
+         W_CREATED,cut(created, W_CREATED),
+         W_PORTS,cut(ports, W_PORTS),
+         cut(image, W_IMAGE);
 
+  prev=cat;
+}'
+</code>
+  </pre>
 </details>
 
 ---
