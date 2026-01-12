@@ -342,12 +342,13 @@ function cut(s,w){
 <a id="p2-1"></a>
 #### P2-1. アーキ図とコンテナ対応
 
-1. draw.io / Excalidraw 等でアーキテクチャ図を作成  
-   → `architecture.png`
-
-2. `docker-ps.png` の中から、  
-   Proxy / LDAP / Graylog / Loki / Zabbix 等が写っている部分をトリミング  
-   → `docker-ps-arch-match.png`
+<div style="text-align:center; margin: 1.2em 0;">
+  <img
+    src="./images/P2-1：証跡_比較.png"
+    alt="P1 証跡比較（Health Check / Container 状態）"
+    style="width:100%; height:auto; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.15);"
+  >
+</div>
 
 ---
 
