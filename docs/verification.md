@@ -45,7 +45,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>全体稼働（ヘルスチェック／全コンテナ稼働）</td>
           <td><code>healthcheck-output.png</code>, <code>docker-ps.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#2-システムアーキテクチャ全体像">2. システムアーキテクチャ</a></td>
           <td>
@@ -54,7 +53,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>構成図と実稼働コンポーネントの一致</td>
           <td><code>architecture.png</code>, <code>docker-ps-arch-match.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#構成要素すべて-oss">2. 構成要素（技術スタック）</a></td>
           <td>
@@ -63,7 +61,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>OSS 採用理由・役割整理（技術選定の妥当性）＋主要バージョン把握</td>
           <td><code>version-matrix.png</code>, <code>squid-version.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#3-通信経路と設計構成変更点">3. PAC / WPAD</a></td>
           <td>
@@ -72,7 +69,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>PAC 取得・経路切替（通常／DIRECT）</td>
           <td><code>wpad-dat.png</code>, <code>pac-flow-normal-vs-direct.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#4-1-復号sslbump位置の整理">4-1. SSLBump</a></td>
           <td>
@@ -82,7 +78,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>経路別の復号境界（通常／DIRECT）</td>
           <td><code>sslbump-cert.png</code>, <code>sslbump-proxy1-log.png</code>, <code>sslbump-proxy2-log.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#4-2-プロキシ間通信の暗号化">4-2. stunnel</a></td>
           <td>
@@ -91,7 +86,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>Proxy 間 TLS 中継（中継暗号化）</td>
           <td><code>stunnel-sclient.png</code>, <code>stunnel-log.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#4-3-ネットワーク前提条件">4-3. WSL2 mirrored</a></td>
           <td>
@@ -100,7 +94,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>同一 L2 前提での Kerberos / DNS / WPAD 成立</td>
           <td><code>wsl2-mirrored-ip.png</code>, <code>ad-domain-join.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#5-1-プロキシ間通信の暗号化が必要だと理解するまで">5-1. stunnel導入経緯</a></td>
           <td>
@@ -109,7 +102,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>中継暗号化が必要となった理由整理</td>
           <td><code>no-stunnel-note.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#5-2-多段-sslbump-が成立しない理由の理解">5-2. 多段SSLBump失敗</a></td>
           <td>
@@ -118,7 +110,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>復号制約の理解と設計修正</td>
           <td><code>double-bump-error.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#5-3-認証基盤ad--ldap--kerberosの切り分け">5-3. 認証</a></td>
           <td>
@@ -128,7 +119,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>認証フロー・失敗レイヤの追跡</td>
           <td><code>kerberos-flow.png</code>, <code>ldapwhoami.png</code>, <code>ldapsearch-testuser1.png</code>, <code>proxy-auth-log.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#6-ログ監視observability">6. ログ・監視</a></td>
           <td>
@@ -138,7 +128,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>可視化・追跡（ログ／メトリクス）</td>
           <td><code>graylog-search.png</code>, <code>grafana-proxy-deny.png</code>, <code>zabbix-hosts.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#7-自動化運用性再現性の確保">7. 自動化</a></td>
           <td>
@@ -147,7 +136,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td>再現性ある起動・検証・復旧</td>
           <td><code>dnsmasq-pac-healthcheck.png</code>, <code>healthcheck-output.png</code></td>
         </tr>
-
         <tr>
           <td><a href="./#8-学習成果本プロジェクトを通じて得られた理解">8. 学習成果</a></td>
           <td>
