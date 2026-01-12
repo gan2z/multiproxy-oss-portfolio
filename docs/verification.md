@@ -16,7 +16,7 @@ Author: gan2
 本ドキュメントは、ポートフォリオ本文（index.md）で主張している内容を、**スクリーンショット／ログ／図で裏付ける**ための取得計画です。  
 「何を証明するか」「どこで何を実行するか」「何を撮るか」を試験ID単位で整理します。
 
-> 方針：README は“設計思想と構造”、本ドキュメントは“動作する証拠”を提示する
+> 方針：index.md は“設計思想と構造”、本ドキュメントは“動作する証拠”を提示する
 
 ---
 
@@ -24,10 +24,6 @@ Author: gan2
 
 index.md 各章が **どの検証観点（試験ID）を満たしているか** を、  
 スクリーンショット／ログと対応付けて整理しています。
-
-> ✅ 重要（コピー性対策）  
-> 本ドキュメント内のコマンドは、ChatGPT上で一括コピーしやすいように  
-> **```bash のコードブロックを使わず「4スペースインデント」**で記載しています。
 
 <div class="table-compact" id="map-table">
   <div class="table-wrap">
@@ -171,25 +167,48 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 
 ---
 
-## 2. 共通前提（撮影前チェック）
+## 2. 共通前提
 
-- multiproxy 配置：`/home/login00/multiproxy`
-- WSL2 上で `docker compose ps` が概ね `Up`（必要に応じて `healthy`）
-- Windows クライアントは AD ドメイン参加済み & PAC 自動取得済み
-- 画像は原則 `images/` に格納（README から参照）
+- 前提：WSL2上で docker compose が起動済み（主要コンテナが Up / healthy）
+- 前提：Windowsクライアントは AD参加済み、WPAD/PAC を自動取得できる状態
+- 証跡：画像は images/ に格納し、index.md から参照する
 
 ---
 
 ## P1：プロジェクト概要「全体が動いている」証拠（index.md 1章）
 
-### 主張（面接で刺さる一言）
+### 主張
 多段プロキシ／認証／ログ／監視が **統合された状態で稼働**しており、復旧・確認もスクリプトで再現できる。
 
+### 証跡（比較表示）
+以下の2枚で「論理（HealthCheck）」「物理（compose状態）」を並べて示す。
+
+<div class="img-compare">
+  <figure>
+    <a href="./images/healthcheck-output.png">
+      <img src="./images/healthcheck-output.png" alt="healthcheck-output.png（Health Check結果）">
+    </a>
+    <figcaption><code>healthcheck-output.png</code>：自動ヘルスチェック（カテゴリ別OK判定）</figcaption>
+  </figure>
+
+  <figure>
+    <a href="./images/docker-ps.png">
+      <img src="./images/docker-ps.png" alt="docker-ps.png（docker compose ps相当の一覧）">
+    </a>
+    <figcaption><code>docker-ps.png</code>：<code>docker compose ps</code>（正しくは json出力を整形）</figcaption>
+  </figure>
+</div>
+
+---
+
 ### 撮るもの
-- ヘルスチェック結果
+- ヘルスチェック結果（カテゴリ別に [OK] が揃う）
 - コンテナ稼働一覧（proxy1〜3、ldap、pac、graylog、loki、grafana、zabbix など）
 
+---
+
 ### 手順
+
 <a id="p1-1"></a>
 #### P1-1. Health Check 出力
 
@@ -202,16 +221,151 @@ WSL2 で実行：
   → `healthcheck-output.png`
 
 ---
+
 <a id="p1-2"></a>
-#### P1-2. コンテナ一覧
+#### P1-2. コンテナ一覧（docker compose ps）
 
 WSL2 で実行：
 
     cd /home/login00/multiproxy
     docker compose ps
 
-- 主要コンテナが `Up` になっている画面をスクリーンショット  
+- 主要コンテナが `Up`（可能なら `healthy`）になっている画面をスクリーンショット  
   → `docker-ps.png`
+
+> 注：掲載している「カテゴリ表示の一覧」は、  
+> `docker compose ps --format json` の出力を **jq/awk で整形**して読みやすくしたもの。
+
+<details>
+<summary>（参考）json出力をカテゴリ別に整形して表示するコマンド</summary>
+
+    cd /home/login00/multiproxy
+
+    docker compose ps --format json \
+    | jq -r '
+      def s($v): ($v // "" | tostring);
+
+      def ports_str($r):
+        (
+          if ($r.Publishers? and ($r.Publishers|type)=="array" and ($r.Publishers|length)>0) then
+            ($r.Publishers
+             | map(
+                 (
+                   (s(.URL) | sub("^0\\.0\\.0\\.0:";"") | sub("^\\[::\\]:";"") ) as $h
+                   | (s(.PublishedPort)) as $pp
+                   | (s(.TargetPort))    as $tp
+                   | (s(.Protocol))      as $pr
+                   | if ($h != "" and $pp != "" and $tp != "") then "\($h):\($pp)->\($tp)/\($pr)"
+                     elif ($pp != "" and $tp != "") then "\($pp)->\($tp)/\($pr)"
+                     else "" end
+                 )
+               )
+             | map(select(. != ""))
+             | if length>0 then join(", ") else "-" end
+            )
+          elif ($r.Ports? and ($r.Ports|type)=="string" and ($r.Ports|length)>0) then
+            s($r.Ports)
+          else
+            "-"
+          end
+        );
+
+      def is_agent($x):
+        (s($x) | test("(^|[-_])agent($|[-_])") or test("agent") or test("sidecar") or test("opensearch-agent"));
+
+      def cat($svc; $name):
+        if is_agent($svc) or is_agent($name) then "Monitoring"
+        elif s($svc) | test("^proxy[123]$") then "Proxy"
+        elif s($svc) | test("stunnel") then "Tunnel"
+        elif (s($svc) | test("^(icap|clamav)")) or (s($svc) | test("clamav")) then "Content-Scan"
+        elif s($svc) | test("^(ldap|phpldapadmin)") then "Auth"
+        elif s($svc) | test("^(pac|pac-renderer)") then "DNS-Routing"
+        elif s($svc) | test("^(promtail|loki|graylog|opensearch|mongo|grafana|portainer)") then "Logging"
+        elif s($svc) | test("^zabbix") then "Monitoring"
+        else "Logging" end;
+
+      def ord($c):
+        if $c=="Proxy" then 1
+        elif $c=="Tunnel" then 2
+        elif $c=="Content-Scan" then 3
+        elif $c=="Auth" then 4
+        elif $c=="DNS-Routing" then 5
+        elif $c=="Logging" then 6
+        elif $c=="Monitoring" then 7
+        else 99 end;
+
+      def sub($c; $svc; $name):
+        if $c=="Monitoring" and (is_agent($svc) or is_agent($name)) then 9 else 0 end;
+
+      . as $r
+      | ($r.Service|s(.)) as $svc
+      | ($r.Name|s(.))    as $name
+      | (cat($svc; $name)) as $c
+      | [ ord($c),
+          sub($c; $svc; $name),
+          $c,
+          $svc,
+          $name,
+          s($r.State),
+          s($r.Health),
+          s($r.CreatedAt // $r.Created // "-"),
+          ports_str($r),
+          s($r.Image)
+        ]
+      | @tsv
+    ' \
+    | sort -t$'\t' -k1,1n -k2,2n -k4,4 -k5,5 \
+    | awk -F'\t' '
+    BEGIN{
+      W_CAT=13; W_SVC=20; W_CONT=26; W_STATE=10; W_HEALTH=10; W_CREATED=16; W_PORTS=32; W_IMAGE=38;
+
+      printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
+             W_CAT,"CATEGORY", W_SVC,"SERVICE", W_CONT,"CONTAINER", W_STATE,"STATE",
+             W_HEALTH,"HEALTH", W_CREATED,"CREATED", W_PORTS,"PORTS", "IMAGE";
+
+      printf "%.*s+%.*s+%.*s+%.*s+%.*s+%.*s+%.*s+%.*s\n",
+             W_CAT+1, "------------------------------",
+             W_SVC+2, "------------------------------",
+             W_CONT+2,"------------------------------",
+             W_STATE+2,"------------------------------",
+             W_HEALTH+2,"------------------------------",
+             W_CREATED+2,"------------------------------",
+             W_PORTS+2,"------------------------------",
+             W_IMAGE+2,"----------------------------------------------";
+
+      prev="";
+    }
+
+    function cut(s, w,   r){
+      if (w<=0) return "";
+      if (length(s) <= w) return s;
+      if (w <= 3) return substr(s,1,w);
+      return substr(s,1,w-3) "...";
+    }
+
+    {
+      cat=$3; svc=$4; cont=$5; state=$6; health=$7; created=$8; ports=$9; image=$10;
+
+      if (created != "-" && length(created) >= 16) created = substr(created,1,16);
+
+      if (prev != "" && cat != prev) print "";
+
+      cat_disp = (cat==prev ? "" : cat);
+
+      printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
+             W_CAT,cat_disp,
+             W_SVC,cut(svc, W_SVC),
+             W_CONT,cut(cont, W_CONT),
+             W_STATE,cut(state, W_STATE),
+             W_HEALTH,cut(health, W_HEALTH),
+             W_CREATED,cut(created, W_CREATED),
+             W_PORTS,cut(ports, W_PORTS),
+             cut(image, W_IMAGE);
+
+      prev=cat;
+    }'
+
+</details>
 
 ---
 
