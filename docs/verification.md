@@ -222,6 +222,7 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 #### P1-1. Health Check 出力
 <a id="p1-1"></a>
 **実行**
+
     cd /home/login00/multiproxy
     ./scripts/multiproxy_health_all.sh
 
@@ -236,6 +237,7 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 #### P1-2. コンテナ一覧（docker compose ps）
 <a id="p1-2"></a>
 **実行**
+
     cd /home/login00/multiproxy
     docker compose ps
 
@@ -451,6 +453,7 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 <a id="p2-2-2"></a>
 
 **実行**
+
     docker exec -it proxy1 squid -v
 
 **確認内容**
