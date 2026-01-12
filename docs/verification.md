@@ -316,22 +316,33 @@ function cut(s,w){
 以下、上記で取得した２枚を比較できるように表示する。
 （※ クリックで原寸表示）
 
-<div style="text-align:center; margin: 1.2em 0;">
-  <a href="./images/P１：証跡_比較.png" target="_blank">
+<details>
+  <summary><strong>（拡大して確認）証跡画像を詳細表示</strong></summary>
+
+  <div style="
+    margin:1rem 0;
+    overflow:auto;
+    max-height:80vh;
+    border:1px solid rgba(127,127,127,.25);
+    border-radius:12px;
+    padding:.5rem;
+  ">
     <img
       src="./images/P１：証跡_比較.png"
-      alt="P1 証跡比較（Health Check / Container 状態）"
-      style="width:100%; max-width:1200px; height:auto;
-             border-radius:12px;
-             box-shadow:0 6px 18px rgba(0,0,0,.15);
-             cursor: zoom-in;"
+      alt="P1 証跡比較（拡大表示）"
+      style="
+        width:180%;
+        max-width:none;
+        height:auto;
+        display:block;
+      "
     >
-  </a>
-</div>
+  </div>
 
-<p style="text-align:center; font-size:.9em; opacity:.8;">
-※ 画像をクリックすると原寸で確認できます
-</p>
+  <p style="font-size:.9em; opacity:.8;">
+    ※ 横スクロール／縦スクロールで詳細を確認できます
+  </p>
+</details>
 
 
 ---
@@ -373,9 +384,16 @@ OSS を「なんとなく使う」のではなく、
 <a id="p2-2-1"></a>
 #### P2-2-1. バージョン表
 
-- 作成済みのバージョン一覧（Markdown / Excel）を表示
-- 一覧全体が確認できる画面をスクリーンショット  
+WSL2 で実行：
+
+    cd /home/login00/multiproxy
+    ./scripts/show-all-versions.sh
+
+- 画面上で ソフトウェアバージョン が一通り揃っていることを確認してスクリーンショットを取得  
   → `version-matrix.png`
+
+  ※ 本一覧は Docker イメージタグではなく、
+　各コンテナ内で実行されているソフトウェアの実バージョンを取得している。
 
 ---
 <a id="p2-2-2"></a>
