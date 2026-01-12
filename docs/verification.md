@@ -319,7 +319,7 @@ function cut(s,w){
   <img
     src="./images/P１：証跡_比較.png"
     alt="P1 証跡比較（Health Check / Container 状態）"
-    style="width:80%; height:auto; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.15);"
+    style="width:100%; height:auto; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.15);"
   >
 </div>
 
