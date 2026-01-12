@@ -24,10 +24,9 @@ Author: gan2
 
 index.md 各章が **どの検証観点（試験ID）を満たしているか** を、  
 スクリーンショット／ログと対応付けて整理しています。
-
 <div class="table-compact" id="map-table">
   <div class="table-wrap">
-    <table>
+    <table class="map-table">
       <thead>
         <tr>
           <th>index.md章</th>
@@ -38,116 +37,114 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
       </thead>
       <tbody>
         <tr>
-          <td><a href="./#1-プロジェクト概要summary">1. プロジェクト概要</a></td>
-          <td>
+          <td class="col-chapter"><a href="./#1-プロジェクト概要summary">1. プロジェクト概要</a></td>
+          <td class="col-id">
             <a href="#p1-1">P1-1</a>, <a href="#p1-2">P1-2</a>
           </td>
           <td>全体稼働（ヘルスチェック／全コンテナ稼働）</td>
-          <td><code>healthcheck-output.png</code>, <code>docker-ps.png</code></td>
+          <td class="col-files"><code>healthcheck-output.png</code>, <code>docker-ps.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#2-システムアーキテクチャ全体像">2. システムアーキテクチャ</a></td>
-          <td>
+          <td class="col-chapter"><a href="./#2-システムアーキテクチャ全体像">2. システムアーキテクチャ</a></td>
+          <td class="col-id">
             <a href="#p2-1">P2-1</a>
           </td>
           <td>構成図と実稼働コンポーネントの一致</td>
-          <td><code>architecture.png</code>, <code>docker-ps-arch-match.png</code></td>
+          <td class="col-files"><code>architecture.png</code>, <code>docker-ps-arch-match.png</code></td>
         </tr>
         <tr>
-  　　　　<td><a href="./#構成要素すべて-oss">2. 構成要素（技術スタック）</a></td>
- 　　　　　 <td>
-  　　　　　  <a href="#p2-2-1">P2-2-1</a>, <a href="#p2-2-2">P2-2-2</a>
- 　　　　　 </td>
-　　　　  <td>
-   　　　　 主要 OSS の<strong>実行中バージョン取得と可視化</strong><br>
-    　　　　（Docker イメージタグではなく、実バイナリのバージョン確認）
- 　　　　 </td>
-  　　　　<td>
- 　　　　   <code>version-matrix.png</code>, <code>squid-version.png</code>
-　　　　  </td>
-　　　　</tr>
-        <tr>
-          <td><a href="./#3-通信経路と設計構成変更点">3. PAC / WPAD</a></td>
+          <td class="col-chapter"><a href="./#構成要素すべて-oss">2. 構成要素（技術スタック）</a></td>
+          <td class="col-id">
+            <a href="#p2-2-1">P2-2-1</a>, <a href="#p2-2-2">P2-2-2</a>
+          </td>
           <td>
+            主要 OSS の<strong>実行中バージョン取得と可視化</strong><br>
+            （Docker イメージタグではなく、実バイナリのバージョン確認）
+          </td>
+          <td class="col-files"><code>version-matrix.png</code>, <code>squid-version.png</code></td>
+        </tr>
+        <tr>
+          <td class="col-chapter"><a href="./#3-通信経路と設計構成変更点">3. PAC / WPAD</a></td>
+          <td class="col-id">
             <a href="#p3-1">P3-1</a>, <a href="#p3-2">P3-2</a>
           </td>
           <td>PAC 取得・経路切替（通常／DIRECT）</td>
-          <td><code>wpad-dat.png</code>, <code>pac-flow-normal-vs-direct.png</code></td>
+          <td class="col-files"><code>wpad-dat.png</code>, <code>pac-flow-normal-vs-direct.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#4-1-復号sslbump位置の整理">4-1. SSLBump</a></td>
-          <td>
-            <a href="#p4-1-1">P4-1-1</a>〜<a href="#p4-1-3">P4-1-3</a>
+          <td class="col-chapter"><a href="./#4-1-復号sslbump位置の整理">4-1. SSLBump</a></td>
+          <td class="col-id">
+            <a href="#p4-1-1">P4-1-1</a>〜<a href="#p4-1-3">P4-1-3</a><br>
             （<a href="#p4-1-1">P4-1-1</a>, <a href="#p4-1-2">P4-1-2</a>, <a href="#p4-1-3">P4-1-3</a>）
           </td>
           <td>経路別の復号境界（通常／DIRECT）</td>
-          <td><code>sslbump-cert.png</code>, <code>sslbump-proxy1-log.png</code>, <code>sslbump-proxy2-log.png</code></td>
+          <td class="col-files"><code>sslbump-cert.png</code>, <code>sslbump-proxy1-log.png</code>, <code>sslbump-proxy2-log.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#4-2-プロキシ間通信の暗号化">4-2. stunnel</a></td>
-          <td>
+          <td class="col-chapter"><a href="./#4-2-プロキシ間通信の暗号化">4-2. stunnel</a></td>
+          <td class="col-id">
             <a href="#p4-2-1">P4-2-1</a>, <a href="#p4-2-2">P4-2-2</a>
           </td>
           <td>Proxy 間 TLS 中継（中継暗号化）</td>
-          <td><code>stunnel-sclient.png</code>, <code>stunnel-log.png</code></td>
+          <td class="col-files"><code>stunnel-sclient.png</code>, <code>stunnel-log.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#4-3-ネットワーク前提条件">4-3. WSL2 mirrored</a></td>
-          <td>
+          <td class="col-chapter"><a href="./#4-3-ネットワーク前提条件">4-3. WSL2 mirrored</a></td>
+          <td class="col-id">
             <a href="#p4-3-1">P4-3-1</a>, <a href="#p4-3-2">P4-3-2</a>
           </td>
           <td>同一 L2 前提での Kerberos / DNS / WPAD 成立</td>
-          <td><code>wsl2-mirrored-ip.png</code>, <code>ad-domain-join.png</code></td>
+          <td class="col-files"><code>wsl2-mirrored-ip.png</code>, <code>ad-domain-join.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#5-1-プロキシ間通信の暗号化が必要だと理解するまで">5-1. stunnel導入経緯</a></td>
-          <td>
+          <td class="col-chapter"><a href="./#5-1-プロキシ間通信の暗号化が必要だと理解するまで">5-1. stunnel導入経緯</a></td>
+          <td class="col-id">
             <a href="#p5-1-1">P5-1-1</a>（任意）
           </td>
           <td>中継暗号化が必要となった理由整理</td>
-          <td><code>no-stunnel-note.png</code></td>
+          <td class="col-files"><code>no-stunnel-note.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#5-2-多段-sslbump-が成立しない理由の理解">5-2. 多段SSLBump失敗</a></td>
-          <td>
+          <td class="col-chapter"><a href="./#5-2-多段-sslbump-が成立しない理由の理解">5-2. 多段SSLBump失敗</a></td>
+          <td class="col-id">
             <a href="#p5-2-1">P5-2-1</a>（任意）
           </td>
           <td>復号制約の理解と設計修正</td>
-          <td><code>double-bump-error.png</code></td>
+          <td class="col-files"><code>double-bump-error.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#5-3-認証基盤ad--ldap--kerberosの切り分け">5-3. 認証</a></td>
-          <td>
-            <a href="#p5-3-1">P5-3-1</a>〜<a href="#p5-3-3">P5-3-3</a>
+          <td class="col-chapter"><a href="./#5-3-認証基盤ad--ldap--kerberosの切り分け">5-3. 認証</a></td>
+          <td class="col-id">
+            <a href="#p5-3-1">P5-3-1</a>〜<a href="#p5-3-3">P5-3-3</a><br>
             （<a href="#p5-3-1">P5-3-1</a>, <a href="#p5-3-2">P5-3-2</a>, <a href="#p5-3-3">P5-3-3</a>）
           </td>
           <td>認証フロー・失敗レイヤの追跡</td>
-          <td><code>kerberos-flow.png</code>, <code>ldapwhoami.png</code>, <code>ldapsearch-testuser1.png</code>, <code>proxy-auth-log.png</code></td>
+          <td class="col-files"><code>kerberos-flow.png</code>, <code>ldapwhoami.png</code>, <code>ldapsearch-testuser1.png</code>, <code>proxy-auth-log.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#6-ログ監視observability">6. ログ・監視</a></td>
-          <td>
-            <a href="#p6-1">P6-1</a>〜<a href="#p6-3">P6-3</a>
+          <td class="col-chapter"><a href="./#6-ログ監視observability">6. ログ・監視</a></td>
+          <td class="col-id">
+            <a href="#p6-1">P6-1</a>〜<a href="#p6-3">P6-3</a><br>
             （<a href="#p6-1">P6-1</a>, <a href="#p6-2">P6-2</a>, <a href="#p6-3">P6-3</a>）
           </td>
           <td>可視化・追跡（ログ／メトリクス）</td>
-          <td><code>graylog-search.png</code>, <code>grafana-proxy-deny.png</code>, <code>zabbix-hosts.png</code></td>
+          <td class="col-files"><code>graylog-search.png</code>, <code>grafana-proxy-deny.png</code>, <code>zabbix-hosts.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#7-自動化運用性再現性の確保">7. 自動化</a></td>
-          <td>
+          <td class="col-chapter"><a href="./#7-自動化運用性再現性の確保">7. 自動化</a></td>
+          <td class="col-id">
             <a href="#p7-1">P7-1</a>, <a href="#p7-2">P7-2</a>
           </td>
           <td>再現性ある起動・検証・復旧</td>
-          <td><code>dnsmasq-pac-healthcheck.png</code>, <code>healthcheck-output.png</code></td>
+          <td class="col-files"><code>dnsmasq-pac-healthcheck.png</code>, <code>healthcheck-output.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#8-学習成果本プロジェクトを通じて得られた理解">8. 学習成果</a></td>
-          <td>
+          <td class="col-chapter"><a href="./#8-学習成果本プロジェクトを通じて得られた理解">8. 学習成果</a></td>
+          <td class="col-id">
             <a href="#p8-1">P8-1</a>
           </td>
           <td>想定外事象の分析と言語化</td>
-          <td><code>wpad-shortname-issue.png</code></td>
+          <td class="col-files"><code>wpad-shortname-issue.png</code></td>
         </tr>
       </tbody>
     </table>
