@@ -314,14 +314,25 @@ function cut(s,w){
 
 ### 証跡（比較表示）
 以下、上記で取得した２枚を比較できるように表示する。
+（※ クリックで原寸表示）
 
 <div style="text-align:center; margin: 1.2em 0;">
-  <img
-    src="./images/P１：証跡_比較.png"
-    alt="P1 証跡比較（Health Check / Container 状態）"
-    style="width:100%; height:auto; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.15);"
-  >
+  <a href="./images/P１：証跡_比較.png" target="_blank">
+    <img
+      src="./images/P１：証跡_比較.png"
+      alt="P1 証跡比較（Health Check / Container 状態）"
+      style="width:100%; max-width:1200px; height:auto;
+             border-radius:12px;
+             box-shadow:0 6px 18px rgba(0,0,0,.15);
+             cursor: zoom-in;"
+    >
+  </a>
 </div>
+
+<p style="text-align:center; font-size:.9em; opacity:.8;">
+※ 画像をクリックすると原寸で確認できます
+</p>
+
 
 ---
 
