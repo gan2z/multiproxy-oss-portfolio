@@ -1,11 +1,9 @@
-# multiproxy-oss-portfolio
-多段フォワードプロキシーシステムの構築ポートフォリオ
+## 多段フォワードプロキシシステムの構築ポートフォリオ
 
-※まずは①からご覧ください。
+まずは以下をご覧ください。
 
-
-①設計意図
+① 設計意図・全体構成  
 https://gan2z.github.io/multiproxy-oss-portfolio/
 
-②構築証拠
+② 構築・検証（動作証跡）  
 https://gan2z.github.io/multiproxy-oss-portfolio/verification.html
