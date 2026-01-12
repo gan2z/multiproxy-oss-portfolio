@@ -314,7 +314,6 @@ function cut(s,w){
 
 ### 証跡（比較表示）
 以下、上記で取得した２枚を比較できるように表示する。
-（※ クリックで原寸表示）
 
 <div style="text-align:center; margin: 1.2em 0;">
   <a href="./images/P１：証跡_比較.png" target="_blank">
@@ -333,11 +332,10 @@ function cut(s,w){
 ※ 画像をクリックすると原寸で確認できます
 </p>
 
-
 ---
 
 ## P2：アーキテクチャ／技術スタック（index.md 2章）
-
+<a id="p2-1"></a>
 ### P2-1：アーキテクチャ図と稼働コンポーネントの一致
 
 **主張：**  
@@ -350,16 +348,25 @@ function cut(s,w){
   → `docker-ps-arch-match.png`
 
 ---
-<a id="p2-1"></a>
-#### P2-1. アーキ図とコンテナ対応
+### 証跡（比較表示）
+以下、上記で取得した２枚を比較できるように表示する。
 
 <div style="text-align:center; margin: 1.2em 0;">
-  <img
-    src="./images/P2-1：証跡_比較.png"
-    alt="P1 証跡比較（Health Check / Container 状態）"
-    style="width:100%; height:auto; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.15);"
-  >
+  <a href="./images/P2-1：証跡_比較.png" target="_blank">
+    <img
+      src="./images/P2-1：証跡_比較.png"
+      alt="P2-1 証跡比較（arch / container状態）"
+      style="width:100%; max-width:1200px; height:auto;
+             border-radius:12px;
+             box-shadow:0 6px 18px rgba(0,0,0,.15);
+             cursor: zoom-in;"
+    >
+  </a>
 </div>
+
+<p style="text-align:center; font-size:.9em; opacity:.8;">
+※ 画像をクリックすると原寸で確認できます
+</p>
 
 ---
 
@@ -394,6 +401,26 @@ WSL2 で実行：
 
 - Squid のバージョン（例：5.7）が表示されている画面をスクリーンショット  
   → `squid-version.png`
+
+---
+### 証跡（比較表示）
+以下、上記で取得した２枚を比較できるように表示する。
+<div style="text-align:center; margin: 1.2em 0;">
+  <a href="./images/P2-2：証跡_比較.png" target="_blank">
+    <img
+      src="./images/P2-2：証跡_比較.png"
+      alt="P2-2 証跡比較（バージョン取得スクリプト/ コマンド）"
+      style="width:100%; max-width:1200px; height:auto;
+             border-radius:12px;
+             box-shadow:0 6px 18px rgba(0,0,0,.15);
+             cursor: zoom-in;"
+    >
+  </a>
+</div>
+
+<p style="text-align:center; font-size:.9em; opacity:.8;">
+※ 画像をクリックすると原寸で確認できます
+</p>
 
 ---
 
