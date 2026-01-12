@@ -54,13 +54,18 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
           <td><code>architecture.png</code>, <code>docker-ps-arch-match.png</code></td>
         </tr>
         <tr>
-          <td><a href="./#構成要素すべて-oss">2. 構成要素（技術スタック）</a></td>
-          <td>
-            <a href="#p2-2-1">P2-2-1</a>, <a href="#p2-2-2">P2-2-2</a>
-          </td>
-          <td>OSS 採用理由・役割整理（技術選定の妥当性）＋主要バージョン把握</td>
-          <td><code>version-matrix.png</code>, <code>squid-version.png</code></td>
-        </tr>
+  　　　　<td><a href="./#構成要素すべて-oss">2. 構成要素（技術スタック）</a></td>
+ 　　　　　 <td>
+  　　　　　  <a href="#p2-2-1">P2-2-1</a>, <a href="#p2-2-2">P2-2-2</a>
+ 　　　　　 </td>
+　　　　  <td>
+   　　　　 主要 OSS の<strong>実行中バージョン取得と可視化</strong><br>
+    　　　　（Docker イメージタグではなく、実バイナリのバージョン確認）
+ 　　　　 </td>
+  　　　　<td>
+ 　　　　   <code>version-matrix.png</code>, <code>squid-version.png</code>
+　　　　  </td>
+　　　　</tr>
         <tr>
           <td><a href="./#3-通信経路と設計構成変更点">3. PAC / WPAD</a></td>
           <td>
@@ -166,154 +171,144 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 ## P1：プロジェクト概要「全体が動いている」証拠（index.md 1章）
 
 ### 主張
-多段プロキシ／認証／ログ／監視が **統合された状態で稼働**しており、復旧・確認もスクリプトで再現できる。
-
+多段プロキシ／認証／ログ／監視が **統合された状態で稼働**しており、  
+起動確認・状態確認をスクリプトにより **再現可能な形で実施できる**ことを示す。
 ---
 
 ### 撮るもの
-- ヘルスチェック結果（カテゴリ別に [OK] が揃う）
+- ヘルスチェック結果（カテゴリ別に `[OK]` が揃っている状態）
 - コンテナ稼働一覧（proxy1〜3、ldap、pac、graylog、loki、grafana、zabbix など）
-
 ---
 
 ### 手順
 
-<a id="p1-1"></a>
 #### P1-1. Health Check 出力
-
-WSL2 で実行：
-
+<a id="p1-1"></a>
+**実行**
     cd /home/login00/multiproxy
     ./scripts/multiproxy_health_all.sh
 
-- 画面上で `[OK]` が一通り揃っていることを確認してスクリーンショットを取得  
-  → `healthcheck-output.png`
-
+**確認内容**
+- Proxy / Auth / Logging / Monitoring など  
+  各カテゴリが `[OK]` となっていること
+  
+**証跡**
+- `healthcheck-output.png`
 ---
 
-<a id="p1-2"></a>
 #### P1-2. コンテナ一覧（docker compose ps）
-
-WSL2 で実行：
-
+<a id="p1-2"></a>
+**実行**
     cd /home/login00/multiproxy
     docker compose ps
 
-- 主要コンテナが `Up`（可能なら `healthy`）になっている画面をスクリーンショット  
-  → `docker-ps.png`
+**確認内容**
+- 主要コンテナが `Up`  
+- 可能なものは `healthy` と表示されていること
 
-> 注：掲載している「カテゴリ表示の一覧」は、  
-> `docker compose ps --format json` の出力を **jq/awk で整形**して読みやすくしたもの。
+**証跡**
+- `docker-ps.png`
+
+> 補足：  
+> 掲載している「カテゴリ別一覧」は、  
+> `docker compose ps --format json` の出力を jq / awk で整形し、  
+> 稼働状況を視覚的に把握しやすくしたもの。
 
 <details>
+
   <summary>（参考）json出力をカテゴリ別に整形して表示するコマンド（bash）</summary>
 
   <p style="margin: .5rem 0 0;">
     ※ <code>docker compose ps</code> の表示は、<code>--format json</code> を <code>jq/awk</code> で整形しています。
   </p>
-
   <pre style="margin-top:.6rem; padding:.8rem; overflow-x:auto; border:1px solid rgba(127,127,127,.25); border-radius:10px;">
-<code class="language-bash">cd /home/login00/multiproxy
-
-docker compose ps --format json \
-| jq -r '
-  def s($v): ($v // "" | tostring);
-
-  def is_agent($x):
-    (s($x) | test("(^|[-_])agent($|[-_])") or test("sidecar") or test("opensearch-agent"));
-
-  def ports_short($r):
-    if ($r.Publishers? and ($r.Publishers|length)>0) then
-      ($r.Publishers
-        | map("\(.PublishedPort)->\(.TargetPort)/\(.Protocol)")
-        | join(", "))
-    elif ($r.Ports? and ($r.Ports|length)>0) then
-      s($r.Ports)
-    else "-" end;
-
-  def cat($svc):
-    if s($svc) | test("^proxy[123]$") then "Proxy"
-    elif s($svc) | test("stunnel") then "Tunnel"
-    elif s($svc) | test("^(icap|clamav)") then "Content-Scan"
-    elif s($svc) | test("^(ldap|phpldapadmin)") then "Auth"
-    elif s($svc) | test("^(pac|pac-renderer)") then "DNS-Routing"
-    elif s($svc) | test("^(promtail|loki|graylog|opensearch|mongo|grafana|portainer)") then "Logging"
-    elif s($svc) | test("^zabbix") then "Monitoring"
-    else "Logging" end;
-
-  def ord($c):
-    if $c=="Proxy" then 1
-    elif $c=="Tunnel" then 2
-    elif $c=="Content-Scan" then 3
-    elif $c=="Auth" then 4
-    elif $c=="DNS-Routing" then 5
-    elif $c=="Logging" then 6
-    elif $c=="Monitoring" then 7
-    else 99 end;
-
-  . as $r
-  | ($r.Service|s(.)) as $svc
-  | ($r.Name|s(.)) as $name
-  | (cat($svc)) as $cat
-  | select(is_agent($svc) | not)   # ← agent 行はここで除外
-  | [ ord($cat),
-      $cat,
-      $svc,
-      $name,
-      s($r.State),
-      s($r.Health),
-      (s($r.CreatedAt)[0:16]),
-      ports_short($r),
-      (s($r.Image) | split(":")[0])
-    ]
-  | @tsv
-' \
-| sort -t$'\t' -k1,1n -k3,3 \
-| awk -F'\t' '
-BEGIN{
-  W_CAT=14; W_SVC=18; W_CONT=24; W_STATE=10; W_HEALTH=10; W_CREATED=16; W_PORTS=26;
-
-  printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
-    W_CAT,"CATEGORY", W_SVC,"SERVICE", W_CONT,"CONTAINER",
-    W_STATE,"STATE", W_HEALTH,"HEALTH", W_CREATED,"CREATED",
-    W_PORTS,"PORTS", "IMAGE";
-
-  printf "%s\n", "---------------------------------------------------------------------------------------------------------------------------------------";
-  prev="";
-}
-
-function cut(s,w){
-  if (length(s)<=w) return s;
-  if (w<=3) return substr(s,1,w);
-  return substr(s,1,w-3)"...";
-}
-
-{
-  cat=$2; svc=$3; cont=$4; st=$5; hl=$6; cr=$7; pt=$8; img=$9;
-
-  if (prev!="" && cat!=prev) print "";
-
-  cat_disp = (cat==prev ? "" : cat);
-
-  printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
-    W_CAT,cat_disp,
-    W_SVC,cut(svc,W_SVC),
-    W_CONT,cut(cont,W_CONT),
-    W_STATE,st,
-    W_HEALTH,hl,
-    W_CREATED,cr,
-    W_PORTS,cut(pt,W_PORTS),
-    img;
-
-  prev=cat;
-}
-'
-</code>
+　　<code class="language-bash">cd /home/login00/multiproxy
+　　docker compose ps --format json \
+　　| jq -r '
+  　　def s($v): ($v // "" | tostring);
+  　　def is_agent($x):
+    　　(s($x) | test("(^|[-_])agent($|[-_])") or test("sidecar") or test("opensearch-agent"));　　
+  　　def ports_short($r):
+    　　if ($r.Publishers? and ($r.Publishers|length)>0) then
+      　　($r.Publishers
+        　　| map("\(.PublishedPort)->\(.TargetPort)/\(.Protocol)")
+        　　| join(", "))
+    　　elif ($r.Ports? and ($r.Ports|length)>0) then
+      　　s($r.Ports)
+    　　else "-" end;　　
+  　　def cat($svc):
+    　　if s($svc) | test("^proxy[123]$") then "Proxy"
+    　　elif s($svc) | test("stunnel") then "Tunnel"
+    　　elif s($svc) | test("^(icap|clamav)") then "Content-Scan"
+    　　elif s($svc) | test("^(ldap|phpldapadmin)") then "Auth"
+    　　elif s($svc) | test("^(pac|pac-renderer)") then "DNS-Routing"
+    　　elif s($svc) | test("^(promtail|loki|graylog|opensearch|mongo|grafana|portainer)") then 　　"Logging"
+    　　elif s($svc) | test("^zabbix") then "Monitoring"
+    　　else "Logging" end;　　
+  　　def ord($c):
+    　　if $c=="Proxy" then 1
+    　　elif $c=="Tunnel" then 2
+    　　elif $c=="Content-Scan" then 3
+    　　elif $c=="Auth" then 4
+    　　elif $c=="DNS-Routing" then 5
+    　　elif $c=="Logging" then 6
+    　　elif $c=="Monitoring" then 7
+    　　else 99 end;　　
+  　　. as $r
+  　　| ($r.Service|s(.)) as $svc
+  　　| ($r.Name|s(.)) as $name
+  　　| (cat($svc)) as $cat
+  　　| select(is_agent($svc) | not)   # ← agent 行はここで除外
+  　　| [ ord($cat),
+　　      $cat,
+      　　$svc,
+      　　$name,
+      　　s($r.State),
+      　　s($r.Health),
+      　　(s($r.CreatedAt)[0:16]),
+      　　ports_short($r),
+      　　(s($r.Image) | split(":")[0])
+    　　]
+  　　| @tsv
+　　' \
+　　| sort -t$'\t' -k1,1n -k3,3 \
+　　| awk -F'\t' '
+　　BEGIN{
+  　　W_CAT=14; W_SVC=18; W_CONT=24; W_STATE=10; W_HEALTH=10; W_CREATED=16; W_PORTS=26;　　
+  　　　　　　　　printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
+    　　　　W_CAT,"CATEGORY", W_SVC,"SERVICE", W_CONT,"CONTAINER",
+    　　W_STATE,"STATE", W_HEALTH,"HEALTH", W_CREATED,"CREATED",
+    　　W_PORTS,"PORTS", "IMAGE";　　
+  　　printf "%s\n", 　　"--------------------------------------------------------------------------------------------　　-------------------------------------------";
+  　　prev="";
+　　}　　
+　　function cut(s,w){
+  　　if (length(s)<=w) return s;
+  　　if (w<=3) return substr(s,1,w);
+  　　return substr(s,1,w-3)"...";
+　　}　　
+　　{
+  　　cat=$2; svc=$3; cont=$4; st=$5; hl=$6; cr=$7; pt=$8; img=$9;　　
+  　　if (prev!="" && cat!=prev) print "";　　
+  　　cat_disp = (cat==prev ? "" : cat);　
+  　　printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
+    　　W_CAT,cat_disp,
+    　　W_SVC,cut(svc,W_SVC),
+    　　W_CONT,cut(cont,W_CONT),
+    　　W_STATE,st,
+    　　W_HEALTH,hl,
+    　　W_CREATED,cr,
+    　　W_PORTS,cut(pt,W_PORTS),
+    　　img;　　
+  　　prev=cat;
+　　}
+　　'
+　</code>
   </pre>
 </details>
 
 ### 証跡（比較表示）
-以下、上記で取得した２枚を比較できるように表示する。
+以下、上記で取得した 2 枚を比較できるように表示する。
 
 <div style="text-align:center; margin: 1.2em 0;">
   <a href="./images/P１：証跡_比較.png" target="_blank">
@@ -335,19 +330,37 @@ function cut(s,w){
 ---
 
 ## P2：アーキテクチャ／技術スタック（index.md 2章）
-<a id="p2-1"></a>
-### P2-1：アーキテクチャ図と稼働コンポーネントの一致
 
-**主張：**  
-設計したアーキテクチャと、実際に稼働しているコンポーネントが  
-**1:1 で対応していることを示す。**
-
-**撮るもの：**
-- `architecture.png`
-- `docker-ps.png` の対応箇所トリミング  
-  → `docker-ps-arch-match.png`
+### 主張
+設計したアーキテクチャおよび技術スタックが、  
+**実際に稼働しているコンテナ構成・ソフトウェア構成と一致している**ことを示す。
 
 ---
+
+### 撮るもの
+- アーキテクチャ図（論理構成）
+- 稼働中コンテナ一覧との対応関係
+- 実行環境から取得した主要 OSS のバージョン一覧
+- 代表的な OSS の個別バージョン確認結果
+
+---
+
+### 手順
+
+#### P2-1. アーキテクチャ図と稼働コンポーネントの一致
+<a id="p2-1"></a>
+
+**目的**
+- 設計したアーキテクチャ図と、  
+  実際に起動しているコンテナ群が **1:1 で対応している**ことを確認する。
+
+**実施内容**
+1. アーキテクチャ図を作成  
+   → `architecture.png`
+
+2. コンテナ一覧から対応箇所を確認  
+   → `docker-ps-arch-match.png`
+
 ### 証跡（比較表示）
 以下、上記で取得した２枚を比較できるように表示する。
 
@@ -355,7 +368,7 @@ function cut(s,w){
   <a href="./images/P2-1：証跡_比較.png" target="_blank">
     <img
       src="./images/P2-1：証跡_比較.png"
-      alt="P2-1 証跡比較（arch / container状態）"
+      alt="P2-1 証跡比較（アーキテクチャ図 / 稼働コンテナ対応）"
       style="width:100%; max-width:1200px; height:auto;
              border-radius:12px;
              box-shadow:0 6px 18px rgba(0,0,0,.15);
@@ -370,46 +383,54 @@ function cut(s,w){
 
 ---
 
-### P2-2：技術スタック（バージョンと役割）の証拠
+### P2-2. 技術スタック（ソフトウェアバージョン）の確認
+<a id="p2-2"></a>
 
-**主張：**  
-OSS を「なんとなく使う」のではなく、  
-**役割・制約・バージョンを把握した上で採用・構成している。**
-
+**目的**
+- Docker イメージタグではなく、  
+  **実行中コンテナ内の実バイナリから取得したバージョン**を把握していることを示す。
 ---
+
+#### P2-2-1. バージョン一覧（全体）
 <a id="p2-2-1"></a>
-#### P2-2-1. バージョン表
 
-WSL2 で実行：
-
+**実行**
     cd /home/login00/multiproxy
     ./scripts/show-all-versions.sh
 
-- 画面上で ソフトウェアバージョン が一通り揃っていることを確認してスクリーンショットを取得  
-  → `version-matrix.png`
+**確認内容**
+- Proxy / 認証 / ログ / 監視 など主要 OSS の  
+  実行中ソフトウェアバージョンが一覧で表示されること
 
-  ※ 本一覧は Docker イメージタグではなく、
-　各コンテナ内で実行されているソフトウェアの実バージョンを取得している。
+**証跡**
+- `version-matrix.png`
+
+> ※ 本一覧は Docker イメージタグではなく、  
+> 各コンテナ内で実行されているソフトウェアの実バージョンを取得している。
 
 ---
-<a id="p2-2-2"></a>
+
 #### P2-2-2. 代表例（Squid）
+<a id="p2-2-2"></a>
 
-WSL2 で実行：
-
+**実行**
     docker exec -it proxy1 squid -v
 
-- Squid のバージョン（例：5.7）が表示されている画面をスクリーンショット  
-  → `squid-version.png`
+**確認内容**
+- Squid のバージョン（例：5.7）が表示されること
 
+**証跡**
+- `squid-version.png`
 ---
+
 ### 証跡（比較表示）
 以下、上記で取得した２枚を比較できるように表示する。
+
 <div style="text-align:center; margin: 1.2em 0;">
   <a href="./images/P2-2：証跡_比較.png" target="_blank">
     <img
       src="./images/P2-2：証跡_比較.png"
-      alt="P2-2 証跡比較（バージョン取得スクリプト/ コマンド）"
+      alt="P2-2 証跡比較（バージョン取得スクリプト / 個別コマンド）"
       style="width:100%; max-width:1200px; height:auto;
              border-radius:12px;
              box-shadow:0 6px 18px rgba(0,0,0,.15);
