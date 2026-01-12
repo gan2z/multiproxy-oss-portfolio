@@ -199,7 +199,75 @@ details:not([open]) summary {
   background: #eef8f0 !important;
 }
 
-/* 折り返し：試験IDだけは折り返さない */
+/* =========================================
+ * map-table（章×試験ID対応表）だけ折り返し方針を変更
+ *  - 章（1列目）：なるべく改行しない
+ *  - 試験ID（2列目）：適切に改行する
+ *  - 想定ファイル名（4列目）：途中折り返しを抑え、「区切り」で折り返す
+ * ========================================= */
+
+/* tableの幅は自然伸縮（内容に応じて） */
+#map-table table {
+  table-layout: auto;
+  width: 100%;
+}
+
+/* 章名：折り返し抑制（=改行しにくくする） */
+#map-table td:nth-child(1),
+#map-table th:nth-child(1),
+#map-table td:nth-child(1) a {
+  white-space: nowrap;
+}
+
+/* 試験ID：折り返し許可（従来の nowrap を上書き） */
+#map-table td:nth-child(2),
+#map-table th:nth-child(2) {
+  white-space: normal !important;
+  line-height: 1.35;
+  min-width: 10.5em;
+}
+
+/* 想定ファイル名：
+ * - code（pill）内で「ファイル名途中で改行」しやすいのを抑制
+ * - セル自体は折り返すが、なるべく「カンマ」「スペース」等の区切りで折り返させる
+ */
+#map-table td:nth-child(4) {
+  white-space: normal !important;
+  line-height: 1.35;
+  overflow-wrap: normal !important;     /* anywhere を打ち消す */
+  word-break: normal !important;
+  hyphens: manual;
+}
+
+/* code（ファイル名のタグ）は “1つの塊” として扱い、途中で割らない */
+#map-table td:nth-child(4) code {
+  display: inline-block;               /* ★ 途中改行されにくくする */
+  white-space: nowrap;                 /* ★ ファイル名の途中で折らない */
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: none;
+  max-width: 100%;
+}
+
+/* 画面が狭い時だけ章名nowrapを解除（モバイルで横スクロール過多を防ぐ） */
+@media (max-width: 760px) {
+  #map-table td:nth-child(1),
+  #map-table th:nth-child(1),
+  #map-table td:nth-child(1) a {
+    white-space: normal;
+  }
+
+  /* モバイルでは code が詰まりやすいので、必要時はセル側で自然に改行 */
+  #map-table td:nth-child(4) code {
+    white-space: normal;
+  }
+}
+
+/* -----------------------------------------
+ * 既存の全体ルール（主に他テーブル向け）
+ * ----------------------------------------- */
+
+/* 折り返し：試験IDだけは折り返さない（※ map-table は上で上書き） */
 .table-compact td:nth-child(2),
 .table-compact th:nth-child(2) {
   white-space: nowrap;
@@ -223,6 +291,7 @@ details:not([open]) summary {
   background: #e8f3ec !important;
   border: 1px solid rgba(21, 128, 61, 0.35) !important;
 }
+
 /* 構成要素テーブルは「画面幅いっぱい」にも「内容幅」にも追従させたいので min-width を外す */
 #stack-table table {
   min-width: 0 !important;            /* ★余白の原因になりやすい */
@@ -240,13 +309,12 @@ details:not([open]) summary {
     padding: 1.2rem 0.85rem 2.2rem;
   }
 
-/* Cayman側の table display:block / width:max-content を確実に潰す */
-.table-compact table {
-  display: table !important;          /* ★重要 */
-  width: 100% !important;             /* ★wrap に対して100% */
-  margin: 0 !important;
-  border: none;                       /* 外枠は wrap 側 */
-  border-radius: 0;
-}
-
+  /* Cayman側の table display:block / width:max-content を確実に潰す */
+  .table-compact table {
+    display: table !important;          /* ★重要 */
+    width: 100% !important;             /* ★wrap に対して100% */
+    margin: 0 !important;
+    border: none;                       /* 外枠は wrap 側 */
+    border-radius: 0;
+  }
 }
