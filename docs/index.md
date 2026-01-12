@@ -57,7 +57,7 @@ OSS を用いて **自身で設計・実装した構成**を示しています�
 OSS 単体で成立しない部分については、  
 必要なコンポーネントを追加することで機能を補完しています。
 
-![architecture](./images/architecture.png)
+![architecture](./images/実務OSS構築比較_architecture.png)
 
 ### 構成要素（すべて OSS）
 
