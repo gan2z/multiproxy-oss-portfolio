@@ -168,25 +168,6 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 ### 主張
 多段プロキシ／認証／ログ／監視が **統合された状態で稼働**しており、復旧・確認もスクリプトで再現できる。
 
-### 証跡（比較表示）
-以下の2枚で「論理（HealthCheck）」「物理（compose状態）」を並べて示す。
-
-<div class="img-compare">
-  <figure>
-    <a href="./images/healthcheck-output.png">
-      <img src="./images/healthcheck-output.png" alt="healthcheck-output.png（Health Check結果）">
-    </a>
-    <figcaption><code>healthcheck-output.png</code>：自動ヘルスチェック（カテゴリ別OK判定）</figcaption>
-  </figure>
-
-  <figure>
-    <a href="./images/docker-ps.png">
-      <img src="./images/docker-ps.png" alt="docker-ps.png（docker compose ps相当の一覧）">
-    </a>
-    <figcaption><code>docker-ps.png</code>：<code>docker compose ps</code>（正しくは json出力を整形）</figcaption>
-  </figure>
-</div>
-
 ---
 
 ### 撮るもの
@@ -360,6 +341,17 @@ function cut(s, w){
 </code>
   </pre>
 </details>
+
+### 証跡（比較表示）
+以下、上記で取得した２枚を比較できるように表示する。
+
+<div style="text-align:center; margin: 1.2em 0;">
+  <img
+    src="./images/P１：証跡_比較.png"
+    alt="P1 証跡比較（Health Check / Container 状態）"
+    style="width:80%; height:auto; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.15);"
+  >
+</div>
 
 ---
 
