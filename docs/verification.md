@@ -614,107 +614,111 @@ Squid / stunnel により形成される内部中継経路を分離して可視�
 　　<strong>通信経路・ポート詳細図（PACの責務 / Squidの責務を明示）</strong>
 　</summary>
 図A：全体概要
-[ Client / Browser ]
-        |
-        | ① PAC により出口を選択
-        |    - Proxy1
-        |    - Proxy2(DIRECT相当)
-        |    - DIRECT
-        v
-+------------------------+
-| Proxy1 (Squid)         |
-| - 認証 / SSLBump       |
-| - ログ集約             |
-+------------------------+
-        |
-        | ② Proxy間通信（TLS）
-        v
-+------------------------+
-| Proxy2 (Squid)         |
-| - 経路分岐             |
-| - ICAP / 制御          |
-+------------------------+
-        |
-        | ③ Proxy間通信（TLS）
-        v
-+------------------------+
-| Proxy3 (Squid)         |
-| - 最終出口             |
-| - 送信制御 / ログ      |
-+------------------------+
+<pre>
+  [ Client / Browser ]
+          |
+          | ① PAC により出口を選択
+          |    - Proxy1
+          |    - Proxy2(DIRECT相当)
+          |    - DIRECT
+          v
+  +------------------------+
+  | Proxy1 (Squid)         |
+  | - 認証 / SSLBump       |
+  | - ログ集約             |
+  +------------------------+
+          |
+          | ② Proxy間通信（TLS）
+          v
+  +------------------------+
+  | Proxy2 (Squid)         |
+  | - 経路分岐             |
+  | - ICAP / 制御          |
+  +------------------------+
+          |
+          | ③ Proxy間通信（TLS）
+          v
+  +------------------------+
+  | Proxy3 (Squid)         |
+  | - 最終出口             |
+  | - 送信制御 / ログ      |
+  +------------------------+
+</pre>
 
 > 補足（重要）
 > - PAC が制御するのは **Client → 最初の出口（Proxy / DIRECT）**までです。
 > - Proxy1→Proxy2→Proxy3 の中継は Squid（cache_peer）側の責務です。
 
 図B：通信経路・ポート詳細（LISTEN / SEND）
-[ Client ]
-  |
-  | HTTP / HTTPS
-  | （PAC により出口を選択）
-  v
-+--------------------------------------------------+
-| Proxy1 (Squid)                                   |
-| LISTEN : 3128                                    |
-| ROLE   : 認証 / SSLBump / ログ集約               |
-| LOG    : /var/log/squid/access.log               |
-+--------------------------------------------------+
-        |
-        | cache_peer parent → proxy1-stunnel:13128
-        v
-+--------------------------------------------------+
-| proxy1-stunnel (1→2 / Client)                    |
-| LISTEN : 13128 (ローカル待受)                     |
-| SEND   : proxy2-stunnel:4431 (TLS)               |
-| LOG    : stunnel12-client.log                    |
-+--------------------------------------------------+
-        |
-        | TLS : 4431
-        v
-+--------------------------------------------------+
-| proxy2-stunnel (1→2 / Server)                    |
-| LISTEN : 4431 (TLS受信)                           |
-| SEND   : proxy2:3129 (HTTP)                      |
-| LOG    : stunnel12-server.log                    |
-+--------------------------------------------------+
-        |
-        | HTTP : 3129（内部中継）
-        v
-+---------------------------------------------------------------+
-| Proxy2 (Squid)                                                 |
-| LISTEN : 3129 (Proxy1→Proxy2 通常経路)                         |
-|          3131 (Client→Proxy2 DIRECT相当)                      |
-| ROLE   : 経路制御 / ICAP                                      |
-| LOG    : access_3129.log / access_3131.log                    |
-+---------------------------------------------------------------+
-        |
-        | cache_peer parent → proxy2-3-stunnel:23129 / 23131
-        v
-+---------------------------------------------------------------+
-| proxy2-3-stunnel (2→3 / Client)                                |
-| LISTEN : 23129 (通常) / 23131 (DIRECT相当)                     |
-| SEND   : proxy3-stunnel:4433 / 4434 (TLS)                     |
-| LOG    : stunnel23-client.log                                  |
-+---------------------------------------------------------------+
-        |
-        | TLS : 4433 / 4434
-        v
-+---------------------------------------------------------------+
-| proxy3-stunnel (3側 / Server)                                  |
-| LISTEN : 4433 (通常) / 4434 (DIRECT相当)                       |
-| SEND   : proxy3:3130 / 3132 (HTTP)                             |
-| LOG    : stunnel23-server.log                                  |
-+---------------------------------------------------------------+
-        |
-        | HTTP : 3130 / 3132
-        v
-+---------------------------------------------------------------+
-| Proxy3 (Squid)                                                  |
-| LISTEN : 3130 (通常経路)                                        |
-|          3132 (DIRECT相当)                                     |
-| ROLE   : 最終出口                                              |
-| LOG    : access_main.log / access_direct.log                   |
-+---------------------------------------------------------------+
+<pre>
+  [ Client ]
+    |
+    | HTTP / HTTPS
+    | （PAC により出口を選択）
+    v
+  +--------------------------------------------------+
+  | Proxy1 (Squid)                                   |
+  | LISTEN : 3128                                    |
+  | ROLE   : 認証 / SSLBump / ログ集約               |
+  | LOG    : /var/log/squid/access.log               |
+  +--------------------------------------------------+
+          |
+          | cache_peer parent → proxy1-stunnel:13128
+          v
+  +--------------------------------------------------+
+  | proxy1-stunnel (1→2 / Client)                    |
+  | LISTEN : 13128 (ローカル待受)                     |
+  | SEND   : proxy2-stunnel:4431 (TLS)               |
+  | LOG    : stunnel12-client.log                    |
+  +--------------------------------------------------+
+          |
+          | TLS : 4431
+          v
+  +--------------------------------------------------+
+  | proxy2-stunnel (1→2 / Server)                    |
+  | LISTEN : 4431 (TLS受信)                           |
+  | SEND   : proxy2:3129 (HTTP)                      |
+  | LOG    : stunnel12-server.log                    |
+  +--------------------------------------------------+
+          |
+          | HTTP : 3129（内部中継）
+          v
+  +---------------------------------------------------------------+
+  | Proxy2 (Squid)                                                 |
+  | LISTEN : 3129 (Proxy1→Proxy2 通常経路)                         |
+  |          3131 (Client→Proxy2 DIRECT相当)                      |
+  | ROLE   : 経路制御 / ICAP                                      |
+  | LOG    : access_3129.log / access_3131.log                    |
+  +---------------------------------------------------------------+
+          |
+          | cache_peer parent → proxy2-3-stunnel:23129 / 23131
+          v
+  +---------------------------------------------------------------+
+  | proxy2-3-stunnel (2→3 / Client)                                |
+  | LISTEN : 23129 (通常) / 23131 (DIRECT相当)                     |
+  | SEND   : proxy3-stunnel:4433 / 4434 (TLS)                     |
+  | LOG    : stunnel23-client.log                                  |
+  +---------------------------------------------------------------+
+          |
+          | TLS : 4433 / 4434
+          v
+  +---------------------------------------------------------------+
+  | proxy3-stunnel (3側 / Server)                                  |
+  | LISTEN : 4433 (通常) / 4434 (DIRECT相当)                       |
+  | SEND   : proxy3:3130 / 3132 (HTTP)                             |
+  | LOG    : stunnel23-server.log                                  |
+  +---------------------------------------------------------------+
+          |
+          | HTTP : 3130 / 3132
+          v
+  +---------------------------------------------------------------+
+  | Proxy3 (Squid)                                                  |
+  | LISTEN : 3130 (通常経路)                                        |
+  |          3132 (DIRECT相当)                                     |
+  | ROLE   : 最終出口                                              |
+  | LOG    : access_main.log / access_direct.log                   |
+  +---------------------------------------------------------------+
+</pre>
 
 経路定義（ポートフォリオ明記用）
 ① 通常経路（Proxy1 経由・標準）
@@ -746,238 +750,239 @@ Client
 ※ 設定変更（.env 更新）後は pac-renderer の再起動により内容が反映されます。  
 ※ 読みやすさのため、ここではテンプレート全文を折りたたんで掲載します。
 
-/* pac/wpad.dat.tmpl
- * ============================================================
- * Multiproxy WPAD / PAC（Kerberos + SSL-Bump 構成向け）
- * ============================================================
- *
- * ■このファイルは何か？
- *   - クライアント（ブラウザ）が「どの通信をどのプロキシへ流すか」を判断するための PAC ファイルです。
- *   - 本プロジェクトでは WPAD で自動配布し、ブラウザが wpad.dat を参照して経路を決定します。
- *
- * ■生成方法（重要）
- *   - 本ファイルは “テンプレート” です。
- *   - pac コンテナの entrypoint で envsubst により変数を展開し、
- *     /usr/share/nginx/html/wpad.dat として生成され、HTTP で配布されます。
- *
- * ■PAC が制御できる範囲
- *   - PAC が制御できるのは「クライアント → 最初の出口（Proxy / DIRECT）」のみです。
- *   - Proxy1→Proxy2 の内部中継（例：proxy2:3129）は Squid の cache_peer が担い、PAC の責務外です。
- *
- * ■本 PAC の狙い（誰が見ても分かる要点）
- *   1) ローカル（社内/管理UI）は DIRECT（プロキシを経由しない）
- *   2) 例外（銀行/行政など）は DIRECT
- *   3) 非業務（YouTube/Netflix）は DIRECT（例：帯域/運用方針のデモ）
- *   4) 一部ドメインは Proxy1 を強制（検査・認証・ログ集約の適用）
- *   5) 一部ドメインは Proxy2:3131 に振り分け（Proxy1 をスキップする “DIRECT相当” 経路）
- *   6) それ以外は Proxy1 →（フェイルオーバ）→ Proxy2 → DIRECT
- *
- * ============================================================
- *  .env から展開される主な変数（例）
- * ============================================================
- *
- * 【基本プロキシ設定（クライアントが指定する出口）】
- *   PAC_PROXY1_ADDR           例: proxy1.ad.lan:3128   （通常の入口）
- *   PAC_PROXY2_ADDR           例: proxy2.ad.lan:3129   （※注意：通常は内部中継。PACで使う必要はない）
- *   PAC_PROXY2_DIRECT_ADDR    例: proxy2.ad.lan:3131   （Proxy1 を経由しない “DIRECT相当”）
- *   PAC_FO_CHAIN              例: "PROXY proxy2.ad.lan:3129; DIRECT" など
- *
- * 【DIRECT 対象（社内/ローカル）】
- *   PAC_LOCAL_DOMAINS         例: .ad.lan,.lan,.local
- *   PAC_LOCAL_UI_HOSTS        例: localhost,wpad,graylog.ad.lan,zabbix.ad.lan
- *   PAC_LAN_NETS              例: 192.168.11.0/255.255.255.0
- *
- * 【例外 DIRECT（銀行/行政など）】
- *   PAC_BYPASS_SUFFIXES
- *
- * 【非業務 → DIRECT】
- *   PAC_NONBUS_SUFFIXES
- *
- * 【Proxy1 強制（検査・認証・ログ集約）】
- *   PAC_FORCE_PROXY1_SUFFIXES
- *
- * 【Proxy2 のみ（Proxy1 skip / DIRECT相当）】
- *   PAC_PROXY2_ONLY_SUFFIXES
- *
- * ============================================================
- *  1. ユーティリティ関数群
- * ============================================================
- */
-
-function listFromEnv(csv) {
-  if (!csv) return [];
-  return (csv + "").split(",").map(function(s){ return (s || "").trim(); }).filter(function(s){ return s.length; });
-}
-
-function listLanNetsFromEnv(spec) {
-  if (!spec) return [];
-  return (spec + "").split(";").map(function(s){ return (s || "").trim(); }).filter(function(s){ return s; }).map(function(s){
-    var p = s.split("/");
-    if (p.length !== 2) return null;
-    return [p[0].trim(), p[1].trim()];
-  }).filter(function(x){ return x; });
-}
-
-function isIPv4Literal(s) {
-  return /^\d{1,3}(\.\d{1,3}){3}$/.test(s);
-}
-
-function validIPv4(s) {
-  return isIPv4Literal(s);
-}
-
-function safeIsInNet(host, net, mask) {
-  if (!validIPv4(net) || !validIPv4(mask)) return false;
-  return isInNet(host, net, mask);
-}
-
-function inAnyLan(host, nets) {
-  for (var i = 0; i < nets.length; i++) {
-    if (safeIsInNet(host, nets[i][0], nets[i][1])) return true;
+<pre>
+  /* pac/wpad.dat.tmpl
+   * ============================================================
+   * Multiproxy WPAD / PAC（Kerberos + SSL-Bump 構成向け）
+   * ============================================================
+   *
+   * ■このファイルは何か？
+   *   - クライアント（ブラウザ）が「どの通信をどのプロキシへ流すか」を判断するための PAC ファイルです。
+   *   - 本プロジェクトでは WPAD で自動配布し、ブラウザが wpad.dat を参照して経路を決定します。
+   *
+   * ■生成方法（重要）
+   *   - 本ファイルは “テンプレート” です。
+   *   - pac コンテナの entrypoint で envsubst により変数を展開し、
+   *     /usr/share/nginx/html/wpad.dat として生成され、HTTP で配布されます。
+   *
+   * ■PAC が制御できる範囲
+   *   - PAC が制御できるのは「クライアント → 最初の出口（Proxy / DIRECT）」のみです。
+   *   - Proxy1→Proxy2 の内部中継（例：proxy2:3129）は Squid の cache_peer が担い、PAC の責務外です。
+   *
+   * ■本 PAC の狙い（誰が見ても分かる要点）
+   *   1) ローカル（社内/管理UI）は DIRECT（プロキシを経由しない）
+   *   2) 例外（銀行/行政など）は DIRECT
+   *   3) 非業務（YouTube/Netflix）は DIRECT（例：帯域/運用方針のデモ）
+   *   4) 一部ドメインは Proxy1 を強制（検査・認証・ログ集約の適用）
+   *   5) 一部ドメインは Proxy2:3131 に振り分け（Proxy1 をスキップする “DIRECT相当” 経路）
+   *   6) それ以外は Proxy1 →（フェイルオーバ）→ Proxy2 → DIRECT
+   *
+   * ============================================================
+   *  .env から展開される主な変数（例）
+   * ============================================================
+   *
+   * 【基本プロキシ設定（クライアントが指定する出口）】
+   *   PAC_PROXY1_ADDR           例: proxy1.ad.lan:3128   （通常の入口）
+   *   PAC_PROXY2_ADDR           例: proxy2.ad.lan:3129   （※注意：通常は内部中継。PACで使う必要はない）
+   *   PAC_PROXY2_DIRECT_ADDR    例: proxy2.ad.lan:3131   （Proxy1 を経由しない “DIRECT相当”）
+   *   PAC_FO_CHAIN              例: "PROXY proxy2.ad.lan:3129; DIRECT" など
+   *
+   * 【DIRECT 対象（社内/ローカル）】
+   *   PAC_LOCAL_DOMAINS         例: .ad.lan,.lan,.local
+   *   PAC_LOCAL_UI_HOSTS        例: localhost,wpad,graylog.ad.lan,zabbix.ad.lan
+   *   PAC_LAN_NETS              例: 192.168.11.0/255.255.255.0
+   *
+   * 【例外 DIRECT（銀行/行政など）】
+   *   PAC_BYPASS_SUFFIXES
+   *
+   * 【非業務 → DIRECT】
+   *   PAC_NONBUS_SUFFIXES
+   *
+   * 【Proxy1 強制（検査・認証・ログ集約）】
+   *   PAC_FORCE_PROXY1_SUFFIXES
+   *
+   * 【Proxy2 のみ（Proxy1 skip / DIRECT相当）】
+   *   PAC_PROXY2_ONLY_SUFFIXES
+   *
+   * ============================================================
+   *  1. ユーティリティ関数群
+   * ============================================================
+   */
+  
+  function listFromEnv(csv) {
+    if (!csv) return [];
+    return (csv + "").split(",").map(function(s){ return (s || "").trim(); }).filter(function(s){ return s.length; });
   }
-  return false;
-}
-
-function matchPattern(host, pattern) {
-  if (!pattern) return false;
-  var p = (pattern + "").trim();
-  if (!p) return false;
-
-  // host:port → host（PAC の比較は host で行う）
-  var c = p.indexOf(":");
-  if (c > -1) p = p.substring(0, c);
-
-  // IP リテラル（単一ホスト扱い）
-  if (isIPv4Literal(p)) return safeIsInNet(host, p, "255.255.255.255");
-
-  // 完全一致: "=host.example"
-  if (p.charAt(0) === "=") return host === p.substring(1);
-
-  // 前方一致: "^prefix"
-  if (p.charAt(0) === "^") return host.indexOf(p.substring(1)) === 0;
-
-  // サフィックス: ".example.com"
-  if (p.charAt(0) === ".") return dnsDomainIs(host, p);
-
-  // その他ワイルドカード: "*.example.com" 等
-  return shExpMatch(host, p);
-}
-
-function anyMatch(host, list) {
-  for (var i = 0; i < list.length; i++) {
-    if (matchPattern(host, list[i])) return true;
+  
+  function listLanNetsFromEnv(spec) {
+    if (!spec) return [];
+    return (spec + "").split(";").map(function(s){ return (s || "").trim(); }).filter(function(s){ return s; }).map(function(s){
+      var p = s.split("/");
+      if (p.length !== 2) return null;
+      return [p[0].trim(), p[1].trim()];
+    }).filter(function(x){ return x; });
   }
-  return false;
-}
-
-/* ============================================================
- *  2. envsubst による展開対象（テンプレート変数）
- * ============================================================
- *
- * ※ここは envsubst で置換される前提のため、実運用では .env の値が入ります。
- * ※下記は “説明用デフォルト値” を含めています（空ならデフォルト補完）。
- */
-
-// --- env 値（文字列として展開される） ---
-var PROXY1_ADDR          = "proxy1.ad.lan:3128";   // 通常入口
-var PROXY2_ADDR          = "proxy2.ad.lan:3129";   // フェイルオーバ用（※PACで使う場合のみ）
-var PROXY2_DIRECT_ADDR   = "proxy2.ad.lan:3131";   // Proxy1 skip（DIRECT相当）
-var FO_CHAIN             = "PROXY proxy2.ad.lan:3129; DIRECT";
-
-// DIRECT / 例外 / ルーティング条件（CSV）
-var RAW_LOCAL_DOMAINS      = ".ad.lan,.lan,.local";
-var RAW_LOCAL_UI_HOSTS     = "localhost,127.0.0.1,graylog.ad.lan,zabbix.ad.lan,portainer.ad.lan,wpad,wpad.ad.lan,proxy1.ad.lan,proxy2.ad.lan";
-var RAW_BYPASS_SUFFIXES    = ".examplebank.co.jp,.gov.example.jp,.paypay.ne.jp,.rakuten-bank.co.jp";
-var RAW_NONBUS_SUFFIXES    = ".youtube.com,.youtu.be,.netflix.com";
-var RAW_P2_ONLY_SUFFIXES   = "wikipedia.org,.wikipedia.org";
-var RAW_FORCE_P1_SUFFIXES  = ".google.com,.yahoo.co.jp,.microsoft.com";
-var RAW_LAN_NETS           = "";
-
-// --- JS 側でデフォルト補完（空の場合にのみ適用） ---
-if (!PROXY1_ADDR) PROXY1_ADDR = "proxy1.ad.lan:3128";
-
-/*
- * 注意：
- * - PROXY2_ADDR は “フェイルオーバ連鎖” 用の予備として扱います。
- * - 本プロジェクトの通常設計では「Proxy1→Proxy2(3129)」は Squid の cache_peer が担います。
- *   そのため、PAC で PROXY2_ADDR を使うのは「Proxy1 が死んだ場合にクライアントが直接逃がす」など
- *   “デモ/要件” がある場合に限定するのが安全です。
- */
-if (!PROXY2_ADDR) PROXY2_ADDR = "proxy2.ad.lan:3129";
-
-// DIRECT相当用が未指定なら通常用にフォールバック（後方互換）
-if (!PROXY2_DIRECT_ADDR) PROXY2_DIRECT_ADDR = PROXY2_ADDR;
-
-// FO_CHAIN 未指定なら「Proxy2（予備）→DIRECT」
-if (!FO_CHAIN) FO_CHAIN = "PROXY " + PROXY2_ADDR + "; DIRECT";
-
-var LOCAL_DOMAINS = listFromEnv(RAW_LOCAL_DOMAINS);
-if (LOCAL_DOMAINS.length === 0) LOCAL_DOMAINS = [".ad.lan", ".lan", ".local"];
-
-var LOCAL_UI_HOSTS = listFromEnv(RAW_LOCAL_UI_HOSTS);
-if (LOCAL_UI_HOSTS.length === 0) {
+  
+  function isIPv4Literal(s) {
+    return /^\d{1,3}(\.\d{1,3}){3}$/.test(s);
+  }
+    
+  function validIPv4(s) {
+    return isIPv4Literal(s);
+  }
+  
+  function safeIsInNet(host, net, mask) {
+    if (!validIPv4(net) || !validIPv4(mask)) return false;
+    return isInNet(host, net, mask);
+  }
+  
+  function inAnyLan(host, nets) {
+    for (var i = 0; i < nets.length; i++) {
+      if (safeIsInNet(host, nets[i][0], nets[i][1])) return true;
+    }
+    return false;
+  }
+  
+  function matchPattern(host, pattern) {
+    if (!pattern) return false;
+    var p = (pattern + "").trim();
+    if (!p) return false;
+  
+    // host:port → host（PAC の比較は host で行う）
+    var c = p.indexOf(":");
+    if (c > -1) p = p.substring(0, c);
+  
+    // IP リテラル（単一ホスト扱い）
+    if (isIPv4Literal(p)) return safeIsInNet(host, p, "255.255.255.255");
+  
+    // 完全一致: "=host.example"
+    if (p.charAt(0) === "=") return host === p.substring(1);
+  
+    // 前方一致: "^prefix"
+    if (p.charAt(0) === "^") return host.indexOf(p.substring(1)) === 0;
+  
+    // サフィックス: ".example.com"
+    if (p.charAt(0) === ".") return dnsDomainIs(host, p);
+  
+    // その他ワイルドカード: "*.example.com" 等
+    return shExpMatch(host, p);
+  }
+  
+  function anyMatch(host, list) {
+    for (var i = 0; i < list.length; i++) {
+      if (matchPattern(host, list[i])) return true;
+    }
+    return false;
+  }
+  
+  /* ============================================================
+   *  2. envsubst による展開対象（テンプレート変数）
+   * ============================================================
+   *
+   * ※ここは envsubst で置換される前提のため、実運用では .env の値が入ります。
+   * ※下記は “説明用デフォルト値” を含めています（空ならデフォルト補完）。
+   */
+  
+  // --- env 値（文字列として展開される） ---
+  var PROXY1_ADDR          = "proxy1.ad.lan:3128";   // 通常入口
+  var PROXY2_ADDR          = "proxy2.ad.lan:3129";   // フェイルオーバ用（※PACで使う場合のみ）
+  var PROXY2_DIRECT_ADDR   = "proxy2.ad.lan:3131";   // Proxy1 skip（DIRECT相当）
+  var FO_CHAIN             = "PROXY proxy2.ad.lan:3129; DIRECT";
+  
+  // DIRECT / 例外 / ルーティング条件（CSV）
+  var RAW_LOCAL_DOMAINS      = ".ad.lan,.lan,.local";
+  var RAW_LOCAL_UI_HOSTS     = "localhost,127.0.0.1,graylog.ad.lan,zabbix.ad.lan,portainer.ad.lan,wpad,wpad.ad.lan,proxy1.ad.lan,proxy2.ad.lan";
+  var RAW_BYPASS_SUFFIXES    = ".examplebank.co.jp,.gov.example.jp,.paypay.ne.jp,.rakuten-bank.co.jp";
+  var RAW_NONBUS_SUFFIXES    = ".youtube.com,.youtu.be,.netflix.com";
+  var RAW_P2_ONLY_SUFFIXES   = "wikipedia.org,.wikipedia.org";
+  var RAW_FORCE_P1_SUFFIXES  = ".google.com,.yahoo.co.jp,.microsoft.com";
+  var RAW_LAN_NETS           = "";
+  
+  // --- JS 側でデフォルト補完（空の場合にのみ適用） ---
+  if (!PROXY1_ADDR) PROXY1_ADDR = "proxy1.ad.lan:3128";
+  
+  /*
+   * 注意：
+   * - PROXY2_ADDR は “フェイルオーバ連鎖” 用の予備として扱います。
+   * - 本プロジェクトの通常設計では「Proxy1→Proxy2(3129)」は Squid の cache_peer が担います。
+   *   そのため、PAC で PROXY2_ADDR を使うのは「Proxy1 が死んだ場合にクライアントが直接逃がす」など
+   *   “デモ/要件” がある場合に限定するのが安全です。
+   */
+  if (!PROXY2_ADDR) PROXY2_ADDR = "proxy2.ad.lan:3129";
+  
+  // DIRECT相当用が未指定なら通常用にフォールバック（後方互換）
+  if (!PROXY2_DIRECT_ADDR) PROXY2_DIRECT_ADDR = PROXY2_ADDR;
+  
+  // FO_CHAIN 未指定なら「Proxy2（予備）→DIRECT」
+  if (!FO_CHAIN) FO_CHAIN = "PROXY " + PROXY2_ADDR + "; DIRECT";
+  
+  var LOCAL_DOMAINS = listFromEnv(RAW_LOCAL_DOMAINS);
+  if (LOCAL_DOMAINS.length === 0) LOCAL_DOMAINS = [".ad.lan", ".lan", ".local"];
+  
+  var LOCAL_UI_HOSTS = listFromEnv(RAW_LOCAL_UI_HOSTS);
+  if (LOCAL_UI_HOSTS.length === 0) {
   LOCAL_UI_HOSTS = ["localhost", "127.0.0.1", "wpad", "wpad.ad.lan", "graylog.ad.lan", "zabbix.ad.lan", "proxy1.ad.lan", "proxy2.ad.lan"];
-}
+  }
+  
+  var BYPASS_SUFFIXES = listFromEnv(RAW_BYPASS_SUFFIXES);
+  if (BYPASS_SUFFIXES.length === 0) BYPASS_SUFFIXES = [".examplebank.co.jp", ".gov.example.jp"];
+  
+  var NONBUS_SUFFIXES = listFromEnv(RAW_NONBUS_SUFFIXES);
+  if (NONBUS_SUFFIXES.length === 0) NONBUS_SUFFIXES = [".youtube.com", ".googlevideo.com", ".ytimg.com", ".netflix.com"];
 
-var BYPASS_SUFFIXES = listFromEnv(RAW_BYPASS_SUFFIXES);
-if (BYPASS_SUFFIXES.length === 0) BYPASS_SUFFIXES = [".examplebank.co.jp", ".gov.example.jp"];
-
-var NONBUS_SUFFIXES = listFromEnv(RAW_NONBUS_SUFFIXES);
-if (NONBUS_SUFFIXES.length === 0) NONBUS_SUFFIXES = [".youtube.com", ".googlevideo.com", ".ytimg.com", ".netflix.com"];
-
-var PROXY2_ONLY_SUFFIXES = listFromEnv(RAW_P2_ONLY_SUFFIXES);
-var FORCE_P1_SUFFIXES    = listFromEnv(RAW_FORCE_P1_SUFFIXES);
-
-var LAN_NETS = listLanNetsFromEnv(RAW_LAN_NETS);
-if (LAN_NETS.length === 0) LAN_NETS = listLanNetsFromEnv("192.168.11.0/255.255.255.0");
-
-/* ============================================================
- *  3. PAC 本体（経路決定）
- * ============================================================
- *
- * 返す文字列の例：
- *   "DIRECT"
- *   "PROXY proxy1.ad.lan:3128; DIRECT"
- *   "PROXY proxy1.ad.lan:3128; PROXY proxy2.ad.lan:3129; DIRECT"
- */
-
-function FindProxyForURL(url, host) {
-
-  // 0) ローカル / 社内は DIRECT（管理UIや社内DNS解決に強い）
-  if (isPlainHostName(host)) return "DIRECT";
-  if (inAnyLan(host, LAN_NETS)) return "DIRECT";
-  if (anyMatch(host, LOCAL_DOMAINS)) return "DIRECT";
-  if (anyMatch(host, LOCAL_UI_HOSTS)) return "DIRECT";
-
-  // 1) 例外 DIRECT（銀行/行政など：復号・検査を避ける運用方針を想定）
-  if (anyMatch(host, BYPASS_SUFFIXES)) return "DIRECT";
-
-  // 2) 非業務系（YouTube / Netflix など：デモとして明示的に DIRECT）
-  if (anyMatch(host, NONBUS_SUFFIXES)) return "DIRECT";
-
-  // 3) Proxy1 強制（検査・認証・ログ集約を必ず通す）
-  if (anyMatch(host, FORCE_P1_SUFFIXES)) {
+  var PROXY2_ONLY_SUFFIXES = listFromEnv(RAW_P2_ONLY_SUFFIXES);
+  var FORCE_P1_SUFFIXES    = listFromEnv(RAW_FORCE_P1_SUFFIXES);
+  
+  var LAN_NETS = listLanNetsFromEnv(RAW_LAN_NETS);
+  if (LAN_NETS.length === 0) LAN_NETS = listLanNetsFromEnv("192.168.11.0/255.255.255.0");
+  
+  /* ============================================================
+   *  3. PAC 本体（経路決定）
+   * ============================================================
+   *
+   * 返す文字列の例：
+   *   "DIRECT"
+   *   "PROXY proxy1.ad.lan:3128; DIRECT"
+   *   "PROXY proxy1.ad.lan:3128; PROXY proxy2.ad.lan:3129; DIRECT"
+   */
+  
+  function FindProxyForURL(url, host) {
+  
+    // 0) ローカル / 社内は DIRECT（管理UIや社内DNS解決に強い）
+    if (isPlainHostName(host)) return "DIRECT";
+    if (inAnyLan(host, LAN_NETS)) return "DIRECT";
+    if (anyMatch(host, LOCAL_DOMAINS)) return "DIRECT";
+    if (anyMatch(host, LOCAL_UI_HOSTS)) return "DIRECT";
+  
+    // 1) 例外 DIRECT（銀行/行政など：復号・検査を避ける運用方針を想定）
+    if (anyMatch(host, BYPASS_SUFFIXES)) return "DIRECT";
+  
+    // 2) 非業務系（YouTube / Netflix など：デモとして明示的に DIRECT）
+    if (anyMatch(host, NONBUS_SUFFIXES)) return "DIRECT";
+  
+    // 3) Proxy1 強制（検査・認証・ログ集約を必ず通す）
+    if (anyMatch(host, FORCE_P1_SUFFIXES)) {
     return "PROXY " + PROXY1_ADDR + "; DIRECT";
-  }
-
-  // 4) Proxy2 のみに振り分け（Proxy1 skip / DIRECT相当用ポート）
-  if (anyMatch(host, PROXY2_ONLY_SUFFIXES)) {
+    }  
+  
+    // 4) Proxy2 のみに振り分け（Proxy1 skip / DIRECT相当用ポート）
+    if (anyMatch(host, PROXY2_ONLY_SUFFIXES)) {
     return "PROXY " + PROXY2_DIRECT_ADDR + "; DIRECT";
+    }
+  
+    // 5) デフォルト：Proxy1 → フェイルオーバ連鎖 → DIRECT
+    //    ※ Proxy1→Proxy2 の通常中継は Squid(cache_peer) 側で実施する設計
+    var p1 = "PROXY " + PROXY1_ADDR;
+    var fo = (FO_CHAIN + "").trim();
+  
+    if (fo.length > 0) return p1 + "; " + fo;
+  
+    // FO_CHAIN が空の場合の保険（最小構成）
+    if (PROXY2_ADDR) return p1 + "; PROXY " + PROXY2_ADDR + "; DIRECT";
+  
+    return p1 + "; DIRECT";
   }
-
-  // 5) デフォルト：Proxy1 → フェイルオーバ連鎖 → DIRECT
-  //    ※ Proxy1→Proxy2 の通常中継は Squid(cache_peer) 側で実施する設計
-  var p1 = "PROXY " + PROXY1_ADDR;
-  var fo = (FO_CHAIN + "").trim();
-
-  if (fo.length > 0) return p1 + "; " + fo;
-
-  // FO_CHAIN が空の場合の保険（最小構成）
-  if (PROXY2_ADDR) return p1 + "; PROXY " + PROXY2_ADDR + "; DIRECT";
-
-  return p1 + "; DIRECT";
-}
-
+</pre>
 </details>
 ---
 
