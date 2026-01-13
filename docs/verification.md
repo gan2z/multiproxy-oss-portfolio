@@ -509,8 +509,8 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 
 ### 手順
 
-<a id="p3-1"></a>
 #### P3-1. PAC の内容確認
+<a id="p3-1"></a>
 
 **実施内容**
 
@@ -579,9 +579,9 @@ Squid / stunnel により形成される内部中継経路を分離して可視�
 ### 証跡（表示）
 
 <div style="text-align:center; margin: 1.2em 0;">
-  <a href="./images/pac-routing-diagram.png" target="_blank">
+  <a href="./images/P3-1：証跡_比較.png" target="_blank">
     <img
-      src="./images/pac-routing-diagram.png"
+      src="./images/P3-1：証跡_比較.png"
       alt="P3 通信経路図（PAC による分岐点）"
       style="width:100%; max-width:1200px; height:auto;
              border-radius:12px;
