@@ -988,35 +988,173 @@ Client
 
 #### P3-2. 経路差のログ確認（NORMAL vs P2-DIRECT）
 <a id="p3-2"></a>
-NORMAL 対象サイトと DIRECT 対象サイトへアクセス後、各 Proxy のログを比較する。
 
-###### NORMAL（例：cloudflare.com）
+### 目的
+PAC により選択された通信経路の違いが、  
+各 Proxy のログ出力差として明確に確認できることを示す。
 
-    docker exec -it proxy1 bash -lc \
-      "grep -a 'cloudflare.com' /var/log/squid/access.log | tail -n 10"
+- **NORMAL**：Proxy1 → Proxy2 → Proxy3  
+- **P2-DIRECT**：Proxy2 → Proxy3（Proxy1 skip）  
+- **ROUTER-DIRECT（参考）**：Proxy を一切経由しない  
 
-    docker exec -it proxy2 bash -lc \
-      "grep -a 'cloudflare.com' /var/log/squid/access_3129.log | tail -n 10"
+---
 
-    docker exec -it proxy3 bash -lc \
-      "grep -a 'cloudflare.com' /var/log/squid/access_main.log | tail -n 10"
+### 事前準備（クライアント側アクセス）
 
-###### P2-DIRECT（例：wikipedia.org）
+以下はクライアント端末（Browser / curl）での打鍵例。  
+※ PAC が適用されている前提。
 
-    docker exec -it proxy1 bash -lc \
-      "grep -a 'wikipedia.org' /var/log/squid/access.log | tail -n 10"
+---
 
-    docker exec -it proxy2 bash -lc \
-      "grep -a 'wikipedia.org' /var/log/squid/access_3131.log | tail -n 10"
+#### NORMAL 対象サイト（例：www.google.com）
 
-    docker exec -it proxy3 bash -lc \
-      "grep -a 'wikipedia.org' /var/log/squid/access_direct.log | tail -n 10"
+実行
 
-- NORMAL：`proxy1 / proxy2 / proxy3` すべてにログが出る  
-- DIRECT：`proxy1` には出ず、`proxy2(3131)` と `proxy3(3132)` のみに出る  
+```
+https://www.google.com
 
-この差が分かる画面をスクリーンショット  
-→ `pac-flow-normal-vs-direct.png`
+```
+
+---
+
+#### P2-DIRECT 対象サイト（例：wikipedia.org）
+
+実行する。
+
+```
+https://www.wikipedia.org
+```
+
+---
+
+#### ROUTER-DIRECT（完全直通・PAC 無効の確認用）
+
+※ 一時的にクライアントで「プロキシなし」にするか、  
+※ 明示的に DIRECT 指定で確認する場合。
+
+```
+https://www.netflix.com
+
+```
+
+> 補足  
+> ROUTER-DIRECT は PAC の責務外であり、  
+> 「Proxy を一切経由しない場合の参考比較」として扱う。
+
+---
+
+### ログ確認手順（Proxy 側）
+
+---
+
+#### NORMAL（例：google.com）
+
+```
+docker compose exec -T proxy1 sh -lc \
+"grep -aRInE 'google\.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+
+docker compose exec -T proxy2 sh -lc \
+"grep -aRInE 'google\.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+
+docker compose exec -T proxy3 sh -lc \
+"grep -aRInE 'google\.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+---
+
+#### P2-DIRECT（例：wikipedia.org）
+
+```
+docker compose exec -T proxy1 sh -lc \
+"grep -aRInE 'wikipedia(\.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3 || true"
+
+docker compose exec -T proxy2 sh -lc \
+"grep -aRInE 'wikipedia(\.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+
+docker compose exec -T proxy3 sh -lc \
+"grep -aRInE 'wikipedia(\.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+```
+
+---
+
+#### ROUTER-DIRECT（参考：Netflix / Proxy 非経由）
+```
+# Netflix 本体ドメインだけを厳密チェック
+
+```
+docker compose exec -T proxy1 sh -lc \
+'grep -aRInE "\"(GET|POST|CONNECT)[[:space:]]+https://(www\.netflix\.com|[^/ ]*\.nflx(video|so|img|ext)\.net)" \
+ /var/log/squid/access*.log 2>/dev/null | tail -n 5 || true'
+
+docker compose exec -T proxy2 sh -lc \
+'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www\.netflix\.com|[^/ ]*\.nflx(video|so|img|ext)\.net)" \
+ /var/log/squid/access*.log 2>/dev/null | tail -n 5 || true'
+
+docker compose exec -T proxy3 sh -lc \
+'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www\.netflix\.com|[^/ ]*\.nflx(video|so|img|ext)\.net)" \
+ /var/log/squid/access*.log 2>/dev/null | tail -n 5 || true'
+
+```
+
+※ いずれの Proxy ログにも該当通信が出ないことを確認する。
+
+---
+
+### 判定基準（ポートフォリオ明記用）
+
+**NORMAL**
+
+- proxy1（3128）  
+- proxy2（3129）  
+- proxy3（3130）  
+
+→ 全段にログが出る。
+
+---
+
+**P2-DIRECT**
+
+- proxy1：ログなし  
+- proxy2（3131）  
+- proxy3（3132）  
+
+→ Proxy1 を完全にスキップしている。
+
+---
+
+**ROUTER-DIRECT（参考）**
+
+- proxy1 / proxy2 / proxy3：すべてログなし  
+
+→ PAC / Proxy を一切経由していない。
+
+---
+
+### 証跡（スクリーンショット）
+
+- 同一時間帯で取得したログ差分が分かる画面  
+  - NORMAL：proxy1 / proxy2 / proxy3 のログ  
+  - P2-DIRECT：proxy2 / proxy3 のみログ  
+
+※ 1 枚に収まらない場合は左右比較でも可。
+
+**証跡**
+- `pac-flow-normal-vs-direct.png`
+
+---
+
+### 補足説明（お客様向け）
+
+本検証により、PAC による経路制御が  
+ログという客観的証跡で確認できることを示している。
+
+特に P2-DIRECT は、  
+**「Proxy1 を経由しない設計意図どおりの通信」**であることを  
+明確に証明している。
+
+ROUTER-DIRECT は、  
+PAC / Proxy が介在しない場合の比較用参考として記載する。
+
+**証跡**
+- `pac-flow-normal-vs-direct.png`
 
 ---
 
@@ -1044,35 +1182,53 @@ NORMAL 対象サイトと DIRECT 対象サイトへアクセス後、各 Proxy �
 ---
 
 #### 手順
-<a id="p4-1-1"></a>
-#### P4-1-1. HTTPS アクセス & 証明書
 
-- Windows クライアントで HTTPS サイト（例：`https://cloudflare.com`）にアクセス
+#### P4-1-1. HTTPS アクセス & 証明書
+<a id="p4-1-1"></a>
+
+- Windows クライアントで HTTPS サイト（例：`https://www.google.com`）にアクセス
 - ブラウザの証明書表示を開き、  
-  **発行者が internal CA になっている画面**をスクリーンショット  
+  **発行者が Multiproxy Root CA になっている画面**をスクリーンショット  
   → `sslbump-cert.png`
 
 ---
-<a id="p4-1-2"></a>
+
 #### P4-1-2. 経路①（通常）で Proxy1 が復号しているログ
+<a id="p4-1-2"></a>
 
-WSL2 で実行（例：cloudflare.com）：
+WSL2 で実行（例：www.google.com）：
 
-    docker exec -it proxy1 bash -lc \
-      "grep -a 'cloudflare.com' /var/log/squid/access.log | tail -n 20"
+    docker compose exec -T proxy1 sh -lc '
+    LOGS="$(ls -1 /var/log/squid/access*.log 2>/dev/null || true)"
+    [ -n "$LOGS" ] || { echo "[NG] no access*.log under /var/log/squid"; exit 0; }
+    
+    # Google系のHTTPS(= https://) かつ bump=bump を拾って「復号が行われた」証拠にする
+    PAT="(https://[^ ]*google\.com/|CONNECT ([^ ]*\.)?google\.com:443)"
+    
+    echo "### Proxy1 SSLBump evidence (google.com) : latest 3"
+    grep -aRInE "$PAT" $LOGS 2>/dev/null \
+      | grep -a "bump=bump" \
+      | tail -n 3
+    '
 
 - `ssl_bump` を伴うログが Proxy1 に出ている部分をスクリーンショット  
   → `sslbump-proxy1-log.png`
 
 ---
-<a id="p4-1-3"></a>
+
 #### P4-1-3. 経路②（DIRECT）で Proxy2 が復号しているログ
+<a id="p4-1-3"></a>
 
 DIRECT 対象サイト（例：wikipedia.org）へアクセス後、  
 Proxy2 の 3131 ポート側ログを確認：
 
-    docker exec -it proxy2 bash -lc \
-      "grep -a 'wikipedia.org' /var/log/squid/access_3131.log | tail -n 20"
+    docker compose exec -T proxy2 sh -lc '
+    LOG=/var/log/squid/access_3131.log
+    PAT="wikipedia\.org"
+    
+    echo "### file: $LOG"
+    grep -aE "$PAT" "$LOG" 2>/dev/null | grep -a "bump=bump" | tail -n 3
+    '
 
 - Proxy2（3131）で復号が行われていることが分かるログをスクリーンショット  
   → `sslbump-proxy2-log.png`
@@ -1088,109 +1244,225 @@ Squid 単体では実現できないため、**stunnel によって分離実装*
 
 ---
 
-<a id="p4-2-1"></a>
 #### P4-2-1. openssl s_client による TLS 確認
+<a id="p4-2-1"></a>
 
-WSL2 で実行：
+Proxy2 → Proxy3 間の通信が、  
+**stunnel によって TLS で暗号化されていること**を確認する。
 
-    docker exec -it proxy2-3-stunnel sh -lc \
-      'openssl s_client -connect proxy3-stunnel:4433 \
-       -servername proxy3-stunnel \
-       -brief </dev/null 2>&1 | head -n 15'
-
-- `CONNECTION ESTABLISHED`
-- `Protocol version: TLSv1.3` などが確認できる画面をスクリーンショット  
-  → `stunnel-sclient.png`
-
----
-<a id="p4-2-2"></a>
-#### P4-2-2. stunnel ログの確認
-
-WSL2 で実行：
-
-    docker exec -it proxy1-stunnel sh -lc \
-      "tail -n 80 /var/log/stunnel/stunnel.log"
-
-- `SSL accepted` / `Connection established` 等が確認できる箇所をスクリーンショット  
-  → `stunnel-log.png`
+- TLS セッションが確立していること（`CONNECTION ESTABLISHED`）
+- TLSv1.3 がネゴシエートされていること
+- Proxy3 側 stunnel がサーバ証明書を提示していること
+- Squid の通信とは独立した TLS レイヤであること
 
 ---
 
-## P4-3：WSL2 mirrored mode & AD/DC 連携（index.md 4-3）
+#### 確認結果（スクリーンショット）
+
+- `CONNECTION ESTABLISHED` が表示されている  
+- `Protocol version: TLSv1.3` が確認できる  
+- `Ciphersuite: TLS_AES_256_GCM_SHA384` が使用されている  
+- `Peer certificate: CN = proxy3-stunnel` が表示されている  
+
+上記より、**Proxy2–Proxy3 間の中継通信は stunnel により TLS で暗号化されている**ことが分かる。
+
+→ `stunnel-sclient.png`
+
+---
+
+#### 設計上の意味
+
+- Squid で復号された後の **プロキシ間通信を平文のまま流さない**
+- 商用プロキシ製品における  
+  **「内部中継通信の暗号化」** を OSS で再現
+- SSLBump（復号）と 中継TLS（再暗号化）を  
+  **役割分離した構成** として実装
+
+本構成により、  
+**「クライアント向け HTTPS 復号」と「プロキシ間通信の秘匿」** を  
+独立した責務として管理できている。
+
+---
+
+## P4-2：WSL2 mirrored mode & AD/DC 連携
 
 **主張：**  
-Kerberos / WPAD / DNS の前提となる **「同一 L2 セグメント」** を満たし、  
-実環境（商用ネットワーク）と同等の条件で検証できている。
+Kerberos / WPAD / DNS の前提条件となる  
+**「クライアント・WSL2・AD/DC・DNS が同一 L2 セグメントに存在する構成」**を満たし、  
+商用ネットワークと同等の条件で検証できている。
+
+本構成では、WSL2 を **Mirrored Networking Mode** で動作させることで、  
+NAT 配下ではなく **実 LAN に直接参加する構成**を実現している。
 
 ---
 
+#### P4-2-1. IP アドレス比較（同一セグメント）
 <a id="p4-3-1"></a>
-#### P4-3-1. IP アドレス比較（同一セグメント）
 
-以下の 3 つを並べてスクリーンショット：
+以下の 4 つを並べてスクリーンショットを取得する：
 
 - Windows クライアント：  
-      ipconfig
+      ipconfig | Select-String -Pattern "IPv4|サブネット|デフォルト ゲートウェイ"
 - WSL2（Ubuntu）：  
-      ip a
+      ip -4 -o addr show scope global
 - AD/DC VM：  
-      ip a
+      ip -4 -o addr show scope global
+- dnsmasq VM： 
+      ip -4 -o addr show scope global
+
 
 - すべてが同一セグメント（例：`192.168.11.0/24`）であることが分かる画面  
   → `wsl2-mirrored-ip.png`
 
----
-<a id="p4-3-2"></a>
-#### P4-3-2. ドメイン参加の証拠
+#### 確認できること
 
-- Windows ログイン画面で  
-  **AD ユーザ（例：`AD\testuser1`）が選択できる状態**をスクリーンショット  
-  → `ad-domain-join.png`
+- Windows クライアントと WSL2 が **同一 IPv4 アドレス体系**に存在している  
+- AD/DC・dnsmasq も同一 L2 セグメント上に配置されている  
+- WSL2 が NAT 越しではなく、**ブロードキャスト／Kerberos 前提の通信が成立する配置**になっている  
+
+---
+
+#### P4-3-2. ドメイン参加および Kerberos 認証の証拠
+<a id="p4-3-2"></a>
+
+本環境は **RDP 接続のみ可能な検証構成**のため、  
+物理ログイン画面は取得していない。
+
+代わりに、ログイン後の状態から  
+**Active Directory ドメイン参加および Kerberos 認証が実際に利用されていること**を確認する。
+
+以下の情報を抜粋してスクリーンショット取得：
+
+- `whoami` の実行結果が  
+  **`ad\testuser1`** となっていること
+
+- `systeminfo` の出力にて  
+  - **OS 構成：メンバー ワークステーション**
+  - **ドメイン：ad.lan**
+  - **ログオン サーバー：\\DC1**  
+  が確認できること
+
+- `klist` の出力にて  
+  - **`HTTP/proxy1.ad.lan`**
+  - **`HTTP/proxy2.ad.lan`**  
+  に対する Kerberos チケットが発行されていること
+
+これにより、  
+**Windows クライアントが Samba AD/DC に参加し、  
+Kerberos 認証を用いて Proxy（Squid）と連携通信している**ことが分かる。
+
+→ `ad-domain-kerberos.png`
+---
+
+#### 設計上の意味
+
+- Kerberos（SPN 解決・チケット発行）が **NAT 非依存で成立**
+- WPAD / DNS / Proxy 認証の前提条件を **実ネットワーク同等条件で検証**
+- 商用プロキシ環境で一般的な  
+**「クライアントと同一セグメントに配置される認証・中継基盤」**を再現
+
+本項により、本構成が  
+**机上構成ではなく、実運用を想定したネットワーク前提で構築されている**ことを示している。
+
+---
 
 ---
 
 ## P5：学習ログ（導入経緯／失敗／認証切り分け）（index.md 5章）
 
-## P5-1：stunnel が必要だと理解するに至った過程（任意）（index.md 5-1）
+---
+
+## P5-1：stunnel が必要だと理解するに至った過程（index.md 5-1）
 
 **主張：**  
 商用プロキシでは暗黙的に提供される  
-**「中継区間の暗号化」** を、OSS の制約と脅威モデルから分解し、  
-自ら再設計できることを示す。
+**「プロキシ間（中継区間）の暗号化」** を、  
+OSS（Squid）の制約と脅威モデルから分解し、  
+**自ら再設計できることを示す。**
 
 ---
 
+#### P5-1-1. 設計判断の整理（思考ログ）
 <a id="p5-1-1"></a>
-#### P5-1-1. 当時の設計メモ／判断理由（再現はしない）
 
-- 当時の設計メモや判断理由を index.md 5-1 から再掲
-- **意図的に壊す再現テストは行わない**
-  - 再現が必要な場合は別ブランチで実施
-- テキスト主体の説明画像でも可
+- 当初は「Proxy1 で SSLBump すれば十分」と考えていた
+- しかし以下の点に気づいた：
+  - Proxy1–Proxy2–Proxy3 間の通信は **復号後は平文**
+  - Squid 単体では「中継区間のみを再暗号化」する手段がない
+- 商用プロキシ製品では内部的に実装されている  
+  **「機器間通信の TLS 化」** が OSS では欠落していると判断
 
-→ `no-stunnel-note.png`（メモ／設計判断のスクリーンショット）
+このため、
+
+- **HTTPS 復号（SSLBump）**
+- **プロキシ間通信の暗号化（中継 TLS）**
+
+を **責務分離** し、  
+中継暗号化を **stunnel により外付け実装** する設計に至った。
+
+※ 本節は設計判断の説明を目的とし、  
+　**意図的に壊す再現テストは行わない。**
 
 ---
 
-## P5-2：多段 SSLBump が失敗したログ（任意）（index.md 5-2）
+### P5-2：多段 SSLBump が失敗した理由（=復号は1回のみ）
 
 **主張：**  
-**「HTTPS 復号は 1 通信につき 1 回のみ」** という制約を、  
-実際の失敗を通じて理解し、  
-**経路別に復号ポイントを分離する設計**へ落とし込んだ。
+HTTPS 復号（SSLBump）は **1 通信につき 1 回のみ**である。  
+経路①（Proxy1 → Proxy2:3129）で Proxy2 側でも bump を適用すると、**同一セッションに対する二重復号**となり TLS が破綻する。  
+このため、経路①では **Proxy2:3129 を splice 固定**し、復号点を分離する設計へ改善した。
 
 ---
 
+#### P5-2-1. 二重SSLBump（Proxy1→Proxy2:3129）による失敗の観測
 <a id="p5-2-1"></a>
-#### P5-2-1. 当時保存していたエラーログ（再現不要）
 
-- 当時保存していたエラーログ（再現不要）
-  - 例：`TCP_MISS/503`、TLS handshake error 等
-- 「proxy2 でも bump しようとして失敗した」ことが分かる内容
+**目的**  
+- 「多段 SSLBump（同一セッションへの二重復号）は成立しない」ことを、  
+  設計（復号点の分離）と、実ログ（503 / TLS エラー）で説明できる状態にする。
 
-→ `double-bump-error.png`
+**対象**  
+- 経路①：Client → Proxy1:3128 → Proxy2:3129 → Proxy3:3130  
+- 観測サイト：`https://www.google.com`
 
-※ 再現は必須ではなく、**当時のログ＋設計改善の説明**で十分。
+---
+
+#### 撮るもの（成果物）
+- Proxy2 access_3129.log：chain 側で **bump が走った痕跡（bump=bump 等）**  
+  → `double-sslbump-proxy2-access3129.png`
+- Proxy1 access log：`CONNECT 200 → GET https://www.google.com 503` が確認できる画面  
+  → `double-sslbump-proxy1-access-google-503.png`
+- （任意）ブラウザ側エラー（TLS/証明書系）  
+  → `double-sslbump-browser-error.png`
+- （補足）Proxy1 側でも同一通信が `bump=bump` で復号済みであることを確認  
+  → `double-sslbump-proxy1-bump.png`
+
+---
+
+#### 証跡（スクリーンショット）
+- Proxy2 access_3129.log：`bump=bump`（chain 側で bump が走った痕跡）  
+  ![double-sslbump-proxy2-access3129](assets/evidence/double-sslbump-proxy2-access3129.png)
+
+- Proxy1 access log：`CONNECT 200 → GET https://www.google.com 503`  
+  ![double-sslbump-proxy1-access-google-503](assets/evidence/double-sslbump-proxy1-access-google-503.png)
+
+- （任意）ブラウザエラー：`X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN`  
+  ![double-sslbump-browser-error](assets/evidence/double-sslbump-browser-error.png)
+
+- （補足）Proxy1 側でも同一通信が `bump=bump` で復号済みであることを確認  
+  ![proxy1-bump-evidence](assets/evidence/double-sslbump-proxy1-bump.png)
+
+<details>
+<summary><strong>検証手順（コマンド含む・折りたたみ）</strong></summary>
+
+- Proxy2 の `61-ssl-bump.conf` にて `p2_chain_3129` を一時的に `stare/bump` に変更
+- 反映：`squid -k parse` / `squid -k reconfigure`
+- Windows/Ubuntu から `https://www.google.com` にアクセス
+- ログ採取：Proxy1/Proxy2 の access/cache log
+
+👉 詳細なコマンド全文：`evidence/p5-2.md`
+
+</details>
 
 ---
 
@@ -1198,12 +1470,55 @@ Kerberos / WPAD / DNS の前提となる **「同一 L2 セグメント」** を
 
 **主張：**  
 認証をブラックボックスにせず、  
-**CLI とログを使って認証フローを段階的に切り分けられる**。
+**CLI とログを用いて段階的に切り分け・確認できる。**
 
 ---
 
-<a id="p5-3-1"></a>
 #### P5-3-1. ldapwhoami（LDAP 疎通確認）
+<a id="p5-3-1"></a>
+
+    docker compose exec -T ldap sh -lc '
+    BIND_PW="$(cat /run/secrets/bind_pw)"
+    ldapwhoami -x -H ldap://ldap:389 \
+      -D "CN=LDAP Proxy,OU=Service Accounts,DC=ad,DC=lan" \
+      -w "$BIND_PW"
+    '
+
+- `dn: CN=LDAP Proxy,...` が表示される画面  
+  → `ldapwhoami.png`
+
+---
+
+#### P5-3-2. testuser1 の検索
+<a id="p5-3-2"></a>
+
+    docker compose exec -T ldap sh -lc '
+    BIND_PW="$(cat /run/secrets/bind_pw)"
+    ldapsearch -LLL -x -H ldap://ldap:389 \
+      -D "CN=LDAP Proxy,OU=Service Accounts,DC=ad,DC=lan" \
+      -w "$BIND_PW" \
+      -b "OU=TestUsers,DC=ad,DC=lan" \
+      "(sAMAccountName=testuser1)" dn sAMAccountName cn
+    '
+
+- `dn: CN=testuser1,...` が確認できる画面  
+  → `ldapsearch-testuser1.png`
+
+---
+
+#### P5-3-3. Proxy ログに認証ユーザが出ていることの確認
+<a id="p5-3-3"></a>
+
+    docker compose exec -T proxy1 sh -lc \
+      "grep -a 'testuser1@AD.LAN' /var/log/squid/access.log | tail -n 10"
+
+- Kerberos 認証されたユーザ名付きアクセスログが確認できる画面  
+  → `proxy-auth-log.png`
+
+---
+
+#### P5-3-1. ldapwhoami（LDAP 疎通確認）
+<a id="p5-3-1"></a>
 
     docker exec -it ldap sh -lc '
     BIND_PW="$(cat /run/secrets/bind_pw)"
@@ -1212,12 +1527,13 @@ Kerberos / WPAD / DNS の前提となる **「同一 L2 セグメント」** を
       -w "$BIND_PW"
     '
 
-- `dn: CN=LDAP Proxy,...` が表示される画面をスクリーンショット  
+- `dn: CN=LDAP Proxy,...` が表示される画面  
   → `ldapwhoami.png`
 
 ---
-<a id="p5-3-2"></a>
+
 #### P5-3-2. testuser1 の検索
+<a id="p5-3-2"></a>
 
     docker exec -it ldap sh -lc '
     BIND_PW="$(cat /run/secrets/bind_pw)"
@@ -1232,15 +1548,15 @@ Kerberos / WPAD / DNS の前提となる **「同一 L2 セグメント」** を
   → `ldapsearch-testuser1.png`
 
 ---
-<a id="p5-3-3"></a>
+
 #### P5-3-3. Proxy ログに認証ユーザが出ていることの確認
+<a id="p5-3-3"></a>
 
     docker exec -it proxy1 sh -lc \
       "grep -a 'testuser1@AD.LAN' /var/log/squid/access.log | tail -n 10"
 
-- ユーザ名付きアクセスログが確認できる画面  
+- Kerberos 認証されたユーザ名付きアクセスログが確認できる画面  
   → `proxy-auth-log.png`
-
 ---
 
 ## P6：ログ・監視（Observability）（index.md 6章）
