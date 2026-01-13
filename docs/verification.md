@@ -491,11 +491,19 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 クライアントが取得する PAC ファイルにより、  
 **通信先ドメインに応じて Proxy1 / Proxy2 / DIRECT が正しく制御されている**ことを示す。
 
+本章では、  
+- クライアントが取得する PAC（wpad.dat）の内容  
+- PAC が制御する「クライアント出口」と、  
+  Squid が担う「内部中継」の責務分離  
+
+が **設計どおりであること**を確認する。
+
 ---
 
 ### 撮るもの
 - ブラウザから取得した PAC ファイル（wpad.dat）の内容
-- PROXY / DIRECT の分岐が確認できる箇所（同一画面内で確認）
+- PROXY / DIRECT の分岐定義が確認できる箇所（同一画面内）
+- PAC による分岐点を示した通信経路図
 
 ---
 
@@ -504,32 +512,102 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 <a id="p3-1"></a>
 #### P3-1. PAC の内容確認
 
-クライアント端末のブラウザで以下にアクセス：
+**実施内容**
+
+クライアント端末のブラウザで、PAC ファイルを直接取得する。
 
     http://wpad.ad.lan:8080/wpad.dat
 
 ---
 
-### 確認内容
+**確認内容**
 
-PAC ファイル内に、以下の記述が存在することを確認する。
+取得した PAC ファイル内に、以下の記述が存在することを確認する。
 
-- `PROXY proxy1.ad.lan:3128（通常の入口）`
-- `PROXY proxy2.ad.lan:3131（Proxy1 skip / DIRECT相当の入口）`
-- `DIRECT（社内・例外などの直通）`
+- `PROXY proxy1.ad.lan:3128`  
+  （通常のクライアント入口）
 
-> 補足：
-> proxy2.ad.lan:3129 は **Proxy1→Proxy2 の内部中継（Squid cache_peer）**で使用するポートです。
-> PAC（クライアントの出口制御）で通常指定する必要はありません。
+- `PROXY proxy2.ad.lan:3131`  
+  （Proxy1 を経由しない *DIRECT 相当* の入口）
+
+- `DIRECT`  
+  （社内通信・管理系 UI・例外通信の直通）
+
+> 補足  
+> `proxy2.ad.lan:3129` は **Proxy1 → Proxy2 の内部中継**として  
+> Squid の `cache_peer` で使用するポートである。  
+>  
+> PAC は「クライアント → 最初の出口」を制御する仕組みのため、  
+> **通常は PAC 側で 3129 を指定する必要はない。**
 
 ---
 
-### 証跡（スクリーンショット）
+**証跡**
 
-- ブラウザで表示された wpad.dat の内容（全体）
-- 上記 PROXY / DIRECT の文字列が確認できる箇所（同じ画面内でOK）
+- ブラウザで表示された `wpad.dat` の内容（全体）
+- 上記 `PROXY / DIRECT` の文字列が確認できる箇所  
+  （同一画面内で確認できれば可）
 
 → `wpad-dat.png`
+
+---
+
+### P3-2. 通信経路図による分岐点の確認
+<a id="p3-2"></a>
+
+**目的**
+
+PAC によって制御される範囲と、  
+Squid / stunnel により形成される内部中継経路を分離して可視化し、  
+**設計上の責務分担が明確であること**を示す。
+
+**確認内容**
+
+- PAC が制御するのは  
+  **Client → Proxy1 / Proxy2 / DIRECT の入口選択のみ**であること
+- Proxy1 → Proxy2（3129）以降は  
+  Squid の `cache_peer` により自動中継されること
+
+**証跡**
+
+- PAC による分岐点を明示した通信経路図
+
+→ `pac-routing-diagram.png`
+
+---
+
+### 証跡（表示）
+
+<div style="text-align:center; margin: 1.2em 0;">
+  <a href="./images/pac-routing-diagram.png" target="_blank">
+    <img
+      src="./images/pac-routing-diagram.png"
+      alt="P3 通信経路図（PAC による分岐点）"
+      style="width:100%; max-width:1200px; height:auto;
+             border-radius:12px;
+             box-shadow:0 6px 18px rgba(0,0,0,.15);
+             cursor: zoom-in;"
+    >
+  </a>
+</div>
+
+<p style="text-align:center; font-size:.9em; opacity:.8;">
+※ 画像をクリックすると原寸で確認できます
+</p>
+
+---
+
+### 補足説明（お客様向け）
+
+- PAC ファイルは **WPAD によりクライアントへ自動配布**
+- クライアント側で個別のプロキシ設定は不要
+- 通信先ドメインに応じて以下を自動判定
+  - 社内系 / 管理系通信：DIRECT
+  - 通常業務通信：Proxy1 → Proxy2（内部中継）
+  - 一部例外通信：Proxy2 直通（Proxy1 skip）
+
+本構成により、  
+**入口制御（PAC）と内部中継（Squid）を分離した、実運用を想定した設計**であることを示している。
 
 ---
 ### （参考）通信経路_ポート表示（折りたたみ表示）
@@ -905,20 +983,8 @@ function FindProxyForURL(url, host) {
 </details>
 ---
 
-### 補足説明
-
-- PAC ファイルは HTTP 経由で配布され、クライアントに設定された PAC URL により利用される
-- 本検証環境では、WPAD の自動探索は用いず、PAC URL を明示指定している
-- PAC の内容により通信先ごとの Proxy / DIRECT 制御が自動的に行われる
-- 通信先に応じて以下を自動判定
-  - 社内系 / 管理系：DIRECT
-  - 通常業務通信：Proxy1 → Proxy2
-  - 一部例外通信：Proxy2 直通（Proxy1 skip）
-
----
-<a id="p3-2"></a>
 #### P3-2. 経路差のログ確認（NORMAL vs P2-DIRECT）
-
+<a id="p3-2"></a>
 NORMAL 対象サイトと DIRECT 対象サイトへアクセス後、各 Proxy のログを比較する。
 
 ###### NORMAL（例：cloudflare.com）
