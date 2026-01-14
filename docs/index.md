@@ -43,11 +43,10 @@ Author: gan2
 
 <details>
   <summary><strong>補足：このポートフォリオの位置づけ（クリックで開く）</strong></summary>
-
   <ul>
-    <li><strong>主:</strong> 職務経歴書</li>
-    <li><strong>本ページ:</strong> 「実務の運用保守 + 設計・切り分けができる」ことの補強</li>
-    <li><strong>根拠:</strong> 以降の章で <strong>図面・ログ・検証結果</strong> により説明します</li>
+    <li><strong>位置づけ:</strong> 実務で扱う構成を題材にした <strong>個人OSS開発（ポートフォリオ本体）</strong></li>
+    <li><strong>狙い:</strong> 通信・認証・暗号化・ログを <strong>俯瞰して切り分けできる設計力</strong> を身につける</li>
+    <li><strong>根拠:</strong> 以降の章で <strong>図面・ログ・検証結果</strong> を用いて説明します</li>
   </ul>
 </details>
 
