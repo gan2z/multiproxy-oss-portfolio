@@ -317,4 +317,65 @@ details:not([open]) summary {
     border: none;                       /* 外枠は wrap 側 */
     border-radius: 0;
   }
+  
 }
+/* =========================================================
+ * 6) details（補足ブロック）：背景色＋左アクセントで読みやすく
+ * ========================================================= */
+
+/* summary行は今のUIを維持しつつ、開いた中身をカード化 */
+details > :not(summary) {
+  margin-top: 0.55rem;                 /* summaryとの間を少し空ける */
+  padding: 0.75rem 0.95rem;
+  border-radius: 10px;
+
+  /* 薄い背景（色飛びしにくいベタ色寄り） */
+  background: #f3faf5;                 /* 淡い緑 */
+  border-left: 4px solid #2ecc71;      /* 左アクセント */
+}
+
+/* リストの行間を少し広げて読みやすく */
+details > :not(summary) li {
+  margin: 0.28rem 0;
+  line-height: 1.55;
+}
+
+/* =========================================================
+ * 7) スマホで表が潰れる問題：小画面は“横スクロール優先”に切替
+ *   - つぶして詰めるのではなく、必要なら横スクロールする
+ * ========================================================= */
+
+@media (max-width: 760px) {
+
+  /* 表ラッパー：横スクロールを強制的に生かす */
+  .table-wrap {
+    display: block;                    /* inline-block をやめて幅100% */
+    width: 100%;
+    max-width: 100%;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 表：潰して固定レイアウトにしない（＝文字が読めなくなる原因） */
+  .table-wrap table {
+    table-layout: auto !important;     /* fixed を解除 */
+    width: max-content !important;     /* 内容幅を許容してスクロール */
+    min-width: 680px;                  /* 目安：スマホで潰れない最低幅 */
+  }
+
+  /* stack-table もスマホは fixed を解除してスクロール優先 */
+  #stack-table table {
+    table-layout: auto !important;
+    width: max-content !important;
+    min-width: 680px;
+  }
+
+  /* 2列目nowrapの強制があると極端に圧縮/崩れやすいので解除 */
+  .table-compact td:nth-child(2),
+  .table-compact th:nth-child(2) {
+    white-space: normal !important;
+  }
+}
+
