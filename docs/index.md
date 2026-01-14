@@ -43,11 +43,13 @@ Author: gan2
 
 <details>
   <summary><strong>補足：このポートフォリオの位置づけ（クリックで開く）</strong></summary>
+
   <ul>
     <li><strong>位置づけ:</strong> 実務で扱う構成を題材にした <strong>個人OSS開発（ポートフォリオ本体）</strong></li>
     <li><strong>狙い:</strong> 通信・認証・暗号化・ログを <strong>俯瞰して切り分けできる設計力</strong> を身につける</li>
     <li><strong>根拠:</strong> 以降の章で <strong>図面・ログ・検証結果</strong> を用いて説明します</li>
   </ul>
+
 </details>
 
 ---
@@ -83,10 +85,12 @@ Author: gan2
 - 「操作できる人」ではなく **設計できるエンジニア** を目指す
 
 <details>
-<summary><strong>補足：この章の見どころ（クリックで開く）</strong></summary>
+  <summary><strong>補足：この章の見どころ（クリックで開く）</strong></summary>
 
-- 全体像は「構成図」で示し、動作は「検証（スクショ/ログ）」で裏付けます  
-- “できた”よりも “切り分けできる” ことを重視して整理しています
+  <ul>
+    <li>全体像は <strong>「構成図」</strong> で示し、動作は <strong>「検証（スクショ/ログ）」</strong> で裏付けます</li>
+    <li><strong>“できた”</strong>よりも、<strong>“切り分けできる”</strong>ことを重視して整理しています</li>
+  </ul>
 
 </details>
 
@@ -125,68 +129,68 @@ Author: gan2
 ---
 
 <details>
-<summary><strong>構成要素（すべて OSS）※クリックで開く</strong></summary>
+  <summary><strong>構成要素（すべて OSS）※クリックで開く</strong></summary>
 
-<div class="table-compact" id="stack-table">
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>区分</th>
-          <th>役割・位置づけ</th>
-          <th>採用技術</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>プロキシ</td>
-          <td>入口／分岐／出口の3段構成による通信制御</td>
-          <td>Squid（3段、経路別ポート設計）</td>
-        </tr>
-        <tr>
-          <td>中継暗号化</td>
-          <td>Proxy 間通信の TLS 化（中継区間の暗号化）</td>
-          <td>stunnel（Proxy1→2 / Proxy2→3）</td>
-        </tr>
-        <tr>
-          <td>コンテンツ検査</td>
-          <td>ウイルス・コンテンツ検査（横断機能）</td>
-          <td>ICAP / ClamAV</td>
-        </tr>
-        <tr>
-          <td>認証</td>
-          <td>ユーザ認証・認可（SSO）</td>
-          <td>OpenLDAP / Samba AD/DC / Kerberos</td>
-        </tr>
-        <tr>
-          <td>DNS / 経路制御</td>
-          <td>PAC 配布・名前解決</td>
-          <td>dnsmasq（WPAD / Split DNS）</td>
-        </tr>
-        <tr>
-          <td>ログ</td>
-          <td>アクセス・通信ログの集中管理</td>
-          <td>Promtail / Loki / Graylog / OpenSearch</td>
-        </tr>
-        <tr>
-          <td>監視</td>
-          <td>稼働・性能の可視化</td>
-          <td>Zabbix（TLS-PSK + Sidecar）</td>
-        </tr>
-        <tr>
-          <td>自動化</td>
-          <td>起動・検証・復旧の再現性確保</td>
-          <td>Bash</td>
-        </tr>
-        <tr>
-          <td>実行環境</td>
-          <td>検証用基盤</td>
-          <td>Ubuntu 24.04（WSL2 mirrored mode）</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="table-compact" id="stack-table">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>区分</th>
+            <th>役割・位置づけ</th>
+            <th>採用技術</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>プロキシ</td>
+            <td>入口／分岐／出口の3段構成による通信制御</td>
+            <td>Squid（3段、経路別ポート設計）</td>
+          </tr>
+          <tr>
+            <td>中継暗号化</td>
+            <td>Proxy 間通信の TLS 化（中継区間の暗号化）</td>
+            <td>stunnel（Proxy1→2 / Proxy2→3）</td>
+          </tr>
+          <tr>
+            <td>コンテンツ検査</td>
+            <td>ウイルス・コンテンツ検査（横断機能）</td>
+            <td>ICAP / ClamAV</td>
+          </tr>
+          <tr>
+            <td>認証</td>
+            <td>ユーザ認証・認可（SSO）</td>
+            <td>OpenLDAP / Samba AD/DC / Kerberos</td>
+          </tr>
+          <tr>
+            <td>DNS / 経路制御</td>
+            <td>PAC 配布・名前解決</td>
+            <td>dnsmasq（WPAD / Split DNS）</td>
+          </tr>
+          <tr>
+            <td>ログ</td>
+            <td>アクセス・通信ログの集中管理</td>
+            <td>Promtail / Loki / Graylog / OpenSearch</td>
+          </tr>
+          <tr>
+            <td>監視</td>
+            <td>稼働・性能の可視化</td>
+            <td>Zabbix（TLS-PSK + Sidecar）</td>
+          </tr>
+          <tr>
+            <td>自動化</td>
+            <td>起動・検証・復旧の再現性確保</td>
+            <td>Bash</td>
+          </tr>
+          <tr>
+            <td>実行環境</td>
+            <td>検証用基盤</td>
+            <td>Ubuntu 24.04（WSL2 mirrored mode）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
 
 </details>
 
@@ -217,14 +221,17 @@ Author: gan2
 - [Verification（検証観点 & スクショ一覧）](./verification.html)
 
 <details>
-<summary><strong>補足：面接官向け見どころ（クリックで開く）</strong></summary>
+  <summary><strong>補足：面接官向け見どころ（クリックで開く）</strong></summary>
 
-- “動いた”だけでなく、ログや画面で根拠を示しています  
-- 失敗→原因→改善の経緯が追えるように整理しています
+  <ul>
+    <li><strong>“動いた”だけでなく</strong>、ログや画面で根拠を示しています</li>
+    <li><strong>失敗 → 原因 → 改善</strong>の流れが追えるように整理しています</li>
+  </ul>
 
 </details>
 
 ---
+
 
 ## 3. 通信経路と設計（構成変更点）
 
@@ -250,10 +257,14 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 ※ 画像をタップすると原寸で確認できます
 </p>
 
-- 通常経路：Client → Proxy1 → Proxy2 → Proxy3  
-- DIRECT：Client → Proxy2 → Proxy3  
+<ul>
+  <li>通常経路：Client → Proxy1 → Proxy2 → Proxy3</li>
+  <li>DIRECT：Client → Proxy2 → Proxy3</li>
+</ul>
 
+<p>
 ※ ポート番号は実装の都合であり、目的は「経路・責務・暗号化境界を分離して追跡性を上げる」ことです。
+</p>
 
 ---
 
@@ -268,16 +279,19 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
 ✅ **結論：SSLBump（MITM復号）は 1通信につき1回しか成立しないため、復号ポイントを分離しました。**
 
-- 通常経路：**Proxy1 で復号**（Proxy2 は復号除外）
-- DIRECT 経路：**Proxy2 で復号**
+<ul>
+  <li>通常経路：<strong>Proxy1 で復号</strong>（Proxy2 は復号除外）</li>
+  <li>DIRECT 経路：<strong>Proxy2 で復号</strong></li>
+</ul>
 
 <details>
-<summary><strong>詳細：なぜ多段SSLBumpが成立しないのか（クリックで開く）</strong></summary>
+  <summary><strong>詳細：なぜ多段SSLBumpが成立しないのか（クリックで開く）</strong></summary>
 
-HTTPS 復号（SSLBump）は「TLSセッションに対する MITM」に該当します。  
-同一通信に対して後段でも復号を行うと、TLS の文脈が破綻して通信が成立しません。  
-そのため本構成では、復号処理を「入口となるプロキシ」に集約し、  
-中継プロキシでは再復号を行わない設計としています。
+  <ul>
+    <li>HTTPS 復号（SSLBump）は TLS セッションに対する <strong>MITM</strong> に該当します</li>
+    <li>同一通信に対して後段でも復号を行うと <strong>TLS の文脈が破綻</strong>して通信が成立しません</li>
+    <li>そのため本構成では復号処理を <strong>入口となるプロキシに集約</strong>し、中継側では再復号を行わない設計としています</li>
+  </ul>
 
 </details>
 
@@ -287,15 +301,19 @@ HTTPS 復号（SSLBump）は「TLSセッションに対する MITM」に該当�
 
 ✅ **結論：中継区間の暗号化は Squid ではなく stunnel に分離し、境界を明確にしました。**
 
-- Proxy 間通信は **TLS（stunnel）で中継**
-- 平文区間は **Proxy ⇄ stunnel のローカル区間に限定**
+<ul>
+  <li>Proxy 間通信は <strong>TLS（stunnel）で中継</strong></li>
+  <li>平文区間は <strong>Proxy ⇄ stunnel のローカル区間に限定</strong></li>
+</ul>
 
 <details>
-<summary><strong>詳細：なぜ stunnel に分離したのか（クリックで開く）</strong></summary>
+  <summary><strong>詳細：なぜ stunnel に分離したのか（クリックで開く）</strong></summary>
 
-Squid は SSLBump により復号できる一方、復号後の通信を再暗号化する役割を持ちません。  
-そのため、プロキシ間の中継区間の暗号化責務を stunnel に委譲し、  
-責務分離と見通しの良い暗号化境界を実現しました。
+  <ul>
+    <li>Squid は SSLBump により復号できますが、復号後の通信を <strong>再暗号化する役割を持ちません</strong></li>
+    <li>そのためプロキシ間の中継区間の暗号化責務を <strong>stunnel に委譲</strong>し、暗号化境界を明確化しました</li>
+    <li>結果として平文区間を局所化し、見通しがよく拡張性のある構成を実現しました</li>
+  </ul>
 
 </details>
 
@@ -305,16 +323,19 @@ Squid は SSLBump により復号できる一方、復号後の通信を再暗�
 
 ✅ **結論：Kerberos / DNS / WPAD の前提を崩さないため、WSL2 mirrored mode を採用しました。**
 
-- NAT 越しでは認証やWPADの挙動が変わりやすい
-- 実務に近い前提条件で **安定して再現する**ことを優先
+<ul>
+  <li>NAT 越しでは認証やWPADの挙動が変わりやすい</li>
+  <li>実務に近い前提条件で <strong>安定して再現する</strong>ことを優先しました</li>
+</ul>
 
 <details>
-<summary><strong>詳細：mirrored mode を選んだ理由（クリックで開く）</strong></summary>
+  <summary><strong>詳細：mirrored mode を選んだ理由（クリックで開く）</strong></summary>
 
-Kerberos・DNS・WPAD は、同一ネットワークセグメント前提で設計されている要素が多く、  
-NAT 越しや L2 分断環境では挙動が不安定になりやすいです。  
-そのため本構成では WSL2 mirrored mode を採用し、  
-実務環境に近い前提条件で成立する構成としています。
+  <ul>
+    <li>Kerberos・DNS・WPAD は <strong>同一ネットワークセグメント前提</strong>の要素が多いです</li>
+    <li>NAT 越しや L2 分断環境では挙動が不安定になりやすく、再現性を落とします</li>
+    <li>そのため本構成では WSL2 mirrored mode を採用し、実務に近い前提で検証しています</li>
+  </ul>
 
 </details>
 
@@ -331,16 +352,20 @@ NAT 越しや L2 分断環境では挙動が不安定になりやすいです。
 
 ✅ **結論：Squid単体では中継区間の暗号化ができず、stunnel 分離が必要でした。**
 
-- Squid は復号後通信を再暗号化できない
-- 中継区間が平文のまま残る
-- 暗号化責務を「中継層」に切り出す必要があった
+<ul>
+  <li>Squid は復号後通信を再暗号化できない</li>
+  <li>中継区間が平文のまま残る</li>
+  <li>暗号化責務を「中継層」に切り出す必要があった</li>
+</ul>
 
 <details>
-<summary><strong>詳細：検討・判断の経緯（クリックで開く）</strong></summary>
+  <summary><strong>詳細：検討・判断の経緯（クリックで開く）</strong></summary>
 
-初期は「Docker内部通信なら平文でも良いのでは」という前提で検討しました。  
-しかし検証を進める中で、権限取得時の盗聴リスクや設計上の暗号化境界が曖昧になる点が問題になりました。  
-結果として、プロキシ間通信の暗号化を stunnel で担保する構成が妥当だと判断しました。
+  <ul>
+    <li>初期は「Docker内部通信なら平文でも良いのでは」という前提で検討しました</li>
+    <li>しかし検証を進める中で、暗号化境界が曖昧になる点が課題になりました</li>
+    <li>結果として、プロキシ間通信の暗号化を stunnel で担保する構成が妥当と判断しました</li>
+  </ul>
 
 </details>
 
@@ -350,15 +375,18 @@ NAT 越しや L2 分断環境では挙動が不安定になりやすいです。
 
 ✅ **結論：SSLBump は同一通信に二重適用できず、復号点の設計が必要でした。**
 
-- Proxy1 と Proxy2 両方で復号すると TLS が破綻する
-- 復号点は **通常経路：Proxy1 / DIRECT：Proxy2** に分離
+<ul>
+  <li>Proxy1 と Proxy2 両方で復号すると TLS が破綻する</li>
+  <li>復号点は <strong>通常経路：Proxy1 / DIRECT：Proxy2</strong> に分離しました</li>
+</ul>
 
 <details>
-<summary><strong>詳細：失敗の観測（クリックで開く）</strong></summary>
+  <summary><strong>詳細：失敗の観測（クリックで開く）</strong></summary>
 
-Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通信が正常に成立しませんでした。  
-調査の結果、一度 MITM を行った時点で TLS の文脈が完結しており、  
-後段で再度MITMを行うとハンドシェイクが破綻する仕様に起因することが分かりました。
+  <ul>
+    <li>Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通信が正常に成立しませんでした</li>
+    <li>調査の結果、一度 MITM を行った時点で TLS の文脈が完結しており、後段で再度 MITM を行うと破綻する仕様に起因することが分かりました</li>
+  </ul>
 
 </details>
 
@@ -368,15 +396,19 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 
 ✅ **結論：認証失敗を「結果」ではなく「発生レイヤ」で捉える癖が身につきました。**
 
-- SPN / keytab の参照タイミング
-- CN / SAN 不一致などの TLS 側要因
-- Kerberos の時刻同期依存
+<ul>
+  <li>SPN / keytab の参照タイミング</li>
+  <li>CN / SAN 不一致などの TLS 側要因</li>
+  <li>Kerberos の時刻同期依存</li>
+</ul>
 
 <details>
-<summary><strong>詳細：整理した観点（クリックで開く）</strong></summary>
+  <summary><strong>詳細：整理した観点（クリックで開く）</strong></summary>
 
-認証が失敗する際に「どのレイヤで問題が起きたか」を段階的に切り分けました。  
-結果として、認証失敗を“結果”ではなく“発生レイヤ”で捉えられるようになった点が大きな変化でした。
+  <ul>
+    <li>認証が失敗する際に「どのレイヤで問題が起きたか」を段階的に切り分けました</li>
+    <li>結果として、認証失敗を“結果”ではなく“発生レイヤ”で捉えられるようになった点が大きな変化でした</li>
+  </ul>
 
 </details>
 
@@ -384,27 +416,53 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 
 ## 6. ログ・監視（Observability）
 
-> 現時点では **GUI上での確認と基本動作**まで実施しています。  
+> 現時点では <strong>GUI上での確認と基本動作</strong>まで実施しています。  
 > 今後は “運用判断に使える可観測性” に向けて深掘り予定です。
 
 ---
 
 ### ✅ 現在確認できている構成（要点）
 
-- アクセスログ：Squid → Loki / Graylog  
-- 接続ログ：stunnel / Squid / DNS / Kerberos  
-- 監視：Zabbix（TLS-PSK + Sidecar Agent）  
-- 可視化：Grafana / Kibana
+<ul>
+  <li>アクセスログ：Squid → Loki / Graylog</li>
+  <li>接続ログ：stunnel / Squid / DNS / Kerberos</li>
+  <li>監視：Zabbix（TLS-PSK + Sidecar Agent）</li>
+  <li>可視化：Grafana / Kibana</li>
+</ul>
 
 <details>
-<summary><strong>詳細：表で整理（クリックで開く）</strong></summary>
+  <summary><strong>詳細：表で整理（クリックで開く）</strong></summary>
 
-| 種類 | 内容 |
-|------|------|
-| アクセスログ | Squid → Loki / Graylog |
-| 接続ログ | stunnel / Squid / DNS / Kerberos |
-| 監視 | Zabbix（TLS-PSK + Sidecar Agent） |
-| 可視化 | Grafana / Kibana |
+  <div class="table-compact">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>種類</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>アクセスログ</td>
+            <td>Squid → Loki / Graylog</td>
+          </tr>
+          <tr>
+            <td>接続ログ</td>
+            <td>stunnel / Squid / DNS / Kerberos</td>
+          </tr>
+          <tr>
+            <td>監視</td>
+            <td>Zabbix（TLS-PSK + Sidecar Agent）</td>
+          </tr>
+          <tr>
+            <td>可視化</td>
+            <td>Grafana / Kibana</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
 </details>
 
@@ -412,18 +470,22 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 
 ### ✅ 現時点で把握できていること（要点）
 
-- 経路ごとの通信ログが分離されていること  
-- stunnel を含む中継通信の接続ログが取得できていること  
-- Zabbix Agent が各コンテナで稼働していること  
-- GUI 上でログおよびメトリクスを参照できること  
+<ul>
+  <li>経路ごとの通信ログが分離されていること</li>
+  <li>stunnel を含む中継通信の接続ログが取得できていること</li>
+  <li>Zabbix Agent が各コンテナで稼働していること</li>
+  <li>GUI 上でログおよびメトリクスを参照できること</li>
+</ul>
 
 <details>
-<summary><strong>今後の検証・調整予定（クリックで開く）</strong></summary>
+  <summary><strong>今後の検証・調整予定（クリックで開く）</strong></summary>
 
-- 多段プロキシ構成における遅延の定量比較
-- ICAP 処理によるレスポンス影響の可視化
-- PAC による経路差異のログベース分析
-- Kerberos 認証失敗時の発生レイヤ特定
+  <ul>
+    <li>多段プロキシ構成における遅延の定量比較</li>
+    <li>ICAP 処理によるレスポンス影響の可視化</li>
+    <li>PAC による経路差異のログベース分析</li>
+    <li>Kerberos 認証失敗時の発生レイヤ特定</li>
+  </ul>
 
 </details>
 
@@ -433,12 +495,12 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 
 ✅ **結論：構築・検証・復旧を手順化し、25分で再現できる運用を目指しました。**
 
-- コンテナ群の一括起動・初期化・稼働確認（まとめて実行）
-- 全コンテナの稼働状態を一括確認するヘルスチェック  
-  - `scripts/multiproxy_health_all.sh`
-- 監視（Zabbix）の自動登録・初期設定（オートプロビジョニング）
-- 主系（Proxy）コンテナの安全な再起動（依存関係を考慮）  
-  - `scripts/restart_chain_proxy.sh`
+<ul>
+  <li>コンテナ群の一括起動・初期化・稼働確認（まとめて実行）</li>
+  <li>全コンテナの稼働状態を一括確認するヘルスチェック：<code>scripts/multiproxy_health_all.sh</code></li>
+  <li>監視（Zabbix）の自動登録・初期設定（オートプロビジョニング）</li>
+  <li>主系（Proxy）コンテナの安全な再起動：<code>scripts/restart_chain_proxy.sh</code></li>
+</ul>
 
 ![healthcheck-output](./images/healthcheck-output.png)
 
@@ -453,16 +515,22 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 ---
 
 ### 通信・暗号化設計
-- SSLBump の技術的制約と復号範囲の設計
-- TLS 再暗号化における役割分担（Proxy / stunnel）
+<ul>
+  <li>SSLBump の技術的制約と復号範囲の設計</li>
+  <li>TLS 再暗号化における役割分担（Proxy / stunnel）</li>
+</ul>
 
 ### ネットワーク制御
-- PAC / WPAD を用いた企業ネットワークでの経路制御の重要性
-- Kerberos 認証の内部処理と前提条件
+<ul>
+  <li>PAC / WPAD を用いた企業ネットワークでの経路制御の重要性</li>
+  <li>Kerberos 認証の内部処理と前提条件</li>
+</ul>
 
 ### 運用・可観測性
-- 時系列ログを用いた通信挙動の分析
-- 再現性と自動化を前提とした運用設計の価値
+<ul>
+  <li>時系列ログを用いた通信挙動の分析</li>
+  <li>再現性と自動化を前提とした運用設計の価値</li>
+</ul>
 
 ---
 
@@ -473,10 +541,12 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 
 ### 本プロジェクトを通じて培った能力
 
-- レイヤを跨いだ通信全体の構造理解
-- OSS を用いて構成を設計・構築する力
-- トラブルを再現し、原因を切り分けて理解する問題分析力
-- 再現性・自動化・標準化を意識した SRE 的な思考
+<ul>
+  <li>レイヤを跨いだ通信全体の構造理解</li>
+  <li>OSS を用いて構成を設計・構築する力</li>
+  <li>トラブルを再現し、原因を切り分けて理解する問題分析力</li>
+  <li>再現性・自動化・標準化を意識した SRE 的な思考</li>
+</ul>
 
 ---
 
@@ -489,11 +559,11 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 
 ### 10-1. AWS 環境への移行
 
-現在の構成をベースに、AWS 上での再構築を検討しています。
-
-- EC2 / ALB / NLB を用いたプロキシ配置
-- VPC / Subnet / Security Group を含めたネットワーク設計
-- オンプレミス前提だった DNS / 認証 / 通信境界の再整理
+<ul>
+  <li>EC2 / ALB / NLB を用いたプロキシ配置</li>
+  <li>VPC / Subnet / Security Group を含めたネットワーク設計</li>
+  <li>オンプレミス前提だった DNS / 認証 / 通信境界の再整理</li>
+</ul>
 
 ローカル環境で明示的に分解した設計要素を、  
 **クラウド環境にどう適用・再設計するか**を検証対象とします。
@@ -502,12 +572,11 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 
 ### 10-2. SDD を用いた AI 駆動開発との掛け合わせ
 
-仕様駆動開発（SDD）を取り入れ、  
-設計・設定・検証を **AI と協調しながら進める開発スタイル**の検証を行います。
-
-- 設計意図を仕様として明文化
-- 仕様をもとにした設定生成・レビュー支援
-- 変更時の影響範囲整理や再設計支援
+<ul>
+  <li>設計意図を仕様として明文化</li>
+  <li>仕様をもとにした設定生成・レビュー支援</li>
+  <li>変更時の影響範囲整理や再設計支援</li>
+</ul>
 
 インフラ構成を「人の記憶」ではなく  
 **仕様として管理するアプローチ**への発展を目指します。
@@ -516,12 +585,11 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 
 ### 10-3. 監視項目のチューニング
 
-現在は基本的な死活・性能監視を中心としていますが、  
-今後は以下のような観点で監視の精度を高めていく予定です。
-
-- 経路別レイテンシ・エラー率の可視化
-- SSLBump / 認証失敗の兆候検知
-- ログとメトリクスを組み合わせた原因特定
+<ul>
+  <li>経路別レイテンシ・エラー率の可視化</li>
+  <li>SSLBump / 認証失敗の兆候検知</li>
+  <li>ログとメトリクスを組み合わせた原因特定</li>
+</ul>
 
 「見える」だけでなく  
 **判断に使える監視**を目標とします。
@@ -530,12 +598,11 @@ Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通
 
 ### 10-4. 冗長化構成の検討
 
-現状は設計理解を優先した単一構成ですが、  
-将来的には冗長化も検証対象とします。
-
-- Proxy / stunnel の冗長化
-- フェイルオーバー時の挙動確認
-- PAC / DNS と連携した経路切替
+<ul>
+  <li>Proxy / stunnel の冗長化</li>
+  <li>フェイルオーバー時の挙動確認</li>
+  <li>PAC / DNS と連携した経路切替</li>
+</ul>
 
 これにより、  
 **可用性を含めた商用運用に近い検証**へ発展させる予定です。
