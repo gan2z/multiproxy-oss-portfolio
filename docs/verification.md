@@ -6,7 +6,7 @@ layout: default
 # 検証観点 & スクリーンショット取得チェックリスト  
 （OSS Multi-Layer Proxy & Authentication System）
 
-Version: 2025-02  
+Version: 2025-01-15
 Author: gan2
 
 ---
@@ -1041,16 +1041,16 @@ PAC により選択された通信経路の違いが、
 
 実行
 
-https://www.google.com
+    https://www.google.com
 
 
 ---
 
 #### P2-DIRECT 対象サイト（例：wikipedia.org）
 
-実行する。
+実行
 
-https://www.wikipedia.org
+    https://www.wikipedia.org
 
 
 ---
@@ -1060,7 +1060,7 @@ https://www.wikipedia.org
 ※ 一時的にクライアントで「プロキシなし」にするか、  
 ※ 明示的に DIRECT 指定で確認する場合。
 
-https://www.netflix.com
+    https://www.netflix.com
 
 
 > 補足  
@@ -1073,29 +1073,27 @@ https://www.netflix.com
 
 #### NORMAL（例：google.com）
 
-docker compose exec -T proxy1 sh -lc
-"grep -aRInE 'google.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
-
-docker compose exec -T proxy2 sh -lc
-"grep -aRInE 'google.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
-
-docker compose exec -T proxy3 sh -lc
-"grep -aRInE 'google.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
-
+    docker compose exec -T proxy1 sh -lc
+    "grep -aRInE 'google.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+    
+    docker compose exec -T proxy2 sh -lc
+    "grep -aRInE 'google.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+    
+    docker compose exec -T proxy3 sh -lc
+    "grep -aRInE 'google.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
 
 ---
 
 #### P2-DIRECT（例：wikipedia.org）
 
-docker compose exec -T proxy1 sh -lc
-"grep -aRInE 'wikipedia(.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3 || true"
-
-docker compose exec -T proxy2 sh -lc
-"grep -aRInE 'wikipedia(.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
-
-docker compose exec -T proxy3 sh -lc
-"grep -aRInE 'wikipedia(.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
-
+    docker compose exec -T proxy1 sh -lc
+    "grep -aRInE 'wikipedia(.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3 || true"
+    
+    docker compose exec -T proxy2 sh -lc
+    "grep -aRInE 'wikipedia(.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+    
+    docker compose exec -T proxy3 sh -lc
+    "grep -aRInE 'wikipedia(.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
 
 ---
 
@@ -1103,21 +1101,20 @@ docker compose exec -T proxy3 sh -lc
 
 Netflix 本体ドメインだけを厳密チェック
 
-docker compose exec -T proxy1 sh -lc
-'grep -aRInE ""(GET|POST|CONNECT)[[:space:]]+https://(www.netflix.com|[^/
- ].nflx(video|so|img|ext).net)"
-/var/log/squid/access.log 2>/dev/null | tail -n 5 || true'
-
-docker compose exec -T proxy2 sh -lc
-'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www.netflix.com|[^/
- ].nflx(video|so|img|ext).net)"
-/var/log/squid/access.log 2>/dev/null | tail -n 5 || true'
-
-docker compose exec -T proxy3 sh -lc
-'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www.netflix.com|[^/
- ].nflx(video|so|img|ext).net)"
-/var/log/squid/access.log 2>/dev/null | tail -n 5 || true'
-
+    docker compose exec -T proxy1 sh -lc
+    'grep -aRInE ""(GET|POST|CONNECT)[[:space:]]+https://(www.netflix.com|[^/
+     ].nflx(video|so|img|ext).net)"
+    /var/log/squid/access.log 2>/dev/null | tail -n 5 || true'
+    
+    docker compose exec -T proxy2 sh -lc
+    'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www.netflix.com|[^/
+     ].nflx(video|so|img|ext).net)"
+    /var/log/squid/access.log 2>/dev/null | tail -n 5 || true'
+    
+    docker compose exec -T proxy3 sh -lc
+    'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www.netflix.com|[^/
+     ].nflx(video|so|img|ext).net)"
+    /var/log/squid/access.log 2>/dev/null | tail -n 5 || true'
 
 ※ いずれの Proxy ログにも該当通信が出ないことを確認する。
 
