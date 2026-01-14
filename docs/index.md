@@ -102,7 +102,23 @@ Author: gan2
 > **左：実務環境（参考）** … 役割が統合された構成  
 > **右：OSS再現** … 入口/分岐/出口・認証・暗号化・検査・ログを分解した構成
 
-![architecture](./images/実務OSS構築比較_architecture.png)
+<!-- ✅ 図面はタップで原寸表示 -->
+<div style="text-align:center; margin: 1.2em 0;">
+  <a href="./images/実務OSS構築比較_architecture.png" target="_blank">
+    <img
+      src="./images/実務OSS構築比較_architecture.png"
+      alt="実務環境（参考）とOSS再現構成の比較アーキテクチャ"
+      style="width:100%; max-width:1200px; height:auto;
+             border-radius:12px;
+             box-shadow:0 6px 18px rgba(0,0,0,.15);
+             cursor: zoom-in;"
+    >
+  </a>
+</div>
+
+<p style="text-align:center; font-size:.9em; opacity:.8;">
+※ 画像をタップすると原寸で確認できます
+</p>
 
 ---
 
@@ -212,7 +228,23 @@ Author: gan2
 Proxy2 を分岐点とし、通常（port:3129）／DIRECT（port:3131）で受け付けます。  
 Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離しています。
 
-![通信フロー全体図](./images/communication-flow.png)
+<!-- ✅ 図面はタップで原寸表示 -->
+<div style="text-align:center; margin: 1.2em 0;">
+  <a href="./images/communication-flow.png" target="_blank">
+    <img
+      src="./images/communication-flow.png"
+      alt="通信フロー全体図（通常経路とDIRECT経路）"
+      style="width:100%; max-width:1200px; height:auto;
+             border-radius:12px;
+             box-shadow:0 6px 18px rgba(0,0,0,.15);
+             cursor: zoom-in;"
+    >
+  </a>
+</div>
+
+<p style="text-align:center; font-size:.9em; opacity:.8;">
+※ 画像をタップすると原寸で確認できます
+</p>
 
 - 通常経路：Client → Proxy1 → Proxy2 → Proxy3  
 - DIRECT：Client → Proxy2 → Proxy3  
@@ -317,9 +349,8 @@ stunnel に分離する構成が妥当である**と判断しました。
 
 ### 5-2. 多段 SSLBump が成立しない理由の理解
 
-一時期、以下のような構成を試しました。
+一時期、以下のような構成を試しました。  
 Proxy1（SSLBump） → Proxy2（SSLBump） → Proxy3
-
 
 しかし、この構成では HTTPS 通信が正常に成立しませんでした。
 
@@ -353,14 +384,13 @@ Proxy1（SSLBump） → Proxy2（SSLBump） → Proxy3
 **認証失敗を“結果”ではなく“発生レイヤ”で捉えられるようになった**  
 ことが大きな変化でした。
 
-
 ---
 
 ## 6. ログ・監視（Observability）
 
 ※ 本章は現在調整中の領域であり、  
 ※ 現時点では GUI 上でのログ確認および監視項目の基本動作確認までを実施しています。  
-※ Zabbix についても、コンテナ起動後に想定した監視が動作していることを確認済みです。
+※ Zabbix についても、コンテナ起動後に想定した監視が動作していることを確認済みです。  
    なお、各コンテナの監視項目のチューニングも今後の課題です。
 
 本構成では、多段プロキシ環境の挙動を把握するため、  
