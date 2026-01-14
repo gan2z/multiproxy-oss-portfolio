@@ -24,6 +24,7 @@ Author: gan2
 
 index.md 各章が **どの検証観点（試験ID）を満たしているか** を、  
 スクリーンショット／ログと対応付けて整理しています。
+
 <div class="table-compact" id="map-table">
   <div class="table-wrap">
     <table class="map-table">
@@ -208,44 +209,55 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 ## P1：プロジェクト概要「全体が動いている」証拠（index.md 1章）
 
 ### 主張
+
 多段プロキシ／認証／ログ／監視が **統合された状態で稼働**しており、  
 起動確認・状態確認をスクリプトにより **再現可能な形で実施できる**ことを示す。
+
 ---
 
 ### 撮るもの
+
 - ヘルスチェック結果（カテゴリ別に `[OK]` が揃っている状態）
 - コンテナ稼働一覧（proxy1〜3、ldap、pac、graylog、loki、grafana、zabbix など）
+
 ---
 
 ### 手順
 
 #### P1-1. Health Check 出力
 <a id="p1-1"></a>
+
 **実行**
 
     cd /home/login00/multiproxy
     ./scripts/multiproxy_health_all.sh
 
 **確認内容**
+
 - Proxy / Auth / Logging / Monitoring など  
   各カテゴリが `[OK]` となっていること
-  
+
 **証跡**
+
 - `healthcheck-output.png`
+
 ---
 
 #### P1-2. コンテナ一覧（docker compose ps）
 <a id="p1-2"></a>
+
 **実行**
 
     cd /home/login00/multiproxy
     docker compose ps
 
 **確認内容**
+
 - 主要コンテナが `Up`  
 - 可能なものは `healthy` と表示されていること
 
 **証跡**
+
 - `docker-ps.png`
 
 > 補足：  
@@ -254,99 +266,97 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 > 稼働状況を視覚的に把握しやすくしたもの。
 
 <details>
-
   <summary>（参考）json出力をカテゴリ別に整形して表示するコマンド（bash）</summary>
 
   <p style="margin: .5rem 0 0;">
     ※ <code>docker compose ps</code> の表示は、<code>--format json</code> を <code>jq/awk</code> で整形しています。
   </p>
-  <pre style="margin-top:.6rem; padding:.8rem; overflow-x:auto; border:1px solid rgba(127,127,127,.25); border-radius:10px;">
-　　<code class="language-bash">cd /home/login00/multiproxy
-　　docker compose ps --format json \
-　　| jq -r '
-  　　def s($v): ($v // "" | tostring);
-  　　def is_agent($x):
-    　　(s($x) | test("(^|[-_])agent($|[-_])") or test("sidecar") or test("opensearch-agent"));　　
-  　　def ports_short($r):
-    　　if ($r.Publishers? and ($r.Publishers|length)>0) then
-      　　($r.Publishers
-        　　| map("\(.PublishedPort)->\(.TargetPort)/\(.Protocol)")
-        　　| join(", "))
-    　　elif ($r.Ports? and ($r.Ports|length)>0) then
-      　　s($r.Ports)
-    　　else "-" end;　　
-  　　def cat($svc):
-    　　if s($svc) | test("^proxy[123]$") then "Proxy"
-    　　elif s($svc) | test("stunnel") then "Tunnel"
-    　　elif s($svc) | test("^(icap|clamav)") then "Content-Scan"
-    　　elif s($svc) | test("^(ldap|phpldapadmin)") then "Auth"
-    　　elif s($svc) | test("^(pac|pac-renderer)") then "DNS-Routing"
-    　　elif s($svc) | test("^(promtail|loki|graylog|opensearch|mongo|grafana|portainer)") then 　　"Logging"
-    　　elif s($svc) | test("^zabbix") then "Monitoring"
-    　　else "Logging" end;　　
-  　　def ord($c):
-    　　if $c=="Proxy" then 1
-    　　elif $c=="Tunnel" then 2
-    　　elif $c=="Content-Scan" then 3
-    　　elif $c=="Auth" then 4
-    　　elif $c=="DNS-Routing" then 5
-    　　elif $c=="Logging" then 6
-    　　elif $c=="Monitoring" then 7
-    　　else 99 end;　　
-  　　. as $r
-  　　| ($r.Service|s(.)) as $svc
-  　　| ($r.Name|s(.)) as $name
-  　　| (cat($svc)) as $cat
-  　　| select(is_agent($svc) | not)   # ← agent 行はここで除外
-  　　| [ ord($cat),
-　　      $cat,
-      　　$svc,
-      　　$name,
-      　　s($r.State),
-      　　s($r.Health),
-      　　(s($r.CreatedAt)[0:16]),
-      　　ports_short($r),
-      　　(s($r.Image) | split(":")[0])
-    　　]
-  　　| @tsv
-　　' \
-　　| sort -t$'\t' -k1,1n -k3,3 \
-　　| awk -F'\t' '
-　　BEGIN{
-  　　W_CAT=14; W_SVC=18; W_CONT=24; W_STATE=10; W_HEALTH=10; W_CREATED=16; W_PORTS=26;　　
-  　　　　　　　　printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
-    　　　　W_CAT,"CATEGORY", W_SVC,"SERVICE", W_CONT,"CONTAINER",
-    　　W_STATE,"STATE", W_HEALTH,"HEALTH", W_CREATED,"CREATED",
-    　　W_PORTS,"PORTS", "IMAGE";　　
-  　　printf "%s\n", 　　"--------------------------------------------------------------------------------------------　　-------------------------------------------";
-  　　prev="";
-　　}　　
-　　function cut(s,w){
-  　　if (length(s)<=w) return s;
-  　　if (w<=3) return substr(s,1,w);
-  　　return substr(s,1,w-3)"...";
-　　}　　
-　　{
-  　　cat=$2; svc=$3; cont=$4; st=$5; hl=$6; cr=$7; pt=$8; img=$9;　　
-  　　if (prev!="" && cat!=prev) print "";　　
-  　　cat_disp = (cat==prev ? "" : cat);　
-  　　printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
-    　　W_CAT,cat_disp,
-    　　W_SVC,cut(svc,W_SVC),
-    　　W_CONT,cut(cont,W_CONT),
-    　　W_STATE,st,
-    　　W_HEALTH,hl,
-    　　W_CREATED,cr,
-    　　W_PORTS,cut(pt,W_PORTS),
-    　　img;　　
-  　　prev=cat;
-　　}
-　　'
-　</code>
-  </pre>
+
+  <pre style="margin-top:.6rem; padding:.8rem; overflow-x:auto; border:1px solid rgba(127,127,127,.25); border-radius:10px;"><code class="language-bash">cd /home/login00/multiproxy
+docker compose ps --format json \
+| jq -r '
+  def s($v): ($v // "" | tostring);
+  def is_agent($x):
+    (s($x) | test("(^|[-_])agent($|[-_])") or test("sidecar") or test("opensearch-agent"));
+  def ports_short($r):
+    if ($r.Publishers? and ($r.Publishers|length)>0) then
+      ($r.Publishers
+        | map("\(.PublishedPort)->\(.TargetPort)/\(.Protocol)")
+        | join(", "))
+    elif ($r.Ports? and ($r.Ports|length)>0) then
+      s($r.Ports)
+    else "-" end;
+  def cat($svc):
+    if s($svc) | test("^proxy[123]$") then "Proxy"
+    elif s($svc) | test("stunnel") then "Tunnel"
+    elif s($svc) | test("^(icap|clamav)") then "Content-Scan"
+    elif s($svc) | test("^(ldap|phpldapadmin)") then "Auth"
+    elif s($svc) | test("^(pac|pac-renderer)") then "DNS-Routing"
+    elif s($svc) | test("^(promtail|loki|graylog|opensearch|mongo|grafana|portainer)") then "Logging"
+    elif s($svc) | test("^zabbix") then "Monitoring"
+    else "Logging" end;
+  def ord($c):
+    if $c=="Proxy" then 1
+    elif $c=="Tunnel" then 2
+    elif $c=="Content-Scan" then 3
+    elif $c=="Auth" then 4
+    elif $c=="DNS-Routing" then 5
+    elif $c=="Logging" then 6
+    elif $c=="Monitoring" then 7
+    else 99 end;
+  . as $r
+  | ($r.Service|s(.)) as $svc
+  | ($r.Name|s(.)) as $name
+  | (cat($svc)) as $cat
+  | select(is_agent($svc) | not)   # ← agent 行はここで除外
+  | [ ord($cat),
+      $cat,
+      $svc,
+      $name,
+      s($r.State),
+      s($r.Health),
+      (s($r.CreatedAt)[0:16]),
+      ports_short($r),
+      (s($r.Image) | split(":")[0])
+    ]
+  | @tsv
+' \
+| sort -t$'\t' -k1,1n -k3,3 \
+| awk -F'\t' '
+BEGIN{
+  W_CAT=14; W_SVC=18; W_CONT=24; W_STATE=10; W_HEALTH=10; W_CREATED=16; W_PORTS=26;
+  printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
+    W_CAT,"CATEGORY", W_SVC,"SERVICE", W_CONT,"CONTAINER",
+    W_STATE,"STATE", W_HEALTH,"HEALTH", W_CREATED,"CREATED",
+    W_PORTS,"PORTS", "IMAGE";
+  printf "%s\n", "-------------------------------------------------------------------------------------------- -------------------------------------------";
+  prev="";
+}
+function cut(s,w){
+  if (length(s)<=w) return s;
+  if (w<=3) return substr(s,1,w);
+  return substr(s,1,w-3)"...";
+}
+{
+  cat=$2; svc=$3; cont=$4; st=$5; hl=$6; cr=$7; pt=$8; img=$9;
+  if (prev!="" && cat!=prev) print "";
+  cat_disp = (cat==prev ? "" : cat);
+  printf "%-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %s\n",
+    W_CAT,cat_disp,
+    W_SVC,cut(svc,W_SVC),
+    W_CONT,cut(cont,W_CONT),
+    W_STATE,st,
+    W_HEALTH,hl,
+    W_CREATED,cr,
+    W_PORTS,cut(pt,W_PORTS),
+    img;
+  prev=cat;
+}
+'</code></pre>
 </details>
 
 ### 証跡（比較表示）
+
 以下、上記で取得した 2 枚を比較できるように表示する。
 
 <div style="text-align:center; margin: 1.2em 0;">
@@ -371,12 +381,14 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 ## P2：アーキテクチャ／技術スタック（index.md 2章）
 
 ### 主張
+
 設計したアーキテクチャおよび技術スタックが、  
 **実際に稼働しているコンテナ構成・ソフトウェア構成と一致している**ことを示す。
 
 ---
 
 ### 撮るもの
+
 - アーキテクチャ図（論理構成）
 - 稼働中コンテナ一覧との対応関係
 - 実行環境から取得した主要 OSS のバージョン一覧
@@ -390,10 +402,12 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 <a id="p2-1"></a>
 
 **目的**
+
 - 設計したアーキテクチャ図と、  
   実際に起動しているコンテナ群が **1:1 で対応している**ことを確認する。
 
 **実施内容**
+
 1. アーキテクチャ図を作成  
    → `architecture.png`
 
@@ -401,6 +415,7 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
    → `docker-ps-arch-match.png`
 
 ### 証跡（比較表示）
+
 以下、上記で取得した２枚を比較できるように表示する。
 
 <div style="text-align:center; margin: 1.2em 0;">
@@ -426,22 +441,27 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 <a id="p2-2"></a>
 
 **目的**
+
 - Docker イメージタグではなく、  
   **実行中コンテナ内の実バイナリから取得したバージョン**を把握していることを示す。
+
 ---
 
 #### P2-2-1. バージョン一覧（全体）
 <a id="p2-2-1"></a>
 
 **実行**
+
     cd /home/login00/multiproxy
     ./scripts/show-all-versions.sh
 
 **確認内容**
+
 - Proxy / 認証 / ログ / 監視 など主要 OSS の  
   実行中ソフトウェアバージョンが一覧で表示されること
 
 **証跡**
+
 - `version-matrix.png`
 
 > ※ 本一覧は Docker イメージタグではなく、  
@@ -457,13 +477,17 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
     docker exec -it proxy1 squid -v
 
 **確認内容**
+
 - Squid のバージョン（例：5.7）が表示されること
 
 **証跡**
+
 - `squid-version.png`
+
 ---
 
 ### 証跡（比較表示）
+
 以下、上記で取得した２枚を比較できるように表示する。
 
 <div style="text-align:center; margin: 1.2em 0;">
@@ -488,10 +512,12 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 ## P3：PAC / WPAD による経路制御（通常 vs DIRECT）（index.md 3章）
 
 ### 主張
+
 クライアントが取得する PAC ファイルにより、  
 **通信先ドメインに応じて Proxy1 / Proxy2 / DIRECT が正しく制御されている**ことを示す。
 
-本章では、  
+本章では、
+
 - クライアントが取得する PAC（wpad.dat）の内容  
 - PAC が制御する「クライアント出口」と、  
   Squid が担う「内部中継」の責務分離  
@@ -501,6 +527,7 @@ index.md 各章が **どの検証観点（試験ID）を満たしているか** 
 ---
 
 ### 撮るもの
+
 - ブラウザから取得した PAC ファイル（wpad.dat）の内容
 - PROXY / DIRECT の分岐定義が確認できる箇所（同一画面内）
 - PAC による分岐点を示した通信経路図
@@ -608,12 +635,13 @@ Squid / stunnel により形成される内部中継経路を分離して可視�
 **入口制御（PAC）と内部中継（Squid）を分離した、実運用を想定した設計**であることを示している。
 
 ---
+
 ### （参考）通信経路_ポート表示（折りたたみ表示）
-<details> 
-　<summary>
-　　<strong>通信経路・ポート詳細図（PACの責務 / Squidの責務を明示）</strong>
-　</summary>
+<details>
+  <summary><strong>通信経路・ポート詳細図（PACの責務 / Squidの責務を明示）</strong></summary>
+
 図A：全体概要
+
 <pre>
   [ Client / Browser ]
           |
@@ -650,6 +678,7 @@ Squid / stunnel により形成される内部中継経路を分離して可視�
 > - Proxy1→Proxy2→Proxy3 の中継は Squid（cache_peer）側の責務です。
 
 図B：通信経路・ポート詳細（LISTEN / SEND）
+
 <pre>
   [ Client ]
     |
@@ -721,29 +750,29 @@ Squid / stunnel により形成される内部中継経路を分離して可視�
 </pre>
 
 経路定義（ポートフォリオ明記用）
-① 通常経路（Proxy1 経由・標準）
-Client
-  → Proxy1:3128
-  → proxy1-stunnel:13128
-  → proxy2-stunnel:4431
-  → Proxy2:3129
-  → proxy2-3-stunnel:23129
-  → proxy3-stunnel:4433
-  → Proxy3:3130
 
-② DIRECT 相当経路（Proxy1 skip）
-Client
-  → Proxy2:3131
-  → proxy2-3-stunnel:23131
-  → proxy3-stunnel:4434
-  → Proxy3:3132
+① 通常経路（Proxy1 経由・標準）  
+Client  
+  → Proxy1:3128  
+  → proxy1-stunnel:13128  
+  → proxy2-stunnel:4431  
+  → Proxy2:3129  
+  → proxy2-3-stunnel:23129  
+  → proxy3-stunnel:4433  
+  → Proxy3:3130  
+
+② DIRECT 相当経路（Proxy1 skip）  
+Client  
+  → Proxy2:3131  
+  → proxy2-3-stunnel:23131  
+  → proxy3-stunnel:4434  
+  → Proxy3:3132  
+
 </details>
 
 ### （参考）PAC ファイル内容（折りたたみ表示）
-<details> 
-  <summary>
-    <strong>PAC ファイル（wpad.dat.tmpl）全文を表示</strong>
-  </summary>
+<details>
+  <summary><strong>PAC ファイル（wpad.dat.tmpl）全文を表示</strong></summary>
 
 ※ 実運用では、pac-renderer コンテナの起動（再起動）時に  
 ※ entrypoint により envsubst が実行され、wpad.dat が自動生成されます。  
@@ -921,7 +950,7 @@ Client
   
   var LOCAL_UI_HOSTS = listFromEnv(RAW_LOCAL_UI_HOSTS);
   if (LOCAL_UI_HOSTS.length === 0) {
-  LOCAL_UI_HOSTS = ["localhost", "127.0.0.1", "wpad", "wpad.ad.lan", "graylog.ad.lan", "zabbix.ad.lan", "proxy1.ad.lan", "proxy2.ad.lan"];
+    LOCAL_UI_HOSTS = ["localhost", "127.0.0.1", "wpad", "wpad.ad.lan", "graylog.ad.lan", "zabbix.ad.lan", "proxy1.ad.lan", "proxy2.ad.lan"];
   }
   
   var BYPASS_SUFFIXES = listFromEnv(RAW_BYPASS_SUFFIXES);
@@ -962,12 +991,12 @@ Client
   
     // 3) Proxy1 強制（検査・認証・ログ集約を必ず通す）
     if (anyMatch(host, FORCE_P1_SUFFIXES)) {
-    return "PROXY " + PROXY1_ADDR + "; DIRECT";
-    }  
+      return "PROXY " + PROXY1_ADDR + "; DIRECT";
+    }
   
     // 4) Proxy2 のみに振り分け（Proxy1 skip / DIRECT相当用ポート）
     if (anyMatch(host, PROXY2_ONLY_SUFFIXES)) {
-    return "PROXY " + PROXY2_DIRECT_ADDR + "; DIRECT";
+      return "PROXY " + PROXY2_DIRECT_ADDR + "; DIRECT";
     }
   
     // 5) デフォルト：Proxy1 → フェイルオーバ連鎖 → DIRECT
@@ -984,12 +1013,14 @@ Client
   }
 </pre>
 </details>
+
 ---
 
 #### P3-2. 経路差のログ確認（NORMAL vs P2-DIRECT）
 <a id="p3-2"></a>
 
 ### 目的
+
 PAC により選択された通信経路の違いが、  
 各 Proxy のログ出力差として明確に確認できることを示す。
 
@@ -1010,10 +1041,8 @@ PAC により選択された通信経路の違いが、
 
 実行
 
-```
 https://www.google.com
 
-```
 
 ---
 
@@ -1021,9 +1050,8 @@ https://www.google.com
 
 実行する。
 
-```
 https://www.wikipedia.org
-```
+
 
 ---
 
@@ -1032,10 +1060,8 @@ https://www.wikipedia.org
 ※ 一時的にクライアントで「プロキシなし」にするか、  
 ※ 明示的に DIRECT 指定で確認する場合。
 
-```
 https://www.netflix.com
 
-```
 
 > 補足  
 > ROUTER-DIRECT は PAC の責務外であり、  
@@ -1045,54 +1071,53 @@ https://www.netflix.com
 
 ### ログ確認手順（Proxy 側）
 
----
-
 #### NORMAL（例：google.com）
 
-```
-docker compose exec -T proxy1 sh -lc \
-"grep -aRInE 'google\.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+docker compose exec -T proxy1 sh -lc
+"grep -aRInE 'google.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
 
-docker compose exec -T proxy2 sh -lc \
-"grep -aRInE 'google\.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+docker compose exec -T proxy2 sh -lc
+"grep -aRInE 'google.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
 
-docker compose exec -T proxy3 sh -lc \
-"grep -aRInE 'google\.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+docker compose exec -T proxy3 sh -lc
+"grep -aRInE 'google.com' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+
+
 ---
 
 #### P2-DIRECT（例：wikipedia.org）
 
-```
-docker compose exec -T proxy1 sh -lc \
-"grep -aRInE 'wikipedia(\.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3 || true"
+docker compose exec -T proxy1 sh -lc
+"grep -aRInE 'wikipedia(.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3 || true"
 
-docker compose exec -T proxy2 sh -lc \
-"grep -aRInE 'wikipedia(\.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+docker compose exec -T proxy2 sh -lc
+"grep -aRInE 'wikipedia(.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
 
-docker compose exec -T proxy3 sh -lc \
-"grep -aRInE 'wikipedia(\.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
-```
+docker compose exec -T proxy3 sh -lc
+"grep -aRInE 'wikipedia(.org)?' /var/log/squid/access*.log 2>/dev/null | tail -n 3"
+
 
 ---
 
 #### ROUTER-DIRECT（参考：Netflix / Proxy 非経由）
-```
-# Netflix 本体ドメインだけを厳密チェック
 
-```
-docker compose exec -T proxy1 sh -lc \
-'grep -aRInE "\"(GET|POST|CONNECT)[[:space:]]+https://(www\.netflix\.com|[^/ ]*\.nflx(video|so|img|ext)\.net)" \
- /var/log/squid/access*.log 2>/dev/null | tail -n 5 || true'
+Netflix 本体ドメインだけを厳密チェック
 
-docker compose exec -T proxy2 sh -lc \
-'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www\.netflix\.com|[^/ ]*\.nflx(video|so|img|ext)\.net)" \
- /var/log/squid/access*.log 2>/dev/null | tail -n 5 || true'
+docker compose exec -T proxy1 sh -lc
+'grep -aRInE ""(GET|POST|CONNECT)[[:space:]]+https://(www.netflix.com|[^/
+ ].nflx(video|so|img|ext).net)"
+/var/log/squid/access.log 2>/dev/null | tail -n 5 || true'
 
-docker compose exec -T proxy3 sh -lc \
-'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www\.netflix\.com|[^/ ]*\.nflx(video|so|img|ext)\.net)" \
- /var/log/squid/access*.log 2>/dev/null | tail -n 5 || true'
+docker compose exec -T proxy2 sh -lc
+'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www.netflix.com|[^/
+ ].nflx(video|so|img|ext).net)"
+/var/log/squid/access.log 2>/dev/null | tail -n 5 || true'
 
-```
+docker compose exec -T proxy3 sh -lc
+'grep -aRInE "(GET|POST|CONNECT)[[:space:]]+https://(www.netflix.com|[^/
+ ].nflx(video|so|img|ext).net)"
+/var/log/squid/access.log 2>/dev/null | tail -n 5 || true'
+
 
 ※ いずれの Proxy ログにも該当通信が出ないことを確認する。
 
@@ -1137,6 +1162,7 @@ docker compose exec -T proxy3 sh -lc \
 ※ 1 枚に収まらない場合は左右比較でも可。
 
 **証跡**
+
 - `pac-flow-normal-vs-direct.png`
 
 ---
@@ -1154,6 +1180,7 @@ ROUTER-DIRECT は、
 PAC / Proxy が介在しない場合の比較用参考として記載する。
 
 **証跡**
+
 - `pac-flow-normal-vs-direct.png`
 
 ---
@@ -1174,14 +1201,14 @@ PAC / Proxy が介在しない場合の比較用参考として記載する。
 
 ---
 
-#### 撮るもの
+### 撮るもの
 
 - クライアント側の証明書表示（internal CA）
 - Proxy1 / Proxy2 のログ差分（復号ポイントの違い）
 
 ---
 
-#### 手順
+### 手順
 
 #### P4-1-1. HTTPS アクセス & 証明書
 <a id="p4-1-1"></a>
@@ -1201,10 +1228,10 @@ WSL2 で実行（例：www.google.com）：
     docker compose exec -T proxy1 sh -lc '
     LOGS="$(ls -1 /var/log/squid/access*.log 2>/dev/null || true)"
     [ -n "$LOGS" ] || { echo "[NG] no access*.log under /var/log/squid"; exit 0; }
-    
+
     # Google系のHTTPS(= https://) かつ bump=bump を拾って「復号が行われた」証拠にする
     PAT="(https://[^ ]*google\.com/|CONNECT ([^ ]*\.)?google\.com:443)"
-    
+
     echo "### Proxy1 SSLBump evidence (google.com) : latest 3"
     grep -aRInE "$PAT" $LOGS 2>/dev/null \
       | grep -a "bump=bump" \
@@ -1225,7 +1252,7 @@ Proxy2 の 3131 ポート側ログを確認：
     docker compose exec -T proxy2 sh -lc '
     LOG=/var/log/squid/access_3131.log
     PAT="wikipedia\.org"
-    
+
     echo "### file: $LOG"
     grep -aE "$PAT" "$LOG" 2>/dev/null | grep -a "bump=bump" | tail -n 3
     '
@@ -1310,7 +1337,6 @@ NAT 配下ではなく **実 LAN に直接参加する構成**を実現してい
 - dnsmasq VM： 
       ip -4 -o addr show scope global
 
-
 - すべてが同一セグメント（例：`192.168.11.0/24`）であることが分かる画面  
   → `wsl2-mirrored-ip.png`
 
@@ -1352,6 +1378,7 @@ NAT 配下ではなく **実 LAN に直接参加する構成**を実現してい
 Kerberos 認証を用いて Proxy（Squid）と連携通信している**ことが分かる。
 
 → `ad-domain-kerberos.png`
+
 ---
 
 #### 設計上の意味
@@ -1359,12 +1386,10 @@ Kerberos 認証を用いて Proxy（Squid）と連携通信している**こと�
 - Kerberos（SPN 解決・チケット発行）が **NAT 非依存で成立**
 - WPAD / DNS / Proxy 認証の前提条件を **実ネットワーク同等条件で検証**
 - 商用プロキシ環境で一般的な  
-**「クライアントと同一セグメントに配置される認証・中継基盤」**を再現
+  **「クライアントと同一セグメントに配置される認証・中継基盤」**を再現
 
 本項により、本構成が  
 **机上構成ではなく、実運用を想定したネットワーク前提で構築されている**ことを示している。
-
----
 
 ---
 
@@ -1405,62 +1430,122 @@ OSS（Squid）の制約と脅威モデルから分解し、
 
 ---
 
-### P5-2：多段 SSLBump が失敗した理由（=復号は1回のみ）
+### P5-2：多段 SSLBump が失敗した理由（= 復号は 1 回のみ）
 
 **主張：**  
 HTTPS 復号（SSLBump）は **1 通信につき 1 回のみ**である。  
-経路①（Proxy1 → Proxy2:3129）で Proxy2 側でも bump を適用すると、**同一セッションに対する二重復号**となり TLS が破綻する。  
-このため、経路①では **Proxy2:3129 を splice 固定**し、復号点を分離する設計へ改善した。
+経路①（Proxy1 → Proxy2:3129）において Proxy2 側でも SSLBump を適用すると、  
+**同一 TLS セッションに対する二重復号**となり、TLS ハンドシェイクが破綻する。
+
+この結果を踏まえ、  
+経路①では **Proxy2:3129 を splice 固定**とし、  
+**復号ポイントを Proxy1 のみに限定する設計**へ改善した。
 
 ---
 
-#### P5-2-1. 二重SSLBump（Proxy1→Proxy2:3129）による失敗の観測
+#### P5-2-1. 二重 SSLBump（Proxy1 → Proxy2:3129）による失敗の観測
 <a id="p5-2-1"></a>
 
-**目的**  
-- 「多段 SSLBump（同一セッションへの二重復号）は成立しない」ことを、  
-  設計（復号点の分離）と、実ログ（503 / TLS エラー）で説明できる状態にする。
+**目的**
 
-**対象**  
-- 経路①：Client → Proxy1:3128 → Proxy2:3129 → Proxy3:3130  
-- 観測サイト：`https://www.google.com`
+- 「同一 HTTPS セッションへの多段 SSLBump は成立しない」ことを  
+  **設計変更の根拠として説明できる状態**にする
+- Proxy1 / Proxy2 の **両 access log** と  
+  **ブラウザ上の TLS エラー**を突き合わせて因果関係を示す
+
+**対象**
+
+- 経路①：  
+  Client → Proxy1:3128 → Proxy2:3129 → Proxy3:3130
+- 観測サイト：  
+  `https://www.google.com`
 
 ---
 
 #### 撮るもの（成果物）
-- Proxy2 access_3129.log：chain 側で **bump が走った痕跡（bump=bump 等）**  
-  → `double-sslbump-proxy2-access3129.png`
-- Proxy1 access log：`CONNECT 200 → GET https://www.google.com 503` が確認できる画面  
-  → `double-sslbump-proxy1-access-google-503.png`
-- （任意）ブラウザ側エラー（TLS/証明書系）  
-  → `double-sslbump-browser-error.png`
-- （補足）Proxy1 側でも同一通信が `bump=bump` で復号済みであることを確認  
-  → `double-sslbump-proxy1-bump.png`
+
+##### ① Proxy2 access_3129.log
+
+chain 側で **SSLBump が実行された痕跡**を確認する。
+
+- 観点
+  - `CONNECT www.google.com:443`
+  - `bump=bump` が出力されていること
+
+    docker exec -it proxy2 sh -lc '
+    grep "www.google.com:443" /var/log/squid/access_3129.log \
+     | grep "bump=bump" \
+     | tail -n 3
+    '
+
+→ `double-sslbump-proxy2-access3129.png`
+
+##### ② Proxy1 access.log
+
+Proxy1 で 復号後の通信が失敗していることを確認する。
+
+- 観点
+  - CONNECT 200 が成功している
+  - 続く GET https://www.google.com が 502 / 503 で失敗
+
+    docker exec -it proxy1 sh -lc '
+    grep -E "www.google.com" /var/log/squid/access.log \
+     | grep -E "CONNECT|GET https://" \
+     | tail -n 4
+    '
+
+→ `double-sslbump-proxy1-access-google-503.png`
+
+##### ③ ブラウザ側エラー（TLS / 証明書）
+
+ユーザ視点で TLS が破綻していることを確認する。
+
+- 観点
+  - Failed to establish a secure connection
+  - X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN
+  - 発行元が Proxy（Multiproxy Root CA）であること
+
+→ `double-sslbump-browser-error.png`
 
 ---
 
-#### 証跡（スクリーンショット）
-- Proxy2 access_3129.log：`bump=bump`（chain 側で bump が走った痕跡）  
-  ![double-sslbump-proxy2-access3129](assets/evidence/double-sslbump-proxy2-access3129.png)
+#### 結論（設計判断）
 
-- Proxy1 access log：`CONNECT 200 → GET https://www.google.com 503`  
-  ![double-sslbump-proxy1-access-google-503](assets/evidence/double-sslbump-proxy1-access-google-503.png)
+Proxy1 で SSLBump（復号）された HTTPS 通信に対し、  
+Proxy2 でも SSLBump を適用すると TLS セッションが破綻する。
 
-- （任意）ブラウザエラー：`X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN`  
-  ![double-sslbump-browser-error](assets/evidence/double-sslbump-browser-error.png)
+access log 上でも、
 
-- （補足）Proxy1 側でも同一通信が `bump=bump` で復号済みであることを確認  
-  ![proxy1-bump-evidence](assets/evidence/double-sslbump-proxy1-bump.png)
+- Proxy1：復号後に 502 / 503
+- Proxy2：bump=bump の実行痕跡
+
+が確認できる。
+
+このため、同一 HTTPS セッションへの多段 SSLBump は不可。
+
+👉 経路①では  
+Proxy2:3129 を splice 固定とし、  
+復号点を Proxy1 のみに限定する設計が必要であると結論付けた。
+
+---
+
+#### 補足（検証時の一時変更）
 
 <details>
-<summary><strong>検証手順（コマンド含む・折りたたみ）</strong></summary>
+  <summary><strong>検証時に行った一時設定変更（折りたたみ）</strong></summary>
 
-- Proxy2 の `61-ssl-bump.conf` にて `p2_chain_3129` を一時的に `stare/bump` に変更
-- 反映：`squid -k parse` / `squid -k reconfigure`
-- Windows/Ubuntu から `https://www.google.com` にアクセス
-- ログ採取：Proxy1/Proxy2 の access/cache log
+Proxy2 の 61-ssl-bump.conf にて  
+p2_chain_3129 を 一時的に stare / bump 側へ変更。
 
-👉 詳細なコマンド全文：`evidence/p5-2.md`
+反映手順
+
+- squid -k parse
+- squid -k reconfigure
+
+検証後は 必ず splice 設定へ戻している。
+
+※ 本検証は学習目的の一時的なものであり、  
+　通常運用構成では Proxy2 の chain 側で SSLBump は行わない。
 
 </details>
 
@@ -1510,87 +1595,357 @@ HTTPS 復号（SSLBump）は **1 通信につき 1 回のみ**である。
 <a id="p5-3-3"></a>
 
     docker compose exec -T proxy1 sh -lc \
-      "grep -a 'testuser1@AD.LAN' /var/log/squid/access.log | tail -n 10"
+      "grep -a 'testuser1@AD.LAN' /var/log/squid/access.log | tail -n 3"
 
 - Kerberos 認証されたユーザ名付きアクセスログが確認できる画面  
   → `proxy-auth-log.png`
 
 ---
 
-#### P5-3-1. ldapwhoami（LDAP 疎通確認）
-<a id="p5-3-1"></a>
+#### P5-3-4. キャッシュ LDAP 側の認証アクセスログ確認（補助）
+<a id="p5-3-4"></a>
 
-    docker exec -it ldap sh -lc '
-    BIND_PW="$(cat /run/secrets/bind_pw)"
-    ldapwhoami -x -H ldap://ldap:389 \
-      -D "CN=LDAP Proxy,OU=Service Accounts,DC=ad,DC=lan" \
-      -w "$BIND_PW"
-    '
+### 目的
 
-- `dn: CN=LDAP Proxy,...` が表示される画面  
-  → `ldapwhoami.png`
+Proxy（Squid）から LDAP への問い合わせが、  
+**実際にキャッシュ LDAP コンテナへ到達しているか**をログで確認し、  
+認証フローの中間点（Proxy → LDAP → AD/DC）を可視化する。
 
 ---
 
-#### P5-3-2. testuser1 の検索
-<a id="p5-3-2"></a>
+### 実施した確認内容
 
-    docker exec -it ldap sh -lc '
-    BIND_PW="$(cat /run/secrets/bind_pw)"
-    ldapsearch -LLL -x -H ldap://ldap:389 \
-      -D "CN=LDAP Proxy,OU=Service Accounts,DC=ad,DC=lan" \
-      -w "$BIND_PW" \
-      -b "OU=TestUsers,DC=ad,DC=lan" \
-      "(sAMAccountName=testuser1)" dn sAMAccountName cn
+#### 1) LDAP コンテナへの到達性確認（TCP レベル）
+
+    docker compose exec -T proxy1 sh -lc '
+    echo "== tcp connect test to ldap:389 ==";
+    ( command -v nc >/dev/null 2>&1 && nc -vz -w 2 ldap 389 ) \
+     || ( command -v bash >/dev/null 2>&1 && timeout 2 bash -lc "</dev/tcp/ldap/389" && echo OK ) \
+     || echo "no nc and /dev/tcp failed"
     '
 
-- `dn: CN=testuser1,...` が確認できる画面  
-  → `ldapsearch-testuser1.png`
+結果
+
+- ldap:389 への TCP 接続は成功  
+- ネットワークレベルでは LDAP コンテナへ到達可能
+
+#### 2) LDAP コンテナ側ログの確認
+
+    docker compose exec -T ldap sh -lc '
+    echo "=== LDAP recent logs (auth / bind related) ==="
+    tail -n 200 /var/log/*ldap* 2>/dev/null \
+      | egrep -i "bind|auth|simple|sasl|testuser1|proxy" || true
+    '
+
+結果
+
+- 認証（bind / auth / sasl）に関するログは出力されず
+- testuser1 や Proxy 用サービスアカウントの記録も確認できず
+
+調査結果の整理（なぜログが出ないのか）
+
+今回の構成・ログ状況から、以下のことが確認できた。
+
+✔ Squid の認証方式は Kerberos（SPNEGO）
+
+- Proxy1 では Kerberos 認証が有効
+- negotiate_kerberos_auth が使用されている
+- 実際の本人認証は Samba AD/DC に直接問い合わせされている
+
+✔ キャッシュ LDAP は「本人認証」には使われていない
+
+- basic_ldap_auth / ldap_auth は有効化されていない
+- そのため LDAP 側には bind/auth ログが出ない
+
+✔ LDAP は「グループ判定（external_acl_type）」用途のみ
+
+- ext_ldap_group_acl が定義されている
+- ただし今回のアクセスでは、
+  - グループ条件に依存しない経路
+  - もしくはキャッシュ済み結果が使用された
+- 結果として LDAP への実問い合わせが発生しなかった可能性が高い
+
+結論（本項目の位置づけ）
+
+- 本環境では キャッシュ LDAP は Kerberos 認証の中継ではない
+- 本人認証は Proxy → Samba AD/DC（Kerberos） で完結している
+- LDAP は 必要になった場合にのみ グループ判定の問い合わせ先として機能する設計である
+
+そのため、今回の検証条件では LDAP 側に認証ログが残らないことは設計どおりの挙動。
+
+👉 「ログが出ない＝未使用」ではなく、  
+👉 「不要なときは呼ばれない」構成になっていることを確認できた。
+
+今後の展望（発展検証案）
+
+- グループ制御を必須にするポリシーを追加し、LDAP 参照を強制
+- external_acl_type ldap_group が実行された際の LDAP ログ取得
+- LDAP 本人認証（basic_ldap_auth）を別ポートで有効化し、Kerberos との比較検証
+- 「Kerberos 認証／LDAP 認証／LDAP グループ判定」の役割分離を図示
+
+これにより、  
+認証方式ごとの責務分離と選定理由を説明できる構成として完成度を高められる。
 
 ---
 
-#### P5-3-3. Proxy ログに認証ユーザが出ていることの確認
-<a id="p5-3-3"></a>
+### P5-3-5. Samba AD/DC 側の認証・Kerberos ログ確認（補助）
+<a id="p5-3-5"></a>
 
-    docker exec -it proxy1 sh -lc \
-      "grep -a 'testuser1@AD.LAN' /var/log/squid/access.log | tail -n 10"
+#### 目的
 
-- Kerberos 認証されたユーザ名付きアクセスログが確認できる画面  
-  → `proxy-auth-log.png`
+Kerberos 認証において、  
+Active Directory（Samba AD/DC）が **認証基盤（KDC）として正しく機能している**ことを、  
+可能な範囲でログから裏取りする。
+
+本項目は **補助的な確認**と位置づけ、  
+認証の主たる証跡は Proxy（Squid）側ログで確認することを前提とする。
+
+---
+
+#### 前提（重要）
+
+Kerberos の仕様上、
+
+- **認証が正常に成功した場合**
+  - クライアントが保持する TGT / Service Ticket が再利用される
+  - KDC（AD/DC）側には **詳細なログが出力されない場合が多い**
+- **失敗時や初回発行時**
+  - AS-REQ / TGS-REQ 等がログに残ることがある
+
+そのため、  
+**AD/DC 側ログは「必ずしも毎回出るものではない」**ことを理解した上で確認を行う。
+
+---
+
+#### 実行（AD/DC サーバ上）
+
+##### 認証・Kerberos 関連ログ（概要確認）
+
+    sudo tail -n 5000 /var/log/samba/log.samba 2>/dev/null \
+    | egrep -i "Auth: \[Kerberos KDC|AS-REQ |TGS-REQ " \
+    | egrep -i "SUCCESS|FAILED|NT_STATUS_|PREAUTH|CLIENT NOT FOUND|WRONG REALM|KDC_ERR"
+
+確認内容（出ていれば確認する）
+
+- AS-REQ / TGS-REQ が記録されている
+- HTTP/proxy1.ad.lan / HTTP/proxy2.ad.lan の SPN が利用されている
+- testuser1 に関するチケット発行・検証処理が確認できる
+
+※ 上記が 必ずしも毎回出るとは限らない。
+
+観測結果の整理（本環境）
+
+- 通常の Web アクセス（Proxy 経由）では、  
+  クライアントが既存の Kerberos チケットを再利用するため、  
+  AD/DC 側ログには 新たな AS-REQ / TGS-REQ が出力されないケースが多い
+- 一方で、Proxy（Squid）側 access.log には  
+  `testuser1@AD.LAN` が記録されており、Kerberos 認証が成立している事実は Proxy 側で明確に確認できる
+
+証跡（任意・補助）
+
+- AD/DC 側で Kerberos 関連ログが確認できた場合：  
+  `ad-kerberos-auth-log.png`
+- ログが出ない場合：  
+  本項目は「仕様上ログが出ないことがある」ことの説明資料として扱う
+
+位置づけまとめ
+
+- 主証跡：Proxy（Squid）の access.log / cache.log
+- 補助証跡：Samba AD/DC の Kerberos ログ（出た場合のみ）
+
+Kerberos 認証は  
+「どこで認証が完結しているか」を意識して  
+観測ポイントを切り分けることが重要である。
+
 ---
 
 ## P6：ログ・監視（Observability）（index.md 6章）
 
-**主張：**  
+### 主張
+
 ログ（Graylog / Loki）と監視（Zabbix）を組み合わせ、  
-**障害の兆候検知と原因特定に当たりを付けられる**。
+**「兆候検知 → 絞り込み → 原因特定の当たり」**まで到達できる。
+
+ここでは “画面を撮る” だけでなく、  
+実際の運用で行う 調査手順（Runbook） として提示する。
 
 ---
 
+### P6-0. 想定インシデント（例）
+<a id="p6-0"></a>
+
+事象例（想定）
+
+- ユーザから「facebook が見れない（または一部サイトが遅い）」と連絡
+- あるいは運用側で deny が急増していることを観測
+
+この章で示すこと
+
+- “まずどこを見るか”
+- “何で絞り込むか”
+- “どの層の問題か（PAC/Proxy/SSLBump/ICAP/出口）を切る”
+
+を ログとグラフで説明できること。
+
+---
+
+### P6-1. Zabbix（兆候検知：いつ増えたか）
 <a id="p6-1"></a>
-#### P6-1. Graylog 検索
 
-- 検索例：  
-      TCP_DENIED AND facebook.com
-- ログ一覧とフィールドが表示されている画面  
-  → `graylog-search.png`
+目的
+
+- 異常が「いつ」「どのコンポーネント」で起きているかを掴む（兆候検知）
+- まず “見に行く場所” を固定化する
+
+撮るもの（証跡）
+
+- Zabbix の Hosts 一覧  
+  proxy1/proxy2/proxy3/graylog/loki/grafana などが表示されている  
+  → `zabbix-hosts.png`
+- proxy1（または proxy2）の グラフ  
+  例：CPU/メモリ/ネットワーク/プロセス  
+  “deny が増えた時間帯” と相関が取れるものが理想  
+  → `zabbix-proxy1-graph.png`
+
+画面の撮り方（ポイント）
+
+- 時間範囲を「直近 15分〜1時間」にして、異常のピークが見える状態
+- 可能なら Proxy のトラフィック量/エラー数 が分かるパネルを含める
+
+ここで「発生時刻」を確定し、次の Graylog/Loki の検索範囲を狭める。
 
 ---
-<a id="p6-2"></a>
-#### P6-2. Grafana（Loki）
 
-- Explore → LogQL 例：
+### P6-2. Grafana（Loki）Explore（傾向把握：どのコンテナが増えているか）
+<a id="p6-2"></a>
+
+目的
+
+- “deny 増加” を 時系列＋ログで把握し、対象コンテナを絞る
+- Graylog より先に「増えてる/減ってる」を見たい時に効く
+
+クエリ例（LogQL）
 
     {container="proxy1"} |= "TCP_DENIED"
 
-- 時系列グラフ＋ログ一覧の画面  
+（proxy2/proxy3 でも同様に差し替え）
+
+撮るもの（証跡）
+
+- Explore 画面で
+  - LogQL が入力されている
+  - 上段に 時系列グラフ
+  - 下段に ログ一覧
+  が同時に見える状態  
   → `grafana-proxy-deny.png`
 
+“解析として”画面に残したい要素
+
+- deny が増えた 時刻のピーク（Zabbix のピークと一致すると強い）
+- deny が増えているのが proxy1だけか / proxy2でもか  
+  → ここで「入口側のポリシーなのか」「中継/出口側なのか」当たりを付ける
+
 ---
+
+### P6-3. Graylog 検索（原因特定：誰が・どこへ・なぜ拒否されたか）
+<a id="p6-3"></a>
+
+目的
+
+- Loki で “増えている” を掴んだ後、  
+  Graylog で **具体的な通信（ユーザ/URL/ステータス/経路）**に落とす
+
+重要：program:squid が効かない理由（今回の事象）
+
+- Graylog 側で program フィールドが存在しない（unknown field）ため  
+  → “ログ投入時に program というフィールド名でパースしていない” のが原因  
+  → message / source / container 等の実在フィールドで検索する
+
+推奨クエリ（まず確実にヒットさせる）
+
+① ドメイン×拒否
+
+    TCP_DENIED AND facebook.com
+
+② deny だけ（まず増加確認）
+
+    TCP_DENIED
+
+③ source で絞る（あなたの画面だと 172.18.0.21 など）
+
+    source:172.18.0.21 AND TCP_DENIED
+
+※ どのフィールド名が使えるか分からない場合
+
+- 一旦 TCP_DENIED のみで検索
+- 1 行開いて “どんなフィールドがあるか” を確認
+- そのフィールド名で絞る
+
+が最短です。
+
+撮るもの（証跡）
+
+- Search 画面で以下が同時に写っている状態
+  - 検索バー（クエリが入っている）
+  - 時間範囲（From/Until）
+  - All Messages（ログ一覧が複数行）
+  - メッセージ詳細（1行をクリックして、右側/下側にフィールド一覧が見える）
+
+→ `graylog-search.png`
+
+---
+
+### P6-4. まとめ証跡（「1枚で運用フローが分かる」比較画像）
+<a id="p6-4"></a>
+
+目的
+
+単体画面だと “ただのダッシュボード紹介” に見えやすいので、  
+調査フローが視覚的に伝わる比較画像を最後に置く。
+
+作る画像（推奨）
+
+- 左：Zabbix（ピーク時刻）
+- 中：Grafana Explore（同じ時間帯の deny 増加）
+- 右：Graylog（その時間帯で facebook.com が TCP_DENIED で落ちている）
+
+→ `p6-observability-triage.png`
+
+これがあると「兆候検知→当たり付け→原因特定」の説明が一発で通ります。
+
+---
+
+### P6-5. 「原因究明の例」として書ける解析テンプレ（文章）
+<a id="p6-5"></a>
+
+※ ここは “実データに依存しない範囲” で、運用手順として書けます。
+
+- Zabbix で proxy1 のトラフィック/負荷の増加時刻を確認し、対象時間帯を確定
+- Grafana（Loki）Explore で TCP_DENIED の増加を確認し、影響が proxy1 に偏っているかを確認
+- Graylog で TCP_DENIED AND facebook.com を抽出し、  
+  client / url / status / policy / hierarchy 等のフィールドから  
+  「どの判定（カテゴリ/ACL/認証/復号/ICAP/出口）で落ちたか」の当たりを付ける
+- 必要に応じて “該当時間帯の proxy1/proxy2 のログ” を突合し、  
+  入口で落ちているのか、中継/出口で落ちているのかを切り分ける
+
+追加提案（強化ポイント：program:squid を実現する）
+
+- Graylog の入力（GELF / syslog / filebeat / promtail 経由など）で  
+  container_name / service / tag を付与しておく
+- 例：service:proxy1 や container:proxy1 で検索できるようにする
+- その “付与している証拠画面（Input/Extractor/Pipeline rule）” を P6 の任意項目に追加すると、  
+  ログを「入れて終わり」ではなく「検索性まで設計」していると伝わります
+
+---
+
 <a id="p6-3"></a>
 #### P6-3. Zabbix
 
-- Hosts 一覧がすべて Green  
+http://192.168.11.5:3000/
+
+ブートストラップで起動後の状態（ここから調整する予定）
+
+- 主要Host名が確認できる  
   → `zabbix-hosts.png`
 - proxy1 のグラフ（トラフィック / deny カウント）  
   → `zabbix-proxy1-graph.png`
@@ -1605,8 +1960,8 @@ HTTPS 復号（SSLBump）は **1 通信につき 1 回のみ**である。
 
 ---
 
-<a id="p7-1"></a>
 #### P7-1. dnsmasq + PAC ヘルスチェック
+<a id="p7-1"></a>
 
     cd /home/login00/multiproxy/scripts
     ./dnsmasq_pac_healthcheck.sh
@@ -1615,8 +1970,9 @@ HTTPS 復号（SSLBump）は **1 通信につき 1 回のみ**である。
   → `dnsmasq-pac-healthcheck.png`
 
 ---
-<a id="p7-2"></a>
+
 #### P7-2. 全体ヘルスチェック（再掲）
+<a id="p7-2"></a>
 
 - <a href="#p1-1">P1-1</a> の結果を再利用可  
   → `healthcheck-output.png`
@@ -1631,8 +1987,8 @@ HTTPS 復号（SSLBump）は **1 通信につき 1 回のみ**である。
 
 ---
 
-<a id="p8-1"></a>
 #### P8-1. WPAD 短縮名問題の証跡（Windows クライアント）
+<a id="p8-1"></a>
 
 PowerShell：
 
@@ -1658,3 +2014,4 @@ PowerShell：
 **「Windows の WPAD 保護仕様」** として説明できることで、  
 単なるトラブル対応ではなく  
 **設計前提を理解した上での切り分け能力**が伝わる。
+
