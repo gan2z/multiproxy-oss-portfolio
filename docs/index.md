@@ -42,11 +42,13 @@ Author: gan2
 ---
 
 <details>
-<summary><strong>補足：このポートフォリオの位置づけ（クリックで開く）</strong></summary>
+  <summary><strong>補足：このポートフォリオの位置づけ（クリックで開く）</strong></summary>
 
-- 職務経歴書が主であり、本ページは「実務の運用保守に加えて、設計・切り分けまでできる」ことを補強する目的  
-- 以降の章では、図面・ログ・検証結果を使って、上記の主張を根拠付きで補足します
-
+  <ul>
+    <li><strong>主:</strong> 職務経歴書</li>
+    <li><strong>本ページ:</strong> 「実務の運用保守 + 設計・切り分けができる」ことの補強</li>
+    <li><strong>根拠:</strong> 以降の章で <strong>図面・ログ・検証結果</strong> により説明します</li>
+  </ul>
 </details>
 
 ---
