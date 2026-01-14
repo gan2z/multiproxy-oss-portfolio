@@ -115,6 +115,25 @@ details:not([open]) summary {
   box-shadow: 0 1px 0 rgba(0,0,0,.04);
 }
 
+/* =========================================================
+ * 6) details（補足ブロック）：背景は“白”＋左アクセントで上品に
+ *  - 背景色は主張が強くなりやすいので、白ベース推奨
+ * ========================================================= */
+details > :not(summary) {
+  margin-top: 0.55rem;                 /* summaryとの間を少し空ける */
+  padding: 0.75rem 0.95rem;
+  border-radius: 10px;
+
+  background: #fff;                    /* ★背景は白（見やすい/上品） */
+  border-left: 4px solid #2ecc71;      /* 左アクセント */
+}
+
+/* リストの行間を少し広げて読みやすく */
+details > :not(summary) li {
+  margin: 0.28rem 0;
+  line-height: 1.55;
+}
+
 /* -------------------------------
  * 4) 表：見やすさ（色飛び対策＝ベタ色＋輪郭強化）
  * ------------------------------- */
@@ -156,7 +175,6 @@ details:not([open]) summary {
 
 #stack-table th:nth-child(3),
 #stack-table td:nth-child(3) { width: 40%; }
-
 
 /* ヘッダー：rgba(薄い)をやめて「実色」にする */
 .table-compact thead th {
@@ -317,34 +335,12 @@ details:not([open]) summary {
     border: none;                       /* 外枠は wrap 側 */
     border-radius: 0;
   }
-  
-}
-/* =========================================================
- * 6) details（補足ブロック）：背景色＋左アクセントで読みやすく
- * ========================================================= */
-
-/* summary行は今のUIを維持しつつ、開いた中身をカード化 */
-details > :not(summary) {
-  margin-top: 0.55rem;                 /* summaryとの間を少し空ける */
-  padding: 0.75rem 0.95rem;
-  border-radius: 10px;
-
-  /* 薄い背景（色飛びしにくいベタ色寄り） */
-  background: #f3faf5;                 /* 淡い緑 */
-  border-left: 4px solid #2ecc71;      /* 左アクセント */
-}
-
-/* リストの行間を少し広げて読みやすく */
-details > :not(summary) li {
-  margin: 0.28rem 0;
-  line-height: 1.55;
 }
 
 /* =========================================================
  * 7) スマホで表が潰れる問題：小画面は“横スクロール優先”に切替
  *   - つぶして詰めるのではなく、必要なら横スクロールする
  * ========================================================= */
-
 @media (max-width: 760px) {
 
   /* 表ラッパー：横スクロールを強制的に生かす */
@@ -378,4 +374,3 @@ details > :not(summary) li {
     white-space: normal !important;
   }
 }
-
