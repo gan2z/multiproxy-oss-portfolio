@@ -524,13 +524,14 @@ Author: gan2
 
 ---
 
-<a id="p5"></a>
 ## 5. ログ基盤（Loki）を用いた切り分け
+<a id="p5"></a>
 
 <p style="margin:.4em 0 1em 0;">
-本章では、Loki（Promtail 収集）により <strong>Proxy1 / Proxy2 / Proxy3 の Squid ログ</strong>を横断検索し、
-「どの経路を通り、どのレイヤで失敗したか」を<strong>時系列で切り分け</strong>できることを示します。<br>
-以降の検証では、<strong>アクセスログ（access.log）</strong>と<strong>キャッシュログ（cache.log）</strong>を中心に追跡します。
+本章では、Loki（Promtail 収集）で <strong>Proxy1 / Proxy2 / Proxy3 の Squid ログ</strong>を横断検索し、
+<strong>「どの経路を通ったか」</strong>と<strong>「どこで止まったか」</strong>を
+<strong>意図したエラー（デモ）</strong>で短く示します。<br>
+ポイントは <strong>access.log＝経路（結果）</strong> / <strong>cache.log＝原因の裏取り</strong> です。
 </p>
 
 <hr>
@@ -538,156 +539,145 @@ Author: gan2
 <!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
 <figure style="margin: 1.2em auto; text-align:center;">
   <a href="./images/p6-observability-triage.png" target="_blank" rel="noopener">
-    <img src="./images/p6-observability-triage.png" alt="Lokiによる経路と失敗点の切り分け" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
+    <img
+      src="./images/p6-observability-triage.png"
+      alt="Lokiによる経路と停止点の切り分け（全体像）"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    Proxy1/2/3 のログを Loki で横断し、経路と失敗点を<strong>時系列で追跡</strong>するイメージです。
+    クリック/タップで原寸表示（別タブ）。Proxy1/2/3 のログを Loki で横断し、
+    <strong>経路と停止点</strong>を追跡する全体像です。
   </figcaption>
 </figure>
 
-**確認できること**
-- どの経路を通り、どこで失敗したかを <strong>時系列で追跡可能</strong>
-- 「結果」ではなく「原因レイヤ（認証 / TLS / 経路 / ICAP / ACL）」で <strong>説明できる</strong>
+### この章で示すこと（面接官向け：要点）
+- <strong>入口（Proxy1）で止まった</strong>のか、
+  <strong>出口側（Proxy2 直行）で止まった</strong>のかをログで判定できる
+- 「HTTPコード（結果）」で停止点を確定し、
+  必要に応じて <strong>cache.log（原因の裏取り）</strong>まで掘れる
 
 <hr>
 
-### 5-1. 収集対象（Promtail → Loki）
+### 5-1. 前提：Promtail が集めているログ（最小）
 
-<p style="margin:.2em 0 1em 0;">
-Promtail は 3段 Squid のログ（squid1/2/3）を<strong>別ラベル</strong>で収集し、Loki に格納します。<br>
-（例：access.log / cache.log をコンテナ別に追跡できる）
-</p>
-
-<ul>
-  <li><strong>Squid（Proxy1 / Proxy2 / Proxy3）</strong>：access.log / cache.log</li>
-  <li><strong>ICAP</strong>：c-icap / clamav のログ（必要に応じて）</li>
-  <li><strong>stunnel</strong>：TLS 中継のログ（必要に応じて）</li>
-</ul>
+- Squid（Proxy1 / Proxy2 / Proxy3）：<strong>access.log</strong> / <strong>cache.log</strong>
+- （任意）ICAP / stunnel は必要時のみ（本章は Squid 中心）
 
 <hr>
 
-### 5-2. 切り分け手順（Lokiで見る順番）
+### 5-2. デモ方針（2ケースだけで切り分けを示す）
 
-**見る順番（おすすめ）**
-1) <strong>Proxy1 access.log</strong>：クライアントの入口として最初に観測される（PAC/認証/SSLBumpの起点）  
-2) <strong>Proxy2 access.log</strong>：経路分岐・ICAP・上流中継の観測点（3129/3131 を分離して確認）  
-3) <strong>Proxy3 access.log</strong>：最終出口（上流接続の成否）  
-4) <strong>cache.log</strong>：TLS/SSLBump/ヘルパー/ICAP/ACL の詳細（失敗原因の裏取り）
+- <strong>Case A：入口で止める（Proxy1 で 407）</strong>  
+  → Proxy2 / Proxy3 に到達していないことを Loki で確認
+- <strong>Case B：直行出口で止める（Proxy2:3131 で 403）</strong>  
+  → Proxy1 を経由していない（直行）ことを Loki で確認
 
 <hr>
 
-### 5-3. 実例：Loki で「入口(407)」と「出口側(403)」を切り分けた
+## 5-3. Case A：入口（Proxy1）で 407（認証要求）
 
-本章では、同じクライアントからの HTTPS 通信に対して、以下 2 つの「失敗」を意図的に発生させ、  
-Loki 上で <strong>どこで止まったか</strong>／<strong>なぜ止まったか</strong>を説明できることを示します。
+### ① 何をしたか（意図した失敗）
 
----
+- Proxy1 に認証が必要な状態で HTTPS へアクセス  
+  → <strong>407 Proxy Authentication Required</strong>
 
-#### Case A：入口（Proxy1）で 407（認証要求） → Proxy2 まで到達していない
+### ② Loki で何を見るか（結論が出る最短ルート）
 
-**打鍵（時刻の基準）**
-- `date` : 2026-01-16 03:20:29 JST
+- Proxy1：<strong>status=407 が出る</strong>
+- Proxy2 / Proxy3：<strong>同一宛先が出ない</strong>
 
-**打鍵（Proxy1 経由で google に CONNECT）**
-- `curl --proxy http://proxy1.ad.lan:3128 https://www.google.com/`  
-  → 結果：<strong>HTTP/1.1 407 Proxy Authentication Required</strong>
+### ③ LogQL（コピペ用）
 
-**観測（access.log の差分）**
-- Proxy1 access.log に <strong>status=407</strong> が記録される  
-  - `url="www.google.com:443" status=407 hier=TCP_DENIED:HIER_NONE`
-- Proxy2 access_3129.log は <strong>空（NO HIT）</strong>  
-  → <strong>入口(Proxy1)で止まり、鎖（Proxy1→Proxy2）へ到達していない</strong>ことが確定
+    {job="squid", instance="proxy1"} |= "status=407"
 
-**Loki での見方（例：LogQL）**
-- Proxy1 の 407 を拾う
-  - `{job="squid", instance="proxy1"} |= "www.google.com" |= "status=407"`
-- Proxy2 側に同一ホストが出ていないことを確認（ヒット無しが期待値）
-  - `{job="squid", instance="proxy2"} |= "www.google.com"`
+    {job="squid", instance="proxy2"} |= "status=407"
 
-**スクリーンショット（証跡）**
-- `images/p6-loki-caseA-proxy1-407.png`
-- `images/p6-loki-caseA-proxy2-nohit.png`
+### ④ ここから言えること（面接官向け一文）
 
----
+<strong>入口（Proxy1）で止まっている</strong>ため、
+まずは <strong>認証／入口制御</strong>の問題として切り分けできる  
+（Proxy2 以降の TLS / ICAP / 上流ではないと説明できる）
 
-#### Case B：出口側（Proxy2:3131）で 403（ACL 拒否） → Proxy1 を経由していない（直行）
+### ⑤ 画像エビデンス（見る順）
 
-**前提**  
-Proxy2:3131 は「クライアント直行の出口（経路②）」として利用し、認証は Kerberos（Negotiate）で通す。
+- `images/p6-loki-caseA-proxy1-407.png`  
+  → Proxy1 で status=407 を確認
+- `images/p6-loki-caseA-proxy2-nohit.png`  
+  → Proxy2 側で NO HIT（鎖に到達していない裏取り）
 
-**打鍵（まず失敗：認証なし）**
-- `curl --proxy http://proxy2.ad.lan:3131 https://www.example.com/`  
-  → 結果：<strong>HTTP/1.1 407</strong>（Negotiate 必須のため）
+<hr>
 
-**打鍵（成功：Kerberos 認証あり）**
-- `kinit Administrator@AD.LAN` → `klist`（HTTP/proxy2.ad.lan のチケット取得）
-- `curl --proxy http://proxy2.ad.lan:3131 --proxy-negotiate -U : https://www.example.com/`  
-  → 結果：<strong>CONNECT 200 → GET 200</strong>（経路②が成立）
+## 5-4. Case B：直行出口（Proxy2:3131）で 403（ACL 拒否）
 
-**デモ（意図的に 403 を作る：Proxy2:3131 だけ Wikipedia を拒否）**
-- Proxy2 に一時ルール投入（例：`98-demo-deny-wikipedia-3131.conf`）
-  - `acl demo_wiki dstdomain .wikipedia.org`
-  - `http_access deny p2_client_3131 auth_users demo_wiki`
-- その後、
-  - `curl --proxy http://proxy2.ad.lan:3131 --proxy-negotiate -U : https://www.wikipedia.org/`  
-    → 結果：<strong>HTTP/1.1 403 Forbidden</strong>
+### ① 何をしたか（意図した失敗）
 
-**観測（access.log の差分）**
-- Proxy1 access.log：`wikipedia` が <strong>出ない（NO HIT）</strong>  
-  → <strong>入口(Proxy1)を通っていない</strong>（=直行の証拠）
-- Proxy2 access_3131.log：以下が連続で記録される  
-  - `CONNECT www.wikipedia.org:443 status=200 user=Administrator@AD.LAN`
-  - `GET https://www.wikipedia.org/ status=403`
-  → <strong>Proxy2:3131 で「認証は通ったが ACL で拒否された」</strong>と説明できる
+- Proxy2:3131（クライアント直行の出口）に
+  一時的な ACL deny ルールを投入  
+  → <strong>403 Forbidden</strong>
 
-**Loki での見方（例：LogQL）**
-- Proxy2 で 403 を拾う（結果）
-  - `{job="squid", instance="proxy2"} |= "wikipedia" |= "status=403"`
-- Proxy1 に出ていないことを確認（経路②の裏取り）
-  - `{job="squid", instance="proxy1"} |= "wikipedia"`
-- cache.log 側で “DENIED” を拾う（原因レイヤ）
-  - `{job="squid", instance="proxy2"} |= "DENIED" |= "wikipedia"`
+### ② Loki で何を見るか（結論が出る最短ルート）
 
-**スクリーンショット（証跡）**
+- Proxy2：<strong>status=403 が出る</strong>
+- Proxy1：<strong>同一宛先が出ない</strong>
+
+### ③ LogQL（コピペ用）
+
+    {job="squid", instance="proxy2"} |= "status=403"
+
+    {job="squid", instance="proxy1"} |= "status=403"
+
+（任意：原因の裏取り）
+
+    {job="squid", instance="proxy2"} |= "DENIED"
+
+### ④ ここから言えること（面接官向け一文）
+
+<strong>直行経路（Proxy2:3131）で止まっている</strong>ため、
+<strong>PAC による直行経路</strong>と
+<strong>出口側 ACL</strong>の問題として切り分けできる  
+（Proxy1 を通らない＝入口側ではない）
+
+### ⑤ 画像エビデンス（見る順）
+
 - `images/p6-loki-caseB-proxy2-403.png`
 - `images/p6-loki-caseB-proxy1-nohit.png`
 - `images/p6-loki-caseB-proxy2-cache-denied.png`
 
-**後片付け**
-- 一時 deny ルールを削除し、`squid -k reconfigure` で復旧（恒久設定に影響しない形で検証）
+<hr>
+
+### 5-5. Loki で迷わない操作（最小）
+
+- Explore を開き、データソースで <strong>Loki</strong> を選択
+- 時間範囲を <strong>テスト時刻の前後 2〜5 分</strong>に絞る
+- まずは <strong>status=407 / 403</strong> で停止点を確定
+- 必要に応じて <strong>DENIED / ERROR</strong> で原因を裏取り
 
 <hr>
 
-### 5-4. Loki での検索コツ（初学者向け：ここだけ読めば迷わない）
-
-**(1) Explore → Loki を選ぶ**  
-左メニュー Explore で Loki を選択する。
-
-**(2) まず Label browser で “使えるラベル” を確定する**  
-- 例：`job="squid"` / `instance="proxy1|proxy2|proxy3"`  
-※ `{}` のまま検索するとエラーになりやすいので、必ず絞り込みラベルを付ける。
-
-**(3) 時刻範囲を “狭く” する（±2分）**  
-`date` の実行時刻を基準に、右上の時間範囲を「前後2分」程度に絞ると追跡が速い。
-
-**(4) “結果→原因” の順に見る**  
-- まず access.log で `status=407/403/200` を拾う（結果）  
-- 次に cache.log で `DENIED / ERROR / SslBump / helper` を拾う（原因）
-
-<hr>
-
-### 5-5. 検証サマリ（Loki切り分け）
+### 5-6. 検証サマリ（Loki 切り分け）
 
 **本章で証明できたこと**
-- 3段プロキシ（Proxy1/2/3）のログを Loki で横断検索できる
-- 通信が「どの経路を通ったか（Proxy1経由 / Proxy2直行）」をログで裏取りできる
-- 失敗を「HTTPコード（結果）」だけでなく、<strong>認証 / ACL / TLS / ICAP</strong>などの <strong>原因レイヤ</strong>として説明できる
+
+- Loki により Proxy1 / Proxy2 / Proxy3 のログを横断検索できる
+- <strong>入口停止</strong>と<strong>直行出口停止</strong>を
+  意図したエラーで明確に区別できる
+- HTTPコード（結果）→ cache.log（原因）という
+  <strong>実運用と同じ切り分け思考</strong>を示せている
 
 ---
 
-<a id="p6"></a>
 ## 6. 自動化と再現性（Verification）
+<a id="p6"></a>
 
 <p style="margin:.2em 0 1em 0;">
 本章では「自動化がある」だけでなく、<strong>“完走して同一状態へ到達できた” ことを示す証跡</strong>を提示します。  
