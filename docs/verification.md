@@ -462,24 +462,55 @@ Author: gan2
 </figure>
 
 **ここで確認できること**
-- Proxy1 / Proxy2 の両方で SSLBump を行うと通信が成立しない
-- ブラウザエラーと Proxy 側ログから <strong>二重復号が原因</strong>であることを確認できる
-- これは「設定ミス」ではなく <strong>SSLBump の仕様上の制約</strong>である
+
+- Proxy1 / Proxy2 の **両方で SSLBump（HTTPS 復号）を実施すると通信は成立しない**
+- ブラウザ側では TLS エラーとして失敗し、  
+  Proxy 側ログでは **TLS CONNECT は成功しているが、HTTP セッション（GET）が確立していない** ことが確認できる
+- Proxy1 側では、CONNECT 200 の後に GET が 5xx で失敗しており、  
+  **復号後の HTTP/TLS セッションが正常に確立できていない** 状態である
+- Proxy2 側では、`bump-bump` としてログが記録されており、  
+  **既に Proxy1 で復号されたセッションに対して、再度 SSLBump を試みている** ことが分かる
+- これは Squid の設定ミスではなく、  
+  **SSLBump が「1 通信（1 TLS セッション）につき 1 回しか成立しない」という仕様上の制約**によるもの
+
+> 補足：  
+> SSLBump は「TLS セッションを終端し、Proxy が MITM として再署名する」動作であり、  
+> 同一セッションに対して複数回の終端（再 MITM）を行うことはできない。  
+> そのため、多段 Proxy 構成で無制御に SSLBump を有効化すると、  
+> 復号済み通信に対する再復号（bump-bump）が発生し、TLS が破綻する。
 
 <hr>
 
-### 4-2. 改善後の設計：復号と中継暗号化の分離
+### 4-2. 改善後の設計：復号（SSLBump）と中継 TLS（stunnel）の分離
+
+上記の失敗例を踏まえ、本構成では **HTTPS 復号と Proxy 間暗号化の責務を明確に分離**しています。
 
 **最終設計方針**
-- SSLBump（復号）は <strong>Proxy1 のみ</strong>で実施
-- Proxy 間通信は <strong>stunnel による TLS</strong>で暗号化
-- Proxy2 / Proxy3 では SSLBump を行わず、<strong>復号済み通信を制御・中継</strong>
+
+- HTTPS 復号（SSLBump）は **Proxy1 のみ**で実施する  
+  - クライアントとの TLS セッションは Proxy1 で終端
+  - 復号後の HTTP 通信を内部で制御・検査する
+- Proxy 間通信（Proxy1 → Proxy2 → Proxy3）は  
+  **SSLBump ではなく stunnel による純粋な TLS トンネル**で暗号化する
+- Proxy2 / Proxy3 では SSLBump を行わず、  
+  **復号済み（平文 HTTP）通信を stunnel の TLS トンネル内で中継・制御**する
 
 **この設計で得られる効果**
-- SSLBump の制約（1通信1回）を厳密に遵守
-- 復号ポイントと TLS 境界が明確
-- 多段 Proxy 構成でも HTTPS 通信が安定して成立
-- 失敗時に「復号が原因か」「中継TLSが原因か」をレイヤ分離して切り分けやすい
+
+- SSLBump の制約（**1 TLS セッションにつき 1 回のみ復号可能**）を厳密に遵守できる
+- 「どこで復号しているか」「どこからは単なる中継 TLS か」が明確になる
+- 多段 Proxy 構成でも HTTPS 通信が安定して成立する
+- 障害発生時に、
+  - 復号（SSLBump）の問題か
+  - Proxy 間 TLS（stunnel）の問題か
+  を **レイヤ単位で切り分け可能**
+- 運用・トラブルシュート時に  
+  「TLS ハンドシェイク」「復号」「HTTP 制御」を混同せずに説明できる
+
+> 本検証では、  
+> **失敗例（Proxy1 / Proxy2 の二重 SSLBump） → 設計変更 → 正常動作**  
+> の流れをログと画面で確認することで、  
+> 単なる設定結果ではなく **設計判断の妥当性**を示しています。
 
 <hr>
 
