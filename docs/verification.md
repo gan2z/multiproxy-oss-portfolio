@@ -117,7 +117,6 @@ Author: gan2
           <td>可観測性（Loki）</td>
           <td>経路と失敗点を時系列で追い、原因レイヤで説明できる</td>
           <td>
-            <a href="./images/p6-observability-triage.png" target="_blank" rel="noopener"><code>p6-observability-triage.png</code></a><br>
             <a href="./images/p6-loki-caseA-proxy1-407.png" target="_blank" rel="noopener"><code>p6-loki-caseA-proxy1-407.png</code></a><br>
             <a href="./images/p6-loki-caseA-proxy2-nohit.png" target="_blank" rel="noopener"><code>p6-loki-caseA-proxy2-nohit.png</code></a><br>
             <a href="./images/p6-loki-caseB-proxy2-403.png" target="_blank" rel="noopener"><code>p6-loki-caseB-proxy2-403.png</code></a><br>
