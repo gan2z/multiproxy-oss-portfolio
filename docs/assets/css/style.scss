@@ -581,73 +581,70 @@ details > :not(summary) strong {
 }
 
 /* =========================
- * cmp ボタン：Caymanに馴染む“フラットタブ”版（上書き）
+ * cmp: ボタンを“常に見える”ように固定（押せない問題の解消）
  * ========================= */
 
+/* 画像ステージを基準に重ねるため */
+.cmp-wrap { 
+  position: relative;
+}
+
+/* ボタン群：画像の上に重ねず、常に前面＆見える */
 .cmp-controls{
+  position: sticky;              /* スクロールしても追従（任意・効く環境のみ） */
+  top: 0;                        /* ページ上部に吸着 */
+  z-index: 50;                   /* 暗いオーバーレイより必ず前 */
   display:flex;
   gap:.4rem;
   flex-wrap:wrap;
   justify-content:center;
-  margin: 0 0 .7rem 0;
+  margin: 0 0 .8rem 0;           /* 画像と少し離す */
+  padding: .35rem .35rem;        /* 背景の余白 */
+  
+  /* ✅ 背景をつけて“押せるUI”に見せる（暗転に負けない） */
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
 }
 
-/* labelボタン */
+/* ボタン自体：白系で常に視認性を確保 */
 .cmp-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-
   padding: .40rem .78rem;
-  border-radius: 10px;                 /* ← 丸すぎない */
-  background: #ffffff;                 /* ← フラット */
-  color: rgba(0,0,0,.78);
-
+  border-radius: 10px;
+  background: #ffffff;
+  color: rgba(0,0,0,.80);
   border: 1px solid rgba(0,0,0,.14);
-  box-shadow: none;                    /* ← 影を消す */
+  box-shadow: none;
   font-weight: 700;
   font-size: .92rem;
-  letter-spacing: 0;
-
   cursor: pointer;
-  user-select: none;
   transition: background .12s ease, border-color .12s ease, color .12s ease;
 }
 
 .cmp-btn:hover{
-  background: #f6f8fa;                 /* ← GitHub系の薄グレー */
+  background: #f6f8fa;
   border-color: rgba(0,0,0,.20);
 }
 
-/* 選択中（タブのアクティブ感） */
+/* 選択中だけ薄緑で強調 */
 #cmp-both:checked ~ .cmp-controls label[for="cmp-both"],
 #cmp-left:checked ~ .cmp-controls label[for="cmp-left"],
 #cmp-right:checked ~ .cmp-controls label[for="cmp-right"]{
-  background: #e6f4ea;                 /* ← あなたのテーブル見出しと同系 */
-  color: rgba(0,0,0,.88);
+  background: #e6f4ea;
+  color: rgba(0,0,0,.90);
   border-color: rgba(21,128,61,.40);
-  outline: none;
 }
 
-/* 非選択は普通に（変な薄さ/グレー化をやめる） */
-#cmp-both:not(:checked) ~ .cmp-controls label[for="cmp-both"],
-#cmp-left:not(:checked) ~ .cmp-controls label[for="cmp-left"],
-#cmp-right:not(:checked) ~ .cmp-controls label[for="cmp-right"]{
-  opacity: 1;
-  filter: none;
-}
-
-/* キーボード操作のフォーカス */
-.cmp-btn:focus-visible{
-  outline: 3px solid rgba(21,128,61,.20);
-  outline-offset: 2px;
-}
-
-/* ダークモード：背景と枠だけ調整（同化しすぎない） */
+/* ダークモードでも“ボタン領域”は見えるように */
 @media (prefers-color-scheme: dark){
+  .cmp-controls{
+    background: rgba(20,20,20,.72);
+    border-color: rgba(255,255,255,.14);
+  }
   .cmp-btn{
     background: rgba(255,255,255,.06);
-    color: rgba(255,255,255,.85);
+    color: rgba(255,255,255,.88);
     border-color: rgba(255,255,255,.18);
   }
   .cmp-btn:hover{
@@ -658,7 +655,6 @@ details > :not(summary) strong {
   #cmp-left:checked ~ .cmp-controls label[for="cmp-left"],
   #cmp-right:checked ~ .cmp-controls label[for="cmp-right"]{
     background: rgba(46,160,67,.25);
-    color: rgba(255,255,255,.92);
     border-color: rgba(46,160,67,.55);
   }
 }
