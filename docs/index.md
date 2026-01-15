@@ -348,14 +348,25 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
   <summary><strong>詳細：なぜ多段SSLBumpが成立しないのか（クリックで開く）</strong></summary>
 
   <ul>
-    <li>HTTPS 復号（SSLBump）は TLS 通信に対して  
-        <strong>通信途中でサーバ・クライアント双方を代理する「中間者方式の復号」</strong>に該当します</li>
+    <li>
+      HTTPS 復号（SSLBump）は TLS 通信に対して  
+      <strong>通信途中でサーバ・クライアント双方を代理する「中間者方式の復号」</strong>
+      に該当します。
+    </li>
 
-    <li>同一通信に対して後段のプロキシでも復号を行うと、  
-        <strong>すでに終端された TLS セッションを再度終端しようとするため、TLS の前提構造が破綻</strong>します</li>
+    <li>
+      同一通信に対して後段のプロキシでも復号を行うと、  
+      <strong>すでに終端された TLS セッションを再度終端しようとすることになり、  
+      TLS の前提構造が破綻して通信が成立しません</strong>。
+    </li>
 
-    <li>そのため本構成では、復号処理は <strong>入口となるプロキシでのみ実施</strong>し、  
-        中継側のプロキシでは暗号化された通信をそのまま転送する設計としています</li>
+    <li>
+      そのため本構成では、復号（SSLBump）処理は
+      <strong>入口となるプロキシでのみ実施</strong>しています。  
+      中継側のプロキシでは SSLBump による再復号は行わず、
+      <strong>Proxy 間の通信路は stunnel により TLS で暗号化</strong>した上で、
+      <strong>プロキシ内部では平文の HTTP として中継・転送</strong>する設計としています。
+    </li>
   </ul>
 
 </details>
