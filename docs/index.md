@@ -6,7 +6,7 @@ layout: default
 # OSS Multi-Layer Proxy & Authentication System  
 ── 構築・課題・設計思想まとめ
 
-Version: 2025-01-15  
+Version: 2025-01-16
 Author: gan2
 
 ---
@@ -183,7 +183,7 @@ Author: gan2
           <tr>
             <td>DNS / 経路制御</td>
             <td>PAC 配布・名前解決</td>
-            <td>dnsmasq（WPAD / Split DNS）</td>
+            <td>dnsmasq（Split DNS）</td>
           </tr>
           <tr>
             <td>ログ</td>
