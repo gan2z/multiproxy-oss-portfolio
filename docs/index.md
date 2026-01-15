@@ -31,8 +31,9 @@ Author: gan2
 - **暗号化（SSLBump / stunnel）・認証（Kerberos）・経路制御・ログ**を一気通貫で検証し、設計意図まで説明できるよう整理した
 
 ### ✅ 運用視点（再現性）
+- 構成要素が多くても **“手順が再現可能”** を最優先に設計
 - 起動〜正常性確認〜初期設定までをスクリプト化  
-- **スクリプト実行だけで約25分で環境を再現可能**
+- **スクリプト実行だけで約25分で環境を再現可能**（環境破棄後でも同等状態まで復元）
 
 ▶ 全体像： [システムアーキテクチャ](#2-システムアーキテクチャ全体像)  
 ▶ 動作証跡： [動作検証（スクリーンショット集）](#-動作検証スクリーンショット集)  
@@ -105,7 +106,7 @@ Author: gan2
 
 ### ✅ 構成比較（実務環境 ↔ OSS再現）
 
-> **左：実務環境（参考）**
+> **左：実務環境（参考）**  
 > **右：OSS再現** … 入口/分岐/出口・認証・暗号化・検査・ログを分解した構成
 
 <!-- ✅ 図面はタップで原寸表示 -->
@@ -137,9 +138,6 @@ Author: gan2
     <!-- ✅ 左右の境界線（任意） -->
     <span class="cmp-divider" aria-hidden="true"></span>
   </div>
-
-  <!-- 任意：補足文を付けるなら -->
-  <!-- <p class="cmp-hint">※ ボタンで左右にフォーカス（画像は1枚のまま）</p> -->
 </div>
 
 <p style="text-align:center; font-size:.9em; opacity:.8;">
@@ -245,6 +243,13 @@ Author: gan2
 - 経路制御・復号・中継TLSなどの **要点を確認するページ**
 - 同じ内容を **第三者が再現できる粒度で整理した詳細版（Runbook）**
 
+<div style="margin:.8em 0; padding:.75em 1em; border-left:4px solid rgba(0,0,0,.2); background:rgba(0,0,0,.03);">
+<strong>▼推奨の読み順</strong><br>
+① <strong>Verification（要点）</strong>で全体像と証拠を5分で確認<br>
+② 興味が出た箇所だけ <strong>verification_detail</strong> で再現手順を見る<br>
+③ さらに設計判断は <strong>4章 / 5章</strong>へ戻る
+</div>
+
 ---
 
 ### 📌 検証ページ（要点）
@@ -331,7 +336,7 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 ## 4. 設計補足（通信制御に関する考慮点）
 
 > この章では「なぜその設計にしたか」を補足します。  
-> **結論だけ読めば理解できる**よう、詳細は折りたたみにしています。
+> <strong>結論だけ読めば理解できる</strong>よう、詳細は折りたたみにしています。
 
 ---
 
@@ -430,7 +435,7 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 ## 5. 苦労した点と解決アプローチ
 
 > この章では「失敗 → 原因 → 改善」までを整理します。  
-> **切り分け観点（どこで何が起きたか）**を重視しています。
+> <strong>切り分け観点（どこで何が起きたか）</strong>を重視しています。
 
 ---
 
@@ -516,6 +521,12 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 ---
 
 ## 6. ログ・監視（Observability）
+
+<div style="margin:.8em 0; padding:.75em 1em; border-left:4px solid rgba(0,0,0,.2); background:rgba(0,0,0,.03);">
+<strong>成果物：ログの入口と出口</strong><br>
+Squid <code>access.log</code> は集約して検索可能。<br>
+<code>cache.log</code> / stunnel / DNS / Kerberos は <strong>“原因究明フェーズで見るログ”</strong> として位置づけ。
+</div>
 
 > 現時点では <strong>GUI上での確認と基本動作</strong>まで実施しています。  
 > 今後は “運用判断に使える可観測性” に向けて深掘り予定です。
@@ -640,6 +651,10 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
   </div>
 </div>
 
+<p style="margin-top:.6em; opacity:.85;">
+<strong>（例）503 を確認 → cache.log で上流 CONNECT 失敗を特定 → 必要に応じて stunnel の handshake を確認し、証明書検証や接続断の原因へ絞り込む。</strong>
+</p>
+
 <details>
   <summary><strong>今後の検証・調整予定（クリックで開く）</strong></summary>
 
@@ -660,7 +675,7 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 約25分で再現できる自動化スクリプト群を作成しました。**
 
 本プロジェクトでは「一度動いた環境」ではなく、  
-**誰が・いつ・どこで実行しても同じ状態まで到達できること**を重視し、  
+<strong>誰が・いつ・どこで実行しても同じ状態まで到達できること</strong>を重視し、  
 構築・初期化・検証・復旧を Bash スクリプトとして整理しています。
 
 <ul>
