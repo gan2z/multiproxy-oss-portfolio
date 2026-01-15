@@ -238,17 +238,11 @@ Author: gan2
 ## ✅ 動作検証（スクリーンショット集）
 
 本プロジェクトでは、**実際に動作している証拠（スクリーンショット／ログ）**を  
-目的別に 2 つのドキュメントに分けて整理しています。
+**Verification（要点）ページに集約**して整理しています。
 
-- 経路制御・復号・中継TLSなどの **要点を確認するページ**
-- 同じ内容を **第三者が再現できる粒度で整理した詳細版（Runbook）**
-
-<div style="margin:.8em 0; padding:.75em 1em; border-left:4px solid rgba(0,0,0,.2); background:rgba(0,0,0,.03);">
-<strong>▼推奨の読み順</strong><br>
-① <strong>Verification（要点）</strong>で全体像と証拠を5分で確認<br>
-② 興味が出た箇所だけ <strong>verification_detail</strong> で再現手順を見る<br>
-③ さらに設計判断は <strong>4章 / 5章</strong>へ戻る
-</div>
+本ポートフォリオは、  
+「第三者が完全に再現できる手順書」よりも、  
+**設計どおりに動作していることを短時間で確認できる構成**を重視しています。
 
 ---
 
@@ -264,33 +258,21 @@ Author: gan2
 
 ---
 
-### 📌 検証ページ（詳細・再現用）
-
-- [verification_detail.md](./verification_detail.html)
-
-**確認できる内容**
-- 試験ID（P1〜）単位の検証観点
-- 実行コマンド／判定基準／取得すべき証跡の明示
-- PAC 経路差・SSLBump・stunnel・認証（AD / LDAP / Kerberos）の個別検証
-- Loki を用いたログ追跡と原因特定の具体手順
-
----
-
 <details>
-  <summary><strong>補足：読みどころ（クリックで開く）</strong></summary>
+  <summary><strong>補足：再現性について（クリックで開く）</strong></summary>
 
   <ul>
     <li>
-      <strong>Verification</strong> は
-      「設計どおりに動いているか」を短時間で確認するための要点版です
+      本プロジェクトでは、再現性は
+      <strong>automation.md（自動化スクリプト）</strong>に集約しています
     </li>
     <li>
-      <strong>verification_detail.md</strong> は
-      「なぜそう判断できるのか」を再現可能な形で示す詳細版です
+      構築・起動・検証・復旧は
+      STEP0〜17 のスクリプトで一括実行可能です
     </li>
     <li>
-      単に “動いた” ではなく、
-      <strong>ログ・画面・経路差</strong>から根拠を説明できる構成にしています
+      詳細な Runbook 形式の手順書は省略していますが、
+      <strong>同一環境を再現できる設計と自動化</strong>は担保されています
     </li>
   </ul>
 
@@ -817,10 +799,6 @@ STEP0〜17 を一括実行し、初期化・構築・検証・監視まで到達
 <p style="text-align:center; font-size:.9em; opacity:.8;">
 STEP0〜17 を一括実行し、初期化・構築・検証・監視までを
 <strong>22分31秒で再現</strong>した実行結果（STEP別所要時間 / 総所要時間）
-</p>
-
-<p style="margin-top:.8em;">
-全文ログ（保険・原寸）：<a href="./images/all_in_one_full_raw.png" target="_blank">all_in_one_full_raw.png</a>
 </p>
 
 <hr>
