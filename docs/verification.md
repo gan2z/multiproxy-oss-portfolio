@@ -322,7 +322,8 @@ Author: gan2
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クライアントに PAC（wpad.dat）を設定し、自動構成スクリプトが有効化されている状態。
+    クライアントに PAC（wpad.dat）を設定し、
+    自動構成スクリプトが有効化されている状態。
   </figcaption>
 </figure>
 
@@ -334,27 +335,37 @@ Author: gan2
 
 ### 3-2. Proxy1 経由の通信（通常経路）
 
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/pac-proof-proxy1.png" target="_blank" rel="noopener">
-    <img
-      src="./images/pac-proof-proxy1.png"
-      alt="Proxy1経由通信の確認"
-      loading="lazy"
-      style="
-        width:100%;
-        max-width:1200px;
-        height:auto;
-        cursor:zoom-in;
-        border:1px solid rgba(0,0,0,.12);
-        border-radius:10px;
-      "
-    >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    Proxy1 → Proxy2 → Proxy3 の通常経路で通信していることを、
-    Proxy1 のアクセスログから確認。
-  </figcaption>
-</figure>
+<div style="
+  width:100vw;
+  margin-left:calc(50% - 50vw);
+  margin-right:calc(50% - 50vw);
+  text-align:center;
+">
+
+  <figure style="margin: 1.2em auto;">
+    <a href="./images/pac-proof-proxy1.png" target="_blank" rel="noopener">
+      <img
+        src="./images/pac-proof-proxy1.png"
+        alt="Proxy1経由通信の確認"
+        loading="lazy"
+        style="
+          width:100%;
+          max-width:1600px;
+          height:auto;
+          cursor:zoom-in;
+          border:1px solid rgba(0,0,0,.12);
+          border-radius:10px;
+          box-shadow:0 6px 18px rgba(0,0,0,.10);
+        "
+      >
+    </a>
+    <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+      Proxy1 → Proxy2 → Proxy3 の通常経路で通信していることを、
+      Proxy1 のアクセスログから確認。
+    </figcaption>
+  </figure>
+
+</div>
 
 **確認できること**
 - PAC 判定により Proxy1 が選択されている
@@ -365,27 +376,37 @@ Author: gan2
 
 ### 3-3. Proxy2 経由の通信（Proxy1 skip / DIRECT 相当）
 
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/pac-proof-proxy2.png" target="_blank" rel="noopener">
-    <img
-      src="./images/pac-proof-proxy2.png"
-      alt="Proxy2経由通信の確認"
-      loading="lazy"
-      style="
-        width:100%;
-        max-width:1200px;
-        height:auto;
-        cursor:zoom-in;
-        border:1px solid rgba(0,0,0,.12);
-        border-radius:10px;
-      "
-    >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    Proxy1 を経由せず、Proxy2 から通信していることを
-    Proxy1/Proxy2 のログ差分で確認。
-  </figcaption>
-</figure>
+<div style="
+  width:100vw;
+  margin-left:calc(50% - 50vw);
+  margin-right:calc(50% - 50vw);
+  text-align:center;
+">
+
+  <figure style="margin: 1.2em auto;">
+    <a href="./images/pac-proof-proxy2.png" target="_blank" rel="noopener">
+      <img
+        src="./images/pac-proof-proxy2.png"
+        alt="Proxy2経由通信の確認"
+        loading="lazy"
+        style="
+          width:100%;
+          max-width:1600px;
+          height:auto;
+          cursor:zoom-in;
+          border:1px solid rgba(0,0,0,.12);
+          border-radius:10px;
+          box-shadow:0 6px 18px rgba(0,0,0,.10);
+        "
+      >
+    </a>
+    <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+      Proxy1 を経由せず Proxy2 から通信していることを、
+      Proxy1 / Proxy2 のログ差分で確認。
+    </figcaption>
+  </figure>
+
+</div>
 
 **確認できること**
 - Proxy1 にはログが残らない
@@ -396,27 +417,37 @@ Author: gan2
 
 ### 3-4. DIRECT（ルーター直通）通信
 
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/pac-proof-direct.png" target="_blank" rel="noopener">
-    <img
-      src="./images/pac-proof-direct.png"
-      alt="DIRECT通信の確認"
-      loading="lazy"
-      style="
-        width:100%;
-        max-width:1200px;
-        height:auto;
-        cursor:zoom-in;
-        border:1px solid rgba(0,0,0,.12);
-        border-radius:10px;
-      "
-    >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    Proxy1 / Proxy2 のいずれにもログが残らず、
-    ルーターへ直接通信していることを確認。
-  </figcaption>
-</figure>
+<div style="
+  width:100vw;
+  margin-left:calc(50% - 50vw);
+  margin-right:calc(50% - 50vw);
+  text-align:center;
+">
+
+  <figure style="margin: 1.2em auto;">
+    <a href="./images/pac-proof-direct.png" target="_blank" rel="noopener">
+      <img
+        src="./images/pac-proof-direct.png"
+        alt="DIRECT通信の確認"
+        loading="lazy"
+        style="
+          width:100%;
+          max-width:1600px;
+          height:auto;
+          cursor:zoom-in;
+          border:1px solid rgba(0,0,0,.12);
+          border-radius:10px;
+          box-shadow:0 6px 18px rgba(0,0,0,.10);
+        "
+      >
+    </a>
+    <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+      Proxy1 / Proxy2 のいずれにもログが残らず、
+      ルーターへ直接通信していることを確認。
+    </figcaption>
+  </figure>
+
+</div>
 
 **確認できること**
 - PAC 判定により DIRECT が選択されている
@@ -434,17 +465,131 @@ Author: gan2
 
 ---
 
-## 4. 復号（SSLBump）と中継TLS（stunnel）
+## 4. 復号（SSLBump）と中継 TLS（stunnel）
 
-<div style="text-align:center; margin: 1.2em 0;">
-  <a href="./images/P4-proof-compare.png" target="_blank">
-    <img src="./images/P4-proof-compare.png" style="width:100%; max-width:1200px;">
+<p style="margin:.4em 0 1em 0;">
+本章では、HTTPS 復号（SSLBump）に関する<strong>制約と失敗例</strong>を明示した上で、  
+その制約を踏まえて <strong>復号（SSLBump）と中継暗号化（stunnel）を分離設計</strong>したことを検証します。
+</p>
+
+<hr>
+
+### 4-0. 前提整理：SSLBump は「1 通信につき 1 回のみ」
+
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/P4-sslbump-overview.png" target="_blank" rel="noopener">
+    <img
+      src="./images/P4-sslbump-overview.png"
+      alt="SSLBump と TLS 境界の整理"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1200px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
   </a>
-</div>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    HTTPS 復号（SSLBump）と Proxy 間 TLS（stunnel）の役割分離を示した概要図。<br>
+    SSLBump は <strong>1 通信につき 1 回のみ成立</strong>する制約を持つ。
+  </figcaption>
+</figure>
 
-**確認できること**
-- SSLBump は 1 通信 1 回であるという制約を踏まえた設計
-- 復号と中継暗号化を分離し、TLS 境界が明確になっている
+**設計上の重要な前提**
+- SSLBump は同一 TLS セッションに対して <strong>二重適用できない</strong>
+- 多段 Proxy 構成では「どこで復号するか」を明確にしないと通信が破綻する
+- Proxy 間の暗号化は SSLBump ではなく <strong>stunnel（純粋な TLS）</strong>で担保する必要がある
+
+<hr>
+
+### 4-1. 失敗例：Proxy1 / Proxy2 の二重 SSLBump によるエラー
+
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/double-bump-error.png" target="_blank" rel="noopener">
+    <img
+      src="./images/double-bump-error.png"
+      alt="二重SSLBumpによるブラウザエラー"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1200px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+      "
+    >
+  </a>
+</figure>
+
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/double-sslbump-proxy1-access-google-500.png" target="_blank" rel="noopener">
+    <img
+      src="./images/double-sslbump-proxy1-access-google-500.png"
+      alt="Proxy1側のエラーログ"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1200px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+      "
+    >
+  </a>
+</figure>
+
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/double-sslbump-proxy2-access3129.png" target="_blank" rel="noopener">
+    <img
+      src="./images/double-sslbump-proxy2-access3129.png"
+      alt="Proxy2側のSSL再復号ログ"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1200px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+      "
+    >
+  </a>
+</figure>
+
+**ここで確認できること**
+- Proxy1 / Proxy2 の両方で SSLBump を行うと通信が成立しない
+- ブラウザエラーと Proxy 側ログから <strong>二重復号が原因</strong>であることを確認できる
+- これは「設定ミス」ではなく <strong>SSLBump の仕様上の制約</strong>である
+
+<hr>
+
+### 4-2. 改善後の設計：復号と中継暗号化の分離
+
+**最終設計方針**
+- SSLBump（復号）は <strong>Proxy1 のみ</strong>で実施
+- Proxy 間通信は <strong>stunnel による TLS</strong>で暗号化
+- Proxy2 / Proxy3 では SSLBump を行わず、<strong>復号済み通信を制御・中継</strong>
+
+**この設計で得られる効果**
+- SSLBump の制約（1通信1回）を厳密に遵守
+- 復号ポイントと TLS 境界が明確
+- 多段 Proxy 構成でも HTTPS 通信が安定して成立
+
+<hr>
+
+### 4-3. 検証サマリ（SSLBump / stunnel）
+
+**本章で証明できたこと**
+- SSLBump は <strong>1 通信 1 回</strong>という制約を持つ
+- 二重 SSLBump は実際に通信障害を引き起こす
+- 復号（SSLBump）と中継暗号化（stunnel）を分離することで問題を解消できる
+- 設計判断が <strong>実ログと失敗事例に基づいている</strong>ことを示せている
 
 ---
 
