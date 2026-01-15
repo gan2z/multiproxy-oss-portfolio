@@ -19,6 +19,9 @@ Author: gan2
 設計 → 実装 → 動作 → 切り分け、までを  
 **一貫した証跡として確認できる構成**にしています。
 
+> ※ 試験ID（P1-1 など）は詳細版（Runbook）で意味を持つため、  
+> この要点版では **表示を省略**し「何を証明するか」を優先しています。
+
 ---
 
 ## 本システムの特徴（要点）
@@ -30,7 +33,7 @@ Author: gan2
 
 ---
 
-## 1. index.md の主張 ↔ 検証証跡 対応表
+## 1. index.md の主張 ↔ 検証証跡 対応表（要点）
 
 <div class="table-compact" id="map-table">
   <div class="table-wrap">
@@ -38,7 +41,6 @@ Author: gan2
       <thead>
         <tr>
           <th>章</th>
-          <th>試験ID</th>
           <th>検証内容</th>
           <th>主要証跡</th>
         </tr>
@@ -47,7 +49,6 @@ Author: gan2
 
         <tr>
           <td>概要</td>
-          <td>P1-1, P1-2</td>
           <td>
             システム全体が稼働しており、構成図と稼働状態を
             <strong>1枚で対応付けて確認できる</strong>
@@ -59,7 +60,6 @@ Author: gan2
 
         <tr>
           <td>アーキテクチャ</td>
-          <td>P2-1</td>
           <td>
             設計した構成図と、実際の稼働コンテナが
             <strong>1:1 対応</strong>
@@ -71,7 +71,6 @@ Author: gan2
 
         <tr>
           <td>経路制御（PAC）</td>
-          <td>P3-1, P3-2</td>
           <td>
             クライアント指定の PAC により経路が切り替わり、
             <strong>Proxy ログ差で判別可能</strong>
@@ -85,7 +84,6 @@ Author: gan2
 
         <tr>
           <td>復号 / 暗号化</td>
-          <td>P4-1, P4-2</td>
           <td>
             <strong>復号（SSLBump）と中継TLS（stunnel）を分離</strong>し、
             通信境界と責務を明確化
@@ -99,7 +97,6 @@ Author: gan2
 
         <tr>
           <td>可観測性</td>
-          <td>P6-1〜P6-4</td>
           <td>
             通信異常を起点に、
             <strong>Loki で経路・復号点・原因まで追跡可能</strong>
@@ -113,7 +110,6 @@ Author: gan2
 
         <tr>
           <td>自動化</td>
-          <td>P7-1, P7-2</td>
           <td>
             起動・確認・復旧をスクリプトで標準化し、
             <strong>再現性を確保</strong>
@@ -127,7 +123,6 @@ Author: gan2
 
         <tr>
           <td>切り分け</td>
-          <td>P5</td>
           <td>
             設計判断を
             <strong>ログ → 仕様 → 設計変更</strong>の流れで説明できる
@@ -223,12 +218,12 @@ Loki（Grafana Explore）で一貫して追跡できます。
 - **stunnel 分離**  
   暗号化責務を分離することで、Proxy ログを L7 挙動に集中
 
-- **二重 SSLBump の破綻**  
-  同一通信への二重復号が TLS エラーを引き起こすことをログで確認し、
+- **二重 SSLBump の不成立**  
+  同一通信への二重復号が TLS エラーを引き起こすことをログで確認し、  
   復号点分離設計へ変更
 
 - **認証のレイヤ分離**  
-  Kerberos / LDAP / Proxy を役割分担し、
+  Kerberos / LDAP / Proxy を役割分担し、  
   問題発生時に層を即座に特定可能
 
 ---
