@@ -524,48 +524,54 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
 ### ✅ 現在確認できている構成（要点）
 
-<ul>
-  <li>アクセスログ：Squid → Loki / Graylog</li>
-  <li>接続ログ：stunnel / Squid / DNS / Kerberos</li>
-  <li>監視：Zabbix（TLS-PSK + Sidecar Agent）</li>
-  <li>可視化：Grafana / Kibana</li>
-</ul>
-
-<details>
-  <summary><strong>詳細：表で整理（クリックで開く）</strong></summary>
-
-  <div class="table-compact">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>種類</th>
-            <th>内容</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>アクセスログ</td>
-            <td>Squid → Loki / Graylog</td>
-          </tr>
-          <tr>
-            <td>接続ログ</td>
-            <td>stunnel / Squid / DNS / Kerberos</td>
-          </tr>
-          <tr>
-            <td>監視</td>
-            <td>Zabbix（TLS-PSK + Sidecar Agent）</td>
-          </tr>
-          <tr>
-            <td>可視化</td>
-            <td>Grafana / Kibana</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+<div class="table-compact">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>区分</th>
+          <th>内容</th>
+          <th>現状の扱い</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>アクセスログ（HTTP）</td>
+          <td>URL / ステータス / 認証結果などの利用履歴</td>
+          <td>
+            Squid access.log を fluent-bit で収集し、
+            Graylog / Loki（Grafana）で可視化
+          </td>
+        </tr>
+        <tr>
+          <td>接続・制御ログ</td>
+          <td>TLS / SSLBump 判断・エラー詳細</td>
+          <td>
+            Squid cache.log を中心に収集・確認
+          </td>
+        </tr>
+        <tr>
+          <td>周辺コンポーネントログ</td>
+          <td>stunnel / DNS / Kerberos など</td>
+          <td>
+            現時点では集中収集は行わず、
+            障害調査時に各コンポーネント単位で確認
+          </td>
+        </tr>
+        <tr>
+          <td>監視</td>
+          <td>死活監視・リソース監視</td>
+          <td>Zabbix（TLS-PSK + Sidecar Agent）</td>
+        </tr>
+        <tr>
+          <td>可視化</td>
+          <td>ログ検索・ダッシュボード</td>
+          <td>Grafana（Loki） / Graylog（Web UI）</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-
-</details>
+</div>
 
 ---
 
