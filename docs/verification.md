@@ -535,56 +535,63 @@ Author: gan2
 
 <hr>
 
-<!-- ①Proxyのアクセスログの回収方法（Lokiまでの流れ） -->
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p5-loki-collection-flow.png" target="_blank" rel="noopener">
-    <img
-      src="./images/p5-loki-collection-flow.png"
-      alt="Proxyログ収集の流れ（Squid→Promtail→Loki→Grafana Explore）"
-      loading="lazy"
-      style="
-        width:100%;
-        max-width:1400px;
-        height:auto;
-        cursor:zoom-in;
-        border:1px solid rgba(0,0,0,.12);
-        border-radius:10px;
-        box-shadow:0 6px 18px rgba(0,0,0,.10);
-      "
-    >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    Squid（Proxy1/2/3）の <strong>access.log / cache.log</strong> を Promtail が収集し、
-    Loki に格納、Grafana Explore で <strong>横断検索</strong>できる流れを示します。
-  </figcaption>
-</figure>
+## ログ収集〜検索の流れ（Proxy → Loki → Grafana）
 
-<!-- 全体像（任意：残す場合） -->
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p6-observability-triage.png" target="_blank" rel="noopener">
-    <img
-      src="./images/p6-observability-triage.png"
-      alt="Lokiによる経路と停止点の切り分け（全体像）"
-      loading="lazy"
-      style="
-        width:100%;
-        max-width:1400px;
-        height:auto;
-        cursor:zoom-in;
-        border:1px solid rgba(0,0,0,.12);
-        border-radius:10px;
-        box-shadow:0 6px 18px rgba(0,0,0,.10);
-      "
-    >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。Proxy1/2/3 のログを Loki で横断し、
-    <strong>経路と停止点</strong>を追跡する全体像です。
-  </figcaption>
-</figure>
+    [ Client ]
+      Browser / curl
+           |
+         HTTPS
+           v
+    +-------------------------------+
+    |        Squid Proxy            |
+    |                               |
+    |  Proxy1 / Proxy2 / Proxy3     |
+    |                               |
+    |  access.log : 経路・結果      |
+    |    - status=407 / 403         |
+    |                               |
+    |  cache.log  : 原因の裏取り    |
+    |    - DENIED / TLS / ACL       |
+    +---------------+---------------+
+                    |
+                 file tail
+                    v
+    +-------------------------------+
+    |          Promtail             |
+    |                               |
+    |  - ログファイルを監視         |
+    |  - Proxy別にラベル付与        |
+    |                               |
+    |  labels:                      |
+    |    job="squid"                |
+    |    instance="proxy1|2|3"      |
+    |    filename="access|cache"   |
+    +---------------+---------------+
+                    |
+                   push
+                    v
+    +-------------------------------+
+    |            Loki               |
+    |                               |
+    |  - 時系列ログを保存           |
+    |  - ラベルで横断検索           |
+    |                               |
+    |  判断できること:              |
+    |   * どのProxyに出たか         |
+    |   * どこで止まったか          |
+    +---------------+---------------+
+                    |
+                LogQL query
+                    v
+    +-------------------------------+
+    |      Grafana Explore          |
+    |                               |
+    |  例:                          |
+    |   status=407 -> Proxy1停止    |
+    |   status=403 -> Proxy2直行    |
+    |                               |
+    |  結果 -> 原因 の順で解析      |
+    +-------------------------------+
 
 ### この章で示すこと（面接官向け：要点）
 - <strong>入口（Proxy1）で止まった</strong>のか、<strong>出口側（Proxy2 直行）で止まった</strong>のかをログで判定できる
