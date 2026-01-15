@@ -795,14 +795,13 @@ Proxy2:3131 は「クライアント直行の出口（経路②）」として�
 
 ### 6-2. コマンド（初学者向け：これだけ）
 
-```bash
-cd /home/login00/multiproxy
+    cd /home/login00/multiproxy
 
-# 1) 全再構築（STEP0〜17：クリア→起動→初期化→監視/ログ→ヘルス確認）
-./all_in_one_rebuild_and_health.sh
-
-# 2) ヘルスチェックだけ（運用時の確認）
-./scripts/multiproxy_health_all.sh
+    # 1) 全再構築（STEP0〜17：クリア→起動→初期化→監視/ログ→ヘルス確認）
+    ./all_in_one_rebuild_and_health.sh
+    
+    # 2) ヘルスチェックだけ（運用時の確認）
+    ./scripts/multiproxy_health_all.sh
 
 ---
 
