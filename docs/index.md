@@ -656,8 +656,6 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
 ## 7. 自動化（運用性・再現性の確保）
 
-## 7. 自動化（運用性・再現性の確保）
-
 ✅ **結論：ゼロからシステムを構築し、動作確認まで含めて  
 約25分で再現できる自動化スクリプト群を作成しました。**
 
@@ -691,7 +689,7 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 ![healthcheck-output](./images/healthcheck-output.png)
 
 スクリプトの構成・実行順・役割の整理については  
-<strong><code>automation.md</code></strong> にまとめています。
+<strong><a href="./automation.html"><code>automation.md</code></a></strong> にまとめています。
 
 ---
 
