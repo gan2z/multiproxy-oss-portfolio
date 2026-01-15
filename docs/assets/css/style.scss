@@ -265,25 +265,19 @@ details > :not(summary) strong {
 
 /* =========================================
  * map-table（章×試験ID対応表）だけ折り返し方針を変更
- *  - 章（1列目）：なるべく改行しない
- *  - 試験ID（2列目）：適切に改行する
- *  - 想定ファイル名（4列目）：途中折り返しを抑え、「区切り」で折り返す
  * ========================================= */
 
-/* tableの幅は自然伸縮（内容に応じて） */
 #map-table table {
   table-layout: auto;
   width: 100%;
 }
 
-/* 章名：折り返し抑制（=改行しにくくする） */
 #map-table td:nth-child(1),
 #map-table th:nth-child(1),
 #map-table td:nth-child(1) a {
   white-space: nowrap;
 }
 
-/* 試験ID：折り返し許可（従来の nowrap を上書き） */
 #map-table td:nth-child(2),
 #map-table th:nth-child(2) {
   white-space: normal !important;
@@ -291,53 +285,40 @@ details > :not(summary) strong {
   min-width: 10.5em;
 }
 
-/* 想定ファイル名：
- * - code（pill）内で「ファイル名途中で改行」しやすいのを抑制
- * - セル自体は折り返すが、なるべく「カンマ」「スペース」等の区切りで折り返させる
- */
 #map-table td:nth-child(4) {
   white-space: normal !important;
   line-height: 1.35;
-  overflow-wrap: normal !important;     /* anywhere を打ち消す */
+  overflow-wrap: normal !important;
   word-break: normal !important;
   hyphens: manual;
 }
 
-/* code（ファイル名のタグ）は “1つの塊” として扱い、途中で割らない */
 #map-table td:nth-child(4) code {
-  display: inline-block;               /* ★ 途中改行されにくくする */
-  white-space: nowrap;                 /* ★ ファイル名の途中で折らない */
+  display: inline-block;
+  white-space: nowrap;
   overflow-wrap: normal;
   word-break: keep-all;
   hyphens: none;
   max-width: 100%;
 }
 
-/* 画面が狭い時だけ章名nowrapを解除（モバイルで横スクロール過多を防ぐ） */
 @media (max-width: 760px) {
   #map-table td:nth-child(1),
   #map-table th:nth-child(1),
   #map-table td:nth-child(1) a {
     white-space: normal;
   }
-
-  /* モバイルでは code が詰まりやすいので、必要時はセル側で自然に改行 */
   #map-table td:nth-child(4) code {
     white-space: normal;
   }
 }
 
-/* -----------------------------------------
- * 既存の全体ルール（主に他テーブル向け）
- * ----------------------------------------- */
-
-/* 折り返し：試験IDだけは折り返さない（※ map-table は上で上書き） */
+/* 既存の全体ルール */
 .table-compact td:nth-child(2),
 .table-compact th:nth-child(2) {
   white-space: nowrap;
 }
 
-/* その他は自然に。長い英数字（ファイル名等）は anywhere で救う */
 .table-compact td,
 .table-compact th {
   white-space: normal;
@@ -346,7 +327,6 @@ details > :not(summary) strong {
   hyphens: auto;
 }
 
-/* code表示：緑系の薄いベタ色＋枠で“タグ感” */
 .table-compact td code {
   font-size: 0.88em;
   padding: 0.14em 0.40em;
@@ -356,9 +336,8 @@ details > :not(summary) strong {
   border: 1px solid rgba(21, 128, 61, 0.35) !important;
 }
 
-/* 構成要素テーブルは「画面幅いっぱい」にも「内容幅」にも追従させたいので min-width を外す */
 #stack-table table {
-  min-width: 0 !important;            /* ★余白の原因になりやすい */
+  min-width: 0 !important;
 }
 
 /* -------------------------------
@@ -373,91 +352,92 @@ details > :not(summary) strong {
     padding: 1.2rem 0.85rem 2.2rem;
   }
 
-  /* Cayman側の table display:block / width:max-content を確実に潰す */
   .table-compact table {
-    display: table !important;          /* ★重要 */
-    width: 100% !important;             /* ★wrap に対して100% */
+    display: table !important;
+    width: 100% !important;
     margin: 0 !important;
-    border: none;                       /* 外枠は wrap 側 */
+    border: none;
     border-radius: 0;
   }
 }
 
 /* =========================================================
  * 7) スマホで表が潰れる問題：小画面は“横スクロール優先”に切替
- *   - つぶして詰めるのではなく、必要なら横スクロールする
  * ========================================================= */
 @media (max-width: 760px) {
-
-  /* 表ラッパー：横スクロールを強制的に生かす */
   .table-wrap {
-    display: block;                    /* inline-block をやめて幅100% */
+    display: block;
     width: 100%;
     max-width: 100%;
-
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* 表：潰して固定レイアウトにしない（＝文字が読めなくなる原因） */
   .table-wrap table {
-    table-layout: auto !important;     /* fixed を解除 */
-    width: max-content !important;     /* 内容幅を許容してスクロール */
-    min-width: 680px;                  /* 目安：スマホで潰れない最低幅 */
+    table-layout: auto !important;
+    width: max-content !important;
+    min-width: 680px;
   }
 
-  /* stack-table もスマホは fixed を解除してスクロール優先 */
   #stack-table table {
     table-layout: auto !important;
     width: max-content !important;
     min-width: 680px;
   }
 
-  /* 2列目nowrapの強制があると極端に圧縮/崩れやすいので解除 */
   .table-compact td:nth-child(2),
   .table-compact th:nth-child(2) {
     white-space: normal !important;
   }
 }
 
-
 /* =========================================================
- * 1枚画像の左右フォーカス切替（Cayman寄せ・フラット）
- *  - 余計な“帯”をやめ、セグメントUIで自然に
- *  - 非フォーカス側は“薄化”して主役を立てる
- *  - 区切り位置は --cmp-split で微調整可能
+ * 1枚画像の左右フォーカス切替（JSなし）
+ * ✅ 2個前の方式：非フォーカス側を「背景色で覆って」視界から消す
+ * ※ ダークモード対応なし（ライト固定）
  * ========================================================= */
 
-.cmp-wrap{
-  margin: 1.2rem 0 1.6rem;
+:root{
+  /* ライト固定：背景に同化させる覆い色 */
+  --cmp-cover: rgba(255,255,255,.90);
+  --cmp-divider: rgba(0,0,0,.12);
+  --cmp-ui-bg: rgba(255,255,255,.92);
+  --cmp-ui-bd: rgba(0,0,0,.14);
+  --cmp-ui-shadow: 0 6px 18px rgba(0,0,0,.06);
 }
 
-/* radio自体は隠す */
+/* wrapper */
+.cmp-wrap{
+  margin: 1.2rem 0 1.6rem;
+  position: relative;
+}
+
+/* radioを隠す */
 .cmp-radio{
   position:absolute;
   opacity:0;
   pointer-events:none;
 }
 
-/* セグメント枠 */
+/* controls：フラットなセグメントUI（帯なし） */
 .cmp-controls{
   display:inline-flex;
   gap:0;
   justify-content:center;
   align-items:center;
 
-  border: 1px solid rgba(0,0,0,.14);
+  border: 1px solid var(--cmp-ui-bd);
   border-radius: 999px;
-  overflow:hidden;
+  overflow: hidden;
 
-  background: rgba(255,255,255,.92);
-  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  background: var(--cmp-ui-bg);
+  box-shadow: var(--cmp-ui-shadow);
 
   margin: 0 auto .75rem auto;
 }
 
-/* セグメントボタン */
+/* button */
 .cmp-btn{
   appearance:none;
   border:0;
@@ -469,38 +449,31 @@ details > :not(summary) strong {
   font-size: .92rem;
   line-height: 1;
 
-  color: rgba(0,0,0,.72);
+  color: rgba(0,0,0,.74);
   user-select:none;
 
   transition: background .15s ease, color .15s ease;
 }
 
-/* セグメントの区切り線 */
+/* divider between buttons */
 .cmp-btn + .cmp-btn{
-  border-left: 1px solid rgba(0,0,0,.12);
+  border-left: 1px solid rgba(0,0,0,.10);
 }
 
-/* hoverは控えめ */
 .cmp-btn:hover{
   background: rgba(46,160,67,.08);
-  color: rgba(0,0,0,.85);
-}
-
-/* 選択状態：Caymanの緑に寄せて“自然に” */
-#cmp-both:checked ~ .cmp-controls label[for="cmp-both"],
-#cmp-left:checked ~ .cmp-controls label[for="cmp-left"],
-#cmp-right:checked ~ .cmp-controls label[for="cmp-right"]{
-  background: rgba(46,160,67,.18);
   color: rgba(0,0,0,.88);
 }
 
-/* フォーカス中は少しだけ強め（派手にしない） */
+/* selected */
+#cmp-both:checked ~ .cmp-controls label[for="cmp-both"],
 #cmp-left:checked ~ .cmp-controls label[for="cmp-left"],
 #cmp-right:checked ~ .cmp-controls label[for="cmp-right"]{
-  background: rgba(46,160,67,.24);
+  background: rgba(46,160,67,.20);
+  color: rgba(0,0,0,.90);
 }
 
-/* 画像ステージ */
+/* stage */
 .cmp-stage{
   position:relative;
   border-radius:14px;
@@ -508,17 +481,18 @@ details > :not(summary) strong {
   box-shadow: 0 10px 26px rgba(0,0,0,.12);
   background:#fff;
 
-  /* ✅ ここで分割位置を調整（右へ寄せたいなら 52%〜54% など） */
+  /* ✅ 分割位置（右へ寄せたいなら 52%〜55% など） */
   --cmp-split: 52%;
 }
 
+/* base image */
 .cmp-img{
   width:100%;
   height:auto;
   display:block;
 }
 
-/* フォーカス用の同一画像（半分だけ見せる） */
+/* focus image (same image) */
 .cmp-img.focus{
   position:absolute;
   inset:0;
@@ -529,33 +503,58 @@ details > :not(summary) strong {
   pointer-events:none;
 }
 
-/* 非フォーカス側は暗転ではなく “薄化” して主役を立てる */
-#cmp-left:checked ~ .cmp-stage .cmp-img.base,
-#cmp-right:checked ~ .cmp-stage .cmp-img.base{
-  filter: grayscale(1) brightness(.78) contrast(.92);
+/* center divider (optional) */
+.cmp-stage .cmp-divider{
+  position:absolute;
+  top:0;
+  bottom:0;
+  left: var(--cmp-split);
+  width:2px;
+  background: var(--cmp-divider);
+  transform: translateX(-1px);
+  pointer-events:none;
+  opacity: 0;
+  transition: opacity .18s ease;
 }
 
-/* 左フォーカス：左だけくっきり */
+/* cover layer (hide non-focus side) */
+.cmp-stage .cmp-cover{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:0;
+  transition: opacity .18s ease;
+
+  background: var(--cmp-cover);
+  backdrop-filter: blur(2px);
+}
+
+/* both */
+#cmp-both:checked ~ .cmp-stage .cmp-img.focus{ opacity:0; }
+#cmp-both:checked ~ .cmp-stage .cmp-cover{ opacity:0; }
+#cmp-both:checked ~ .cmp-stage .cmp-divider{ opacity:0; }
+
+/* left focus: show left half clean, hide right half */
 #cmp-left:checked ~ .cmp-stage .cmp-img.focus{
   opacity:1;
   clip-path: inset(0 calc(100% - var(--cmp-split)) 0 0);
-  filter:none;
 }
+#cmp-left:checked ~ .cmp-stage .cmp-cover{
+  opacity:1;
+  clip-path: inset(0 0 0 var(--cmp-split));
+}
+#cmp-left:checked ~ .cmp-stage .cmp-divider{ opacity:.9; }
 
-/* 右フォーカス：右だけくっきり */
+/* right focus: show right half clean, hide left half */
 #cmp-right:checked ~ .cmp-stage .cmp-img.focus{
   opacity:1;
   clip-path: inset(0 0 0 var(--cmp-split));
-  filter:none;
 }
-
-/* 両方表示 */
-#cmp-both:checked ~ .cmp-stage .cmp-img.base{
-  filter:none;
+#cmp-right:checked ~ .cmp-stage .cmp-cover{
+  opacity:1;
+  clip-path: inset(0 calc(100% - var(--cmp-split)) 0 0);
 }
-#cmp-both:checked ~ .cmp-stage .cmp-img.focus{
-  opacity:0;
-}
+#cmp-right:checked ~ .cmp-stage .cmp-divider{ opacity:.9; }
 
 .cmp-hint{
   text-align:center;
