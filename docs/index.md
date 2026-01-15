@@ -671,8 +671,8 @@ Squid <code>access.log</code> は集約して検索可能。<br>
 
 ## 7. 自動化（運用性・再現性の確保）
 
-✅ **結論：ゼロからシステムを構築し、動作確認まで含めて  
-約25分で再現できる自動化スクリプト群を作成しました。**
+✅ <strong>結論：ゼロからシステムを構築し、動作確認まで含めて  
+約25分で再現できる自動化スクリプト群を作成しました。</strong>
 
 本プロジェクトでは「一度動いた環境」ではなく、  
 <strong>誰が・いつ・どこで実行しても同じ状態まで到達できること</strong>を重視し、  
@@ -698,31 +698,132 @@ Squid <code>access.log</code> は集約して検索可能。<br>
   </li>
 </ul>
 
+<hr>
+
 ### 実行ログ（ALL-IN-ONE 再構築）
 
 下記は、環境を一度クリアした状態から  
-**初期化 → 起動 → 認証 → 監視 → ログ基盤 → ヘルス確認までを  
-STEP0〜17 で一括実行した実行ログ**です。
+<strong>初期化 → 起動 → 認証 → 監視 → ログ基盤 → ヘルス確認までを  
+STEP0〜17 で一括実行</strong>した実行ログです。
 
 - 手動介入なし
 - 依存関係を考慮した順序制御
 - 失敗しやすい箇所は Guard / Retry / Warn 継続
-- **総所要時間：約22分**
+- <strong>総所要時間：約22分</strong>
+
+<hr>
+
+#### ① 全体概要（読みやすさ優先：1枚）
+
+<p style="margin:.3em 0 .8em 0;">
+ポートフォリオ本文では可読性を優先し、まずは「全STEPを完走したこと」が分かる概要ログを掲載します。
+</p>
 
 <div style="text-align:center; margin: 1.2em 0;">
-  <a href="./images/all_in_one_rebuild_and_health.png" target="_blank">
+  <a href="./images/all_in_one_overview.png" target="_blank">
     <img
-      src="./images/all_in_one_rebuild_and_health.png"
-      alt="ALL-IN-ONE rebuild & healthcheck log"
-      style="width:100%; max-width:1200px; cursor:zoom-in;"
+      src="./images/all_in_one_overview.png"
+      alt="ALL-IN-ONE rebuild overview"
+      style="width:100%; max-width:1100px; cursor:zoom-in;"
+    >
+  </a>
+</div>
+
+<p style="text-align:center; font-size:.9em; opacity:.8;">
+STEP0〜17 を一括実行し、初期化・構築・検証・監視まで到達したことを示す概要ログ（クリックで原寸表示）
+</p>
+
+<details>
+  <summary><strong>② STEP別 実行ログ（拡大表示：Proxy/Kerberos・ログ基盤・監視）</strong></summary>
+
+  <hr>
+
+  <h4 style="margin-top:1em;">②-1. Proxy/Kerberos（STEP7/8）</h4>
+  <p style="margin:.2em 0 .8em 0;">
+    Guard（起動待ち）/ conf同期 / kinit precheck を含む「認証系の要点」を抜粋しています。
+  </p>
+
+  <p style="margin:.2em 0;">
+    <a href="./images/all_in_one_step7_proxy1.png" target="_blank">▶ STEP7（Proxy1 / Guard / Sync / Bootstrap）</a>
+  </p>
+  <div style="text-align:center; margin:.8em 0;">
+    <a href="./images/all_in_one_step7_proxy1.png" target="_blank">
+      <img src="./images/all_in_one_step7_proxy1.png" style="width:100%; max-width:1100px; cursor:zoom-in;">
+    </a>
+  </div>
+
+  <p style="margin:.2em 0;">
+    <a href="./images/all_in_one_step8_kinit_p2p3.png" target="_blank">▶ STEP8（kinit precheck / Proxy2-Proxy3-ICAP）</a>
+  </p>
+  <div style="text-align:center; margin:.8em 0;">
+    <a href="./images/all_in_one_step8_kinit_p2p3.png" target="_blank">
+      <img src="./images/all_in_one_step8_kinit_p2p3.png" style="width:100%; max-width:1100px; cursor:zoom-in;">
+    </a>
+  </div>
+
+  <hr>
+
+  <h4>②-2. ログ基盤（STEP14/15）</h4>
+  <p style="margin:.2em 0 .8em 0;">
+    Graylog は失敗時に停止、Promtail/Loki/Grafana は WARN 継続という「止め方の設計」も含めて確認できます。
+  </p>
+
+  <p style="margin:.2em 0;">
+    <a href="./images/all_in_one_step14_15_logging.png" target="_blank">▶ STEP14-15（Graylog / Promtail-Loki-Grafana）</a>
+  </p>
+  <div style="text-align:center; margin:.8em 0;">
+    <a href="./images/all_in_one_step14_15_logging.png" target="_blank">
+      <img src="./images/all_in_one_step14_15_logging.png" style="width:100%; max-width:1100px; cursor:zoom-in;">
+    </a>
+  </div>
+
+  <hr>
+
+  <h4>②-3. 監視（STEP17：Zabbix TLS-PSK）</h4>
+  <p style="margin:.2em 0 .8em 0;">
+    起動待ち → sidecar再作成 → PSK一括適用までを自動化している証跡です。
+  </p>
+
+  <p style="margin:.2em 0;">
+    <a href="./images/all_in_one_step17_zabbix_psk.png" target="_blank">▶ STEP17（Zabbix TLS-PSK all-in-one）</a>
+  </p>
+  <div style="text-align:center; margin:.8em 0;">
+    <a href="./images/all_in_one_step17_zabbix_psk.png" target="_blank">
+      <img src="./images/all_in_one_step17_zabbix_psk.png" style="width:100%; max-width:1100px; cursor:zoom-in;">
+    </a>
+  </div>
+
+</details>
+
+<hr>
+
+#### ③ 実行完了サマリ（完了証跡：一番下）
+
+<p style="margin:.3em 0 .8em 0;">
+本スクリプトは最後に「STEP別の所要時間」と「総所要時間」を必ず表示します。  
+<strong>“完了したこと（再現できたこと）”を最終行で確実に示す</strong>ため、サマリはページ末尾に配置しています。
+</p>
+
+<div style="text-align:center; margin: 1.2em 0;">
+  <a href="./images/all_in_one_summary.png" target="_blank">
+    <img
+      src="./images/all_in_one_summary.png"
+      alt="ALL-IN-ONE summary (per step duration)"
+      style="width:100%; max-width:1100px; cursor:zoom-in;"
     >
   </a>
 </div>
 
 <p style="text-align:center; font-size:.9em; opacity:.8;">
 STEP0〜17 を一括実行し、初期化・構築・検証・監視までを
-<strong>22分31秒で再現</strong>した実行結果（クリックで原寸表示）
+<strong>22分31秒で再現</strong>した実行結果（STEP別所要時間 / 総所要時間）
 </p>
+
+<p style="margin-top:.8em;">
+全文ログ（保険・原寸）：<a href="./images/all_in_one_full_raw.png" target="_blank">all_in_one_full_raw.png</a>
+</p>
+
+<hr>
 
 スクリプトの構成・実行順・役割の整理については  
 <strong><a href="./automation.html"><code>automation.md</code></a></strong> にまとめています。
