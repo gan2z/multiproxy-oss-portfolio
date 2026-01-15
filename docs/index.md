@@ -578,11 +578,66 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 ### ✅ 現時点で把握できていること（要点）
 
 <ul>
-  <li>経路ごとの通信ログが分離されていること</li>
-  <li>stunnel を含む中継通信の接続ログが取得できていること</li>
-  <li>Zabbix Agent が各コンテナで稼働していること</li>
-  <li>GUI 上でログおよびメトリクスを参照できること</li>
+  <li>
+    経路（通常 / DIRECT）ごとにログが分離されており、
+    <strong>どの経路を通った通信かをログで追跡できる</strong>
+  </li>
+  <li>
+    エラー発生時は、まず Squid の <code>access.log</code> で
+    <strong>HTTP ステータス（403/407/503 等）と経路情報</strong>を確認し、
+    「拒否／未認証／上流不達」を切り分ける
+  </li>
+  <li>
+    次に Squid の <code>cache.log</code> を確認し、
+    <strong>TLS（SSLBump/splice）判断・上流接続失敗・ICAP 連携失敗</strong>など
+    “原因寄り”のログで絞り込める
+  </li>
+  <li>
+    さらに必要に応じて stunnel / DNS / Kerberos は
+    <strong>コンポーネント単位の接続ログ</strong>を確認し、
+    「TLS 中継・名前解決・時刻/SPN/keytab」観点で前提崩れを確認する
+  </li>
+  <li>
+    GUI（Grafana / Graylog）上で <strong>ログ検索とメトリクス参照</strong>を行い、
+    事象発生時刻・対象プロキシ・対象経路を素早く特定できる
+  </li>
 </ul>
+
+<div class="table-compact">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>症状</th>
+          <th>まず見る</th>
+          <th>判断の軸（例）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>アクセス拒否</td>
+          <td>Squid access.log</td>
+          <td>403 / ACL / 経路（通常/DIRECT）</td>
+        </tr>
+        <tr>
+          <td>認証が通らない</td>
+          <td>Squid access.log → cache.log</td>
+          <td>407 / Negotiate / SPN・時刻・keytab</td>
+        </tr>
+        <tr>
+          <td>上流に繋がらない</td>
+          <td>access.log → cache.log</td>
+          <td>503 / 上流不達 / CONNECT失敗</td>
+        </tr>
+        <tr>
+          <td>中継TLSの疑い</td>
+          <td>stunnelログ（必要時）</td>
+          <td>TLS handshake / cert verify / reset</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
 <details>
   <summary><strong>今後の検証・調整予定（クリックで開く）</strong></summary>
