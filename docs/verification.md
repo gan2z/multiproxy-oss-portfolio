@@ -111,7 +111,6 @@ Author: gan2
             <a href="./images/double-bump-error.png" target="_blank" rel="noopener"><code>double-bump-error.png</code></a><br>
             <a href="./images/double-sslbump-proxy1-access-google-500.png" target="_blank" rel="noopener"><code>double-sslbump-proxy1-access-google-500.png</code></a><br>
             <a href="./images/double-sslbump-proxy2-access3129.png" target="_blank" rel="noopener"><code>double-sslbump-proxy2-access3129.png</code></a><br>
-            <a href="./images/P4-proof-compare.png" target="_blank" rel="noopener"><code>P4-proof-compare.png</code></a>
           </td>
         </tr>
 
