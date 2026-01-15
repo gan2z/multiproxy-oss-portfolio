@@ -151,11 +151,6 @@ Automation のゴールは「起動完了」ではありません。
 このセクションでは、Automation 実行後に  
 **「動いていることを第三者が確認できる証跡」**をまとめます。
 
-※ すでに他セクション（index.md / Verification 等）で  
-「実行結果」「正常性確認結果」を2回以上掲載している場合は、  
-ここでは **重複を避けてリンクのみ**にして問題ありません。  
-（このページの役割は「Automation → 可視化の到達点」を示すことのため）
-
 ---
 
 ### A. ALL-IN-ONE 実行結果（サマリ）
@@ -243,167 +238,86 @@ Automation のゴールは「起動完了」ではありません。
 
 ---
 
-### E. Graylog（検索できること＝ログ集約の証明）
+### E. Graylog（GUI にアクセスでき、ログが閲覧できることの証明）
 
-- 目的：Proxy ログを検索でき、事象追跡が可能なことを示す
-- 画像リンク：[`./images/graylog-search.png`](./images/graylog-search.png)
+- 目的：Graylog の **Web UI にアクセスできる**／**ログ（Search結果）が表示できる**状態であることを示す  
+  （※このセクションでは「検索式や解析」までは踏み込まず、**GUI 到達＋ログ閲覧できる**ことだけを証跡化します）
+
+- 証跡（推奨スクリーンショット：どれか1枚でOK）
+  - `./images/graylog-gui-access.png`（Graylog のトップ/ダッシュボードが開ける）
+  - `./images/graylog-search-result.png`（Search でログ行が表示されている）
+
+- 画像リンク：
+  - [`./images/graylog-gui-access.png`](./images/graylog-gui-access.png)
+  - [`./images/graylog-search-result.png`](./images/graylog-search-result.png)
 
 <!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
 <figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/graylog-search.png" target="_blank" rel="noopener">
-    <img src="./images/graylog-search.png" alt="Graylog Search（Proxyログの検索＝集約の証明）" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
+  <a href="./images/graylog-gui-access.png" target="_blank" rel="noopener">
+    <img src="./images/graylog-gui-access.png" alt="Graylog GUI にアクセスできる（可視化到達点の証跡）" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    <strong>Proxyログが集約され、検索で追跡できる</strong>ことを示します。
+    クリック/タップで原寸表示（別タブ）。Graylog の <strong>Web UI に到達できる</strong>ことを示します（可視化の到達点）。
+  </figcaption>
+</figure>
+
+<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/graylog-search-result.png" target="_blank" rel="noopener">
+    <img src="./images/graylog-search-result.png" alt="Graylog でログが閲覧できる（Search結果が表示される）" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。Graylog 上で <strong>ログ行が表示される</strong>＝ログ閲覧が可能な状態であることを示します。
   </figcaption>
 </figure>
 
 ---
 
-### F. Grafana（Loki）（時系列に追えること＝追跡性の証明）
+### F. Grafana（Loki）（GUI にアクセスでき、ログが閲覧できることの証明）
 
-ここでは「Loki に入っている」だけではなく、  
-<strong>Case A / Case B の停止点（407 / 403）を LogQL で再現できる</strong>ことまで示します。
+このセクションも「解析」ではなく、Automation の到達点として  
+<strong>Grafana の UI にアクセスでき、Loki をデータソースとしてログが表示できる</strong>ことだけを証跡化します。  
+（※Case A / Case B の追跡・LogQL の再現は Verification 側に集約する想定）
 
----
+- 証跡（推奨スクリーンショット：どれか2枚でOK）
+  - `./images/grafana-gui-access.png`（Grafana トップが開ける）
+  - `./images/grafana-loki-datasource.png`（Loki datasource が有効/選択できる）
+  - `./images/grafana-loki-explore-result.png`（Explore でログが表示される）
 
-#### F-0. ログ収集→検索の流れ（Squid → Promtail → Loki → Grafana Explore）
-
-- 目的：Proxy の access.log / cache.log が Loki に入り、Grafana で横断検索できることを示す
-- 画像リンク：[`./images/p5-loki-collection-flow.png`](./images/p5-loki-collection-flow.png)
-
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p5-loki-collection-flow.png" target="_blank" rel="noopener">
-    <img src="./images/p5-loki-collection-flow.png" alt="Proxyログ収集の流れ（Squid→Promtail→Loki→Grafana Explore）" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    Squid（Proxy1/2/3）の <strong>access.log / cache.log</strong> を Promtail が収集し、
-    Loki に格納、Grafana Explore で <strong>横断検索</strong>できる流れです。
-  </figcaption>
-</figure>
-
----
-
-#### F-1. Case A（入口で止める：Proxy1 で 407）
-
-**打鍵結果（407 を発生させる）**  
-- 画像リンク：[`./images/p5-caseA-curl-407.png`](./images/p5-caseA-curl-407.png)
+- 画像リンク：
+  - [`./images/grafana-gui-access.png`](./images/grafana-gui-access.png)
+  - [`./images/grafana-loki-datasource.png`](./images/grafana-loki-datasource.png)
+  - [`./images/grafana-loki-explore-result.png`](./images/grafana-loki-explore-result.png)
 
 <!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
 <figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p5-caseA-curl-407.png" target="_blank" rel="noopener">
-    <img src="./images/p5-caseA-curl-407.png" alt="CaseA: curl で Proxy1 経由アクセス → 407" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
+  <a href="./images/grafana-gui-access.png" target="_blank" rel="noopener">
+    <img src="./images/grafana-gui-access.png" alt="Grafana GUI にアクセスできる（可視化到達点の証跡）" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    <strong>Proxy1 で 407（認証要求）</strong>になっている “入口停止” の打鍵結果です。
+    クリック/タップで原寸表示（別タブ）。Grafana の <strong>Web UI に到達できる</strong>ことを示します（可視化の到達点）。
   </figcaption>
 </figure>
-
-**Loki 画面①（Proxy1 に status=407 が出る）**  
-- 画像リンク：[`./images/p5-caseA-loki-proxy1-407.png`](./images/p5-caseA-loki-proxy1-407.png)
 
 <!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
 <figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p5-caseA-loki-proxy1-407.png" target="_blank" rel="noopener">
-    <img src="./images/p5-caseA-loki-proxy1-407.png" alt="CaseA: Loki（proxy1）status=407" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
+  <a href="./images/grafana-loki-datasource.png" target="_blank" rel="noopener">
+    <img src="./images/grafana-loki-datasource.png" alt="Grafana で Loki datasource が有効（選択可能）" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    Loki で <strong>proxy1 に status=407</strong> を確認（停止点＝入口）します。
+    クリック/タップで原寸表示（別タブ）。Grafana 側で <strong>Loki データソースが利用可能</strong>であることを示します。
   </figcaption>
 </figure>
-
-**Loki 画面②（Proxy2 には同一宛先が出ない＝到達していない）**  
-- 画像リンク：[`./images/p5-caseA-loki-proxy2-nohit.png`](./images/p5-caseA-loki-proxy2-nohit.png)
 
 <!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
 <figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p5-caseA-loki-proxy2-nohit.png" target="_blank" rel="noopener">
-    <img src="./images/p5-caseA-loki-proxy2-nohit.png" alt="CaseA: Loki（proxy2）NO HIT" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
+  <a href="./images/grafana-loki-explore-result.png" target="_blank" rel="noopener">
+    <img src="./images/grafana-loki-explore-result.png" alt="Grafana Explore（Loki）でログが表示される" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    <strong>proxy2 側に同一宛先が出ない</strong>ことから、鎖に到達していない裏取りになります。
+    クリック/タップで原寸表示（別タブ）。Explore で <strong>ログ行が表示される</strong>＝「Loki にログが入っており閲覧できる」状態を示します。
   </figcaption>
 </figure>
-
----
-
-#### F-2. Case B（直行出口で止める：Proxy2:3131 で 403）
-
-**打鍵結果（403 を発生させる：deny ルール投入後）**  
-- 画像リンク：[`./images/p5-caseB-curl-403.png`](./images/p5-caseB-curl-403.png)
-
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p5-caseB-curl-403.png" target="_blank" rel="noopener">
-    <img src="./images/p5-caseB-curl-403.png" alt="CaseB: curl で Proxy2:3131 直行 → 403" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    <strong>Proxy2:3131（直行出口）で 403（ACL拒否）</strong>になっている打鍵結果です。
-  </figcaption>
-</figure>
-
-**Loki 画面①（Proxy2 に status=403 が出る）**  
-- 画像リンク：[`./images/p5-caseB-loki-proxy2-403.png`](./images/p5-caseB-loki-proxy2-403.png)
-
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p5-caseB-loki-proxy2-403.png" target="_blank" rel="noopener">
-    <img src="./images/p5-caseB-loki-proxy2-403.png" alt="CaseB: Loki（proxy2）status=403" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    Loki で <strong>proxy2（3131）に status=403</strong> を確認（停止点＝直行出口）します。
-  </figcaption>
-</figure>
-
-**Loki 画面②（Proxy1 には出ない＝入口を通っていない）**  
-- 画像リンク：[`./images/p5-caseB-loki-proxy1-nohit.png`](./images/p5-caseB-loki-proxy1-nohit.png)
-
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p5-caseB-loki-proxy1-nohit.png" target="_blank" rel="noopener">
-    <img src="./images/p5-caseB-loki-proxy1-nohit.png" alt="CaseB: Loki（proxy1）NO HIT" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    <strong>proxy1 に同一宛先が出ない</strong>ため、入口経路ではない（直行）と説明できます。
-  </figcaption>
-</figure>
-
-**Loki 画面③（任意：DENIED / ルール適用の裏取り）**  
-- 画像リンク：[`./images/p5-caseB-loki-proxy2-denied.png`](./images/p5-caseB-loki-proxy2-denied.png)
-
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p5-caseB-loki-proxy2-denied.png" target="_blank" rel="noopener">
-    <img src="./images/p5-caseB-loki-proxy2-denied.png" alt="CaseB: Loki（proxy2）DENIED の裏取り" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    <strong>DENIED / ERR_ACCESS_DENIED</strong> などで “ACL拒否” の根拠を裏取りします（任意）。
-  </figcaption>
-</figure>
-
----
-
-#### F-3. LogQL（コピペ用）
-
-※ コードブロックが壊れないよう、ここは **半角スペース4つでインデント**しています。
-
-    {job="squid", instance="proxy1"} |= "status=407"
-    {job="squid", instance="proxy2"} |= "status=407"
-
-    {job="squid", instance="proxy2"} |= "status=403"
-    {job="squid", instance="proxy1"} |= "status=403"
-
-    {job="squid", instance="proxy2"} |= "DENIED"
 
 ---
 
