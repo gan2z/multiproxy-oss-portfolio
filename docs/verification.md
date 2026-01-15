@@ -535,6 +535,33 @@ Author: gan2
 
 <hr>
 
+<!-- ①Proxyのアクセスログの回収方法（Lokiまでの流れ） -->
+<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/p5-loki-collection-flow.png" target="_blank" rel="noopener">
+    <img
+      src="./images/p5-loki-collection-flow.png"
+      alt="Proxyログ収集の流れ（Squid→Promtail→Loki→Grafana Explore）"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    Squid（Proxy1/2/3）の <strong>access.log / cache.log</strong> を Promtail が収集し、
+    Loki に格納、Grafana Explore で <strong>横断検索</strong>できる流れを示します。
+  </figcaption>
+</figure>
+
+<!-- 全体像（任意：残す場合） -->
 <!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
 <figure style="margin: 1.2em auto; text-align:center;">
   <a href="./images/p6-observability-triage.png" target="_blank" rel="noopener">
@@ -560,10 +587,8 @@ Author: gan2
 </figure>
 
 ### この章で示すこと（面接官向け：要点）
-- <strong>入口（Proxy1）で止まった</strong>のか、
-  <strong>出口側（Proxy2 直行）で止まった</strong>のかをログで判定できる
-- 「HTTPコード（結果）」で停止点を確定し、
-  必要に応じて <strong>cache.log（原因の裏取り）</strong>まで掘れる
+- <strong>入口（Proxy1）で止まった</strong>のか、<strong>出口側（Proxy2 直行）で止まった</strong>のかをログで判定できる
+- 「HTTPコード（結果）」で停止点を確定し、必要に応じて <strong>cache.log（原因の裏取り）</strong>まで掘れる
 
 <hr>
 
@@ -586,71 +611,218 @@ Author: gan2
 ## 5-3. Case A：入口（Proxy1）で 407（認証要求）
 
 ### ① 何をしたか（意図した失敗）
-
 - Proxy1 に認証が必要な状態で HTTPS へアクセス  
   → <strong>407 Proxy Authentication Required</strong>
 
+<!-- ②CaseA：打鍵結果 -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/p5-caseA-curl-407.png" target="_blank" rel="noopener">
+    <img
+      src="./images/p5-caseA-curl-407.png"
+      alt="Case A 打鍵結果（Proxy1で407）"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    Proxy1 経由のアクセスで <strong>407（認証要求）</strong> が返ることを確認（意図した失敗）。
+  </figcaption>
+</figure>
+
 ### ② Loki で何を見るか（結論が出る最短ルート）
-
 - Proxy1：<strong>status=407 が出る</strong>
-- Proxy2 / Proxy3：<strong>同一宛先が出ない</strong>
+- Proxy2 / Proxy3：<strong>同一宛先が出ない</strong>（＝鎖に到達していない）
 
-### ③ LogQL（コピペ用）
-
+### ③ LogQL（コピペ用：同条件で “出る/出ない” を比較）
     {job="squid", instance="proxy1"} |= "status=407"
 
     {job="squid", instance="proxy2"} |= "status=407"
 
-### ④ ここから言えること（面接官向け一文）
+    {job="squid", instance="proxy3"} |= "status=407"
 
-<strong>入口（Proxy1）で止まっている</strong>ため、
-まずは <strong>認証／入口制御</strong>の問題として切り分けできる  
+### ④ ここから言えること（面接官向け一文）
+<strong>入口（Proxy1）で止まっている</strong>ため、まずは <strong>認証／入口制御</strong>の問題として切り分けできる  
 （Proxy2 以降の TLS / ICAP / 上流ではないと説明できる）
 
 ### ⑤ 画像エビデンス（見る順）
 
-- `images/p6-loki-caseA-proxy1-407.png`  
-  → Proxy1 で status=407 を確認
-- `images/p6-loki-caseA-proxy2-nohit.png`  
-  → Proxy2 側で NO HIT（鎖に到達していない裏取り）
+<!-- ③CaseA：Loki画面① -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/p6-loki-caseA-proxy1-407.png" target="_blank" rel="noopener">
+    <img
+      src="./images/p6-loki-caseA-proxy1-407.png"
+      alt="Case A Loki（Proxy1でstatus=407）"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    Loki で <strong>Proxy1 の access.log 相当</strong>に status=407 が出ていることを確認（入口停止）。
+  </figcaption>
+</figure>
+
+<!-- ④CaseA：Loki画面② -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/p6-loki-caseA-proxy2-nohit.png" target="_blank" rel="noopener">
+    <img
+      src="./images/p6-loki-caseA-proxy2-nohit.png"
+      alt="Case A Loki（Proxy2でNO HIT）"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    同一条件で Proxy2 を見ると <strong>ヒットしない（NO HIT）</strong>ことを確認（鎖に到達していない裏取り）。
+  </figcaption>
+</figure>
 
 <hr>
 
 ## 5-4. Case B：直行出口（Proxy2:3131）で 403（ACL 拒否）
 
 ### ① 何をしたか（意図した失敗）
-
-- Proxy2:3131（クライアント直行の出口）に
-  一時的な ACL deny ルールを投入  
+- Proxy2:3131（クライアント直行の出口）に一時的な ACL deny ルールを投入  
   → <strong>403 Forbidden</strong>
 
+<!-- ⑤CaseB：打鍵結果 -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/p5-caseB-curl-403.png" target="_blank" rel="noopener">
+    <img
+      src="./images/p5-caseB-curl-403.png"
+      alt="Case B 打鍵結果（Proxy2:3131で403）"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    Proxy2:3131 直行で <strong>403（ACL 拒否）</strong>が返ることを確認（意図した失敗）。
+  </figcaption>
+</figure>
+
 ### ② Loki で何を見るか（結論が出る最短ルート）
-
 - Proxy2：<strong>status=403 が出る</strong>
-- Proxy1：<strong>同一宛先が出ない</strong>
+- Proxy1：<strong>同一宛先が出ない</strong>（＝Proxy1 を経由していない）
 
-### ③ LogQL（コピペ用）
-
+### ③ LogQL（コピペ用：停止点→原因の裏取り）
     {job="squid", instance="proxy2"} |= "status=403"
 
     {job="squid", instance="proxy1"} |= "status=403"
 
-（任意：原因の裏取り）
-
     {job="squid", instance="proxy2"} |= "DENIED"
 
 ### ④ ここから言えること（面接官向け一文）
-
-<strong>直行経路（Proxy2:3131）で止まっている</strong>ため、
-<strong>PAC による直行経路</strong>と
-<strong>出口側 ACL</strong>の問題として切り分けできる  
+<strong>直行経路（Proxy2:3131）で止まっている</strong>ため、<strong>PAC による直行経路</strong>と <strong>出口側 ACL</strong>の問題として切り分けできる  
 （Proxy1 を通らない＝入口側ではない）
 
 ### ⑤ 画像エビデンス（見る順）
 
-- `images/p6-loki-caseB-proxy2-403.png`
-- `images/p6-loki-caseB-proxy1-nohit.png`
-- `images/p6-loki-caseB-proxy2-cache-denied.png`
+<!-- ⑥CaseB：Loki画面① -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/p6-loki-caseB-proxy2-403.png" target="_blank" rel="noopener">
+    <img
+      src="./images/p6-loki-caseB-proxy2-403.png"
+      alt="Case B Loki（Proxy2でstatus=403）"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    Loki で Proxy2（直行出口）に <strong>status=403</strong> が出ていることを確認（出口側停止）。
+  </figcaption>
+</figure>
+
+<!-- ⑦CaseB：Loki画面② -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/p6-loki-caseB-proxy1-nohit.png" target="_blank" rel="noopener">
+    <img
+      src="./images/p6-loki-caseB-proxy1-nohit.png"
+      alt="Case B Loki（Proxy1でNO HIT）"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    同一条件で Proxy1 を見ると <strong>ヒットしない（NO HIT）</strong>ことを確認（入口を経由していない裏取り）。
+  </figcaption>
+</figure>
+
+<!-- ⑧CaseB：Loki画面③ -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/p6-loki-caseB-proxy2-cache-denied.png" target="_blank" rel="noopener">
+    <img
+      src="./images/p6-loki-caseB-proxy2-cache-denied.png"
+      alt="Case B Loki（cache.log相当でDENIED）"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    cache.log 側（原因）で <strong>DENIED</strong> を拾い、ACL 拒否であることを裏取り（結果→原因）。
+  </figcaption>
+</figure>
 
 <hr>
 
@@ -659,7 +831,7 @@ Author: gan2
 - Explore を開き、データソースで <strong>Loki</strong> を選択
 - 時間範囲を <strong>テスト時刻の前後 2〜5 分</strong>に絞る
 - まずは <strong>status=407 / 403</strong> で停止点を確定
-- 必要に応じて <strong>DENIED / ERROR</strong> で原因を裏取り
+- 必要に応じて <strong>DENIED / ERROR</strong> で原因を裏取り（cache.log 相当）
 
 <hr>
 
@@ -668,10 +840,8 @@ Author: gan2
 **本章で証明できたこと**
 
 - Loki により Proxy1 / Proxy2 / Proxy3 のログを横断検索できる
-- <strong>入口停止</strong>と<strong>直行出口停止</strong>を
-  意図したエラーで明確に区別できる
-- HTTPコード（結果）→ cache.log（原因）という
-  <strong>実運用と同じ切り分け思考</strong>を示せている
+- <strong>入口停止（407）</strong>と<strong>直行出口停止（403）</strong>を、意図したエラーで明確に区別できる
+- HTTPコード（結果）→ cache.log（原因）という <strong>実運用と同じ切り分け思考</strong>を示せている
 
 ---
 
