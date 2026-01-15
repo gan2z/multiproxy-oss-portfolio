@@ -702,8 +702,26 @@ Squid <code>access.log</code> は集約して検索可能。<br>
 これらの結果として、  
 <strong>環境破棄後でも約25分で同一構成を再構築できる状態</strong>を実現しました。
 
-![all-in-one-rebuild-and-health]
-(./images/all_in_one_rebuild_and_health_overview.png)
+### 実行ログ（ALL-IN-ONE 再構築）
+
+下記は、環境を一度クリアした状態から  
+**初期化 → 起動 → 認証 → 監視 → ログ基盤 → ヘルス確認までを  
+STEP0〜17 で一括実行した実行ログ**です。
+
+- 手動介入なし
+- 依存関係を考慮した順序制御
+- 失敗しやすい箇所は Guard / Retry / Warn 継続
+- **総所要時間：約22分**
+
+<div style="text-align:center; margin: 1.2em 0;">
+  <a href="./images/all_in_one_rebuild_and_health.png" target="_blank">
+    <img
+      src="./images/all_in_one_rebuild_and_health.png"
+      alt="ALL-IN-ONE rebuild & healthcheck log"
+      style="width:100%; max-width:1200px; cursor:zoom-in;"
+    >
+  </a>
+</div>
 
 <p style="text-align:center; font-size:.9em; opacity:.8;">
 STEP0〜17 を一括実行し、初期化・構築・検証・監視までを
