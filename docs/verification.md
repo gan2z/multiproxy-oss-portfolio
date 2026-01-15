@@ -6,7 +6,7 @@ layout: default
 # Verification
 （OSS Multi-Layer Proxy & Authentication System）
 
-Version: 2025-01-15  
+Version: 2025-01-16
 Author: gan2
 
 ---
@@ -31,7 +31,7 @@ Author: gan2
 
 ## 目次
 
-- <a href="#highlights">要点（3分で把握）</a>
+- <a href="#highlights">要点</a>
 - <a href="#map">index.md の主張 ↔ 検証証跡（対応表）</a>
 - <a href="#p1">1. 全体稼働と構成要素一致</a>
 - <a href="#p2">2. アーキテクチャと構成対応</a>
@@ -108,7 +108,6 @@ Author: gan2
           <td>復号 / 暗号化</td>
           <td>SSLBump と stunnel の責務分離（復号点とTLS境界が明確）</td>
           <td>
-            <a href="./images/P4-sslbump-overview.png" target="_blank" rel="noopener"><code>P4-sslbump-overview.png</code></a><br>
             <a href="./images/double-bump-error.png" target="_blank" rel="noopener"><code>double-bump-error.png</code></a><br>
             <a href="./images/double-sslbump-proxy1-access-google-500.png" target="_blank" rel="noopener"><code>double-sslbump-proxy1-access-google-500.png</code></a><br>
             <a href="./images/double-sslbump-proxy2-access3129.png" target="_blank" rel="noopener"><code>double-sslbump-proxy2-access3129.png</code></a><br>
@@ -162,12 +161,8 @@ Author: gan2
 
 **確認できること**
 - 全コンテナ（構成要素）が **running/healthy** で稼働している（部分稼働ではない）
-- Proxy だけでなく、**認証（AD/LDAP/Kerberos）・DNS/WPAD・ICAP・ログ・監視**などの横断要素も含めて稼働している
+- Proxy だけでなく、**認証（AD/LDAP/Kerberos）・DNS・ICAP・ログ・監視**などの横断要素も含めて稼働している
 - ここでの証明は「構成図の線が正しい」ではなく、**“運用できる最小条件（inventory/health）” が整っている**という意味での稼働証跡
-
-**面接官向け補足（見るべきポイント）**
-- “Proxy が上がっている” だけでなく、横断要素（Auth/Logs/Monitoring）が欠けていない点が重要です  
-  → 実務の障害対応では、Proxy 単体よりも周辺要素（認証/証明書/ログ/監視）が抜ける方が破綻しやすいためです。
 
 <details>
   <summary><strong>構成要素（すべて OSS）※クリックで開く</strong></summary>
@@ -210,7 +205,7 @@ Author: gan2
           <tr>
             <td>DNS / 経路制御</td>
             <td>PAC 配布・名前解決</td>
-            <td>dnsmasq（WPAD / Split DNS）</td>
+            <td>dnsmasq（Split DNS）</td>
           </tr>
           <tr>
             <td>ログ</td>
@@ -259,10 +254,6 @@ Author: gan2
 - 入口（Proxy1）/ 分岐（Proxy2）/ 出口（Proxy3）の役割分担が、実装と一致している
 - Proxy 間の暗号化（stunnel）、検査（ICAP/ClamAV）、認証（AD/LDAP/Kerberos）、可観測性（Loki/Graylog/OpenSearch）、監視（Zabbix）が **“経路の外側（横断）”** として組み込まれている
 - “プロキシ3台を繋いだ” ではなく、**実務で扱うような複合要素（認証・検査・ログ・監視）を含む構成**として成立している
-
-**面接官向け補足（伝えたいポイント）**
-- 図面は「きれいな絵」よりも、責務境界（どこが入口/分岐/出口か、どこが横断機能か）が明確であることが重要です。  
-- この後の章（PAC / SSLBump / Loki）で、**“経路が切り替わる” / “復号点が一意” / “ログで追える”** を実証します。
 
 ---
 
@@ -374,7 +365,7 @@ Author: gan2
 
 **確認できること**
 - PAC 判定により DIRECT が選択されている
-- Proxy を完全にバイパスした通信が成立している
+- （本システムの）Proxy1/Proxy2/Proxy3 を経由しない DIRECT 通信が成立している
 
 <hr>
 
@@ -400,16 +391,36 @@ Author: gan2
 
 ### 4-0. 前提整理：SSLBump は「1 通信につき 1 回のみ」
 
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
-<figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/P4-sslbump-overview.png" target="_blank" rel="noopener">
-    <img src="./images/P4-sslbump-overview.png" alt="SSLBump と TLS 境界の整理" loading="lazy" style=" width:100%; max-width:1400px; height:auto; cursor:zoom-in; border:1px solid rgba(0,0,0,.12); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.10); " >
-  </a>
-  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    HTTPS 復号（SSLBump）と Proxy 間 TLS（stunnel）の役割分離を示した概要図です。
-  </figcaption>
-</figure>
+    [ Client ]
+        |
+        |  HTTPS (TLS)
+        v
+    +-------------------+
+    | Proxy1            |
+    |-------------------|
+    | SSLBump (復号)    |  ← ★ HTTPS復号はここで1回のみ
+    +-------------------+
+        |
+        |  HTTP (復号済み)
+        |  + TLS (stunnel)
+        v
+    +-------------------+
+    | Proxy2            |
+    |-------------------|
+    | 制御 / 中継のみ   |  ← 復号はしない
+    +-------------------+
+        |
+        |  HTTP (復号済み)
+        |  + TLS (stunnel)
+        v
+    +-------------------+
+    | Proxy3            |
+    |-------------------|
+    | 最終出口          |
+    +-------------------+
+        |
+        v
+    [ Internet ]
 
 **設計上の重要な前提**
 - SSLBump は同一 TLS セッションに対して <strong>二重適用できない</strong>
