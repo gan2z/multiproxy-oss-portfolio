@@ -48,7 +48,7 @@ Author: gan2
         <tr>
           <th>観点</th>
           <th>何を確認できるか</th>
-          <th>対応する証跡（タップで原寸表示）</th>
+          <th>対応する証跡（クリックで原寸表示）</th>
         </tr>
       </thead>
       <tbody>
@@ -61,7 +61,7 @@ Author: gan2
               <img
                 src="./images/P1-proof-all.png"
                 alt="全体稼働・構成一致"
-                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
               >
             </a>
           </td>
@@ -75,7 +75,7 @@ Author: gan2
               <img
                 src="./images/P2-arch-compare.png"
                 alt="アーキテクチャ比較"
-                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
               >
             </a>
           </td>
@@ -89,7 +89,7 @@ Author: gan2
               <img
                 src="./images/pac-flow-normal-vs-direct.png"
                 alt="PAC 経路差"
-                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
               >
             </a>
           </td>
@@ -103,7 +103,7 @@ Author: gan2
               <img
                 src="./images/P4-proof-compare.png"
                 alt="SSLBump / stunnel 分離"
-                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
               >
             </a>
           </td>
@@ -117,7 +117,7 @@ Author: gan2
               <img
                 src="./images/p6-observability-triage.png"
                 alt="可観測性・切り分け"
-                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
               >
             </a>
           </td>
@@ -131,7 +131,7 @@ Author: gan2
               <img
                 src="./images/healthcheck-output.png"
                 alt="自動化ヘルスチェック"
-                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
               >
             </a>
           </td>
