@@ -26,7 +26,7 @@ Author: gan2
 
 ---
 
-## 本システムの特徴（要点）
+## 本資料の特徴（要点）
 
 1. **全コンポーネントが稼働し、構成図と 1:1 で対応付け可能**
 2. **復号（SSLBump）と中継TLS（stunnel）を分離し、責務境界を明確化**
@@ -48,40 +48,95 @@ Author: gan2
         <tr>
           <th>観点</th>
           <th>何を確認できるか</th>
-          <th>対応する証跡</th>
+          <th>対応する証跡（タップで原寸表示）</th>
         </tr>
       </thead>
       <tbody>
+
         <tr>
           <td>全体稼働</td>
           <td>構成図と稼働状態が一致している</td>
-          <td>P1-proof-all.png</td>
+          <td>
+            <a href="./images/P1-proof-all.png" target="_blank">
+              <img
+                src="./images/P1-proof-all.png"
+                alt="全体稼働・構成一致"
+                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+              >
+            </a>
+          </td>
         </tr>
+
         <tr>
           <td>アーキテクチャ</td>
           <td>設計構成と実コンテナの 1:1 対応</td>
-          <td>P2-arch-compare.png</td>
+          <td>
+            <a href="./images/P2-arch-compare.png" target="_blank">
+              <img
+                src="./images/P2-arch-compare.png"
+                alt="アーキテクチャ比較"
+                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+              >
+            </a>
+          </td>
         </tr>
+
         <tr>
           <td>経路制御</td>
           <td>PAC により経路が切り替わる</td>
-          <td>pac-flow-normal-vs-direct.png</td>
+          <td>
+            <a href="./images/pac-flow-normal-vs-direct.png" target="_blank">
+              <img
+                src="./images/pac-flow-normal-vs-direct.png"
+                alt="PAC 経路差"
+                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+              >
+            </a>
+          </td>
         </tr>
+
         <tr>
           <td>復号 / 暗号化</td>
           <td>SSLBump と stunnel の責務分離</td>
-          <td>P4-proof-compare.png</td>
+          <td>
+            <a href="./images/P4-proof-compare.png" target="_blank">
+              <img
+                src="./images/P4-proof-compare.png"
+                alt="SSLBump / stunnel 分離"
+                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+              >
+            </a>
+          </td>
         </tr>
+
         <tr>
           <td>可観測性</td>
           <td>通信異常を原因まで追跡可能</td>
-          <td>p6-observability-triage.png</td>
+          <td>
+            <a href="./images/p6-observability-triage.png" target="_blank">
+              <img
+                src="./images/p6-observability-triage.png"
+                alt="可観測性・切り分け"
+                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+              >
+            </a>
+          </td>
         </tr>
+
         <tr>
           <td>自動化</td>
           <td>起動・確認・復旧の再現性</td>
-          <td>healthcheck-output.png</td>
+          <td>
+            <a href="./images/healthcheck-output.png" target="_blank">
+              <img
+                src="./images/healthcheck-output.png"
+                alt="自動化ヘルスチェック"
+                style="width:100%; max-width:260px; border-radius:8px; cursor: zoom-in;"
+              >
+            </a>
+          </td>
         </tr>
+
       </tbody>
     </table>
   </div>
