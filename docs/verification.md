@@ -226,15 +226,34 @@ Author: gan2
 
 ## 2. アーキテクチャと構成対応
 
-<div style="text-align:center; margin: 1.2em 0;">
-  <a href="./images/P2-arch-compare.png" target="_blank">
-    <img src="./images/P2-arch-compare.png" style="width:100%; max-width:1200px;">
+<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/P2-arch-compare.png" target="_blank" rel="noopener">
+    <img
+      src="./images/P2-arch-compare.png"
+      alt="アーキテクチャ図と稼働コンポーネント（docker ps/health）の対応"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
   </a>
-</div>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    <strong>設計（役割/責務）と、実装（起動している構成要素）が1:1で対応していること</strong>を確認しています。
+  </figcaption>
+</figure>
 
 **確認できること**
-- 設計した役割（入口／分岐／出口）が実装に反映されている
-- 商用構成をそのままコピーせず、責務単位で再設計している
+- 設計した役割（入口／分岐／出口）が、実装（Proxy1/2/3・トンネル・検査・認証）に反映されている
+- 「再設計したこと」を主張したいのではなく、<strong>実務で扱うような複合システムを、未知の検証環境でも“自分で設計して構築できるか”</strong>を確認している
+- アーキテクチャ図（責務・通信経路）と、稼働コンポーネント（health/dps）が <strong>欠けなく起動している</strong>ことを示せる
 
 ---
 
