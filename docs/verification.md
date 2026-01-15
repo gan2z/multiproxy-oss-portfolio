@@ -120,18 +120,107 @@ Author: gan2
 
 ---
 
-## 1. 全体稼働と構成一致の確認
+## 1. 全体稼働と構成要素一致の確認
 
-<div style="text-align:center; margin: 1.2em 0;">
-  <a href="./images/P1-proof-all.png" target="_blank">
-    <img src="./images/P1-proof-all.png" style="width:100%; max-width:1200px;">
+<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/P1-proof-all.png" target="_blank" rel="noopener">
+    <img
+      src="./images/P1-proof-all.png"
+      alt="全体稼働（healthcheck / docker ps）確認"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
   </a>
-</div>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クリック/タップで原寸表示（別タブ）。
+    <strong>“構成図の形そのもの”ではなく、稼働対象の「構成要素（コンテナ/サービス）」が欠けていないこと</strong>を確認しています。
+  </figcaption>
+</figure>
 
 **確認できること**
-- 全コンテナが稼働している
-- 稼働状態が構成図と 1:1 で対応している
-- 「部分的に動いている」状態ではないことを示せる
+- 全コンテナ（構成要素）が **running/healthy** で稼働している（部分稼働ではない）
+- 監視・ログ・認証・DNS・Proxy/トンネル等の **横断要素も含めて**稼働している
+- 「構成図との1:1一致」ではなく、**構成要素（採用コンポーネント）単位で欠けがないこと**を確認している  
+  （※構成図は“通信経路/責務”、ここは“稼働チェック（inventory/health）”の証跡）
+
+<details>
+  <summary><strong>構成要素（すべて OSS）※クリックで開く</strong></summary>
+
+  <p style="margin:.8em 0 .2em 0; opacity:.9;">
+    ※ index.md にも記載していますが、本章では「稼働確認（healthcheck）」の観点として構成要素を併記します。
+  </p>
+
+  <div class="table-compact" id="stack-table">
+    <div class="table-wrap" style="overflow:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>区分</th>
+            <th>役割・位置づけ</th>
+            <th>採用技術</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>プロキシ</td>
+            <td>入口／分岐／出口の3段構成による通信制御</td>
+            <td>Squid（3段、経路別ポート設計）</td>
+          </tr>
+          <tr>
+            <td>中継暗号化</td>
+            <td>Proxy 間通信の TLS 化（中継区間の暗号化）</td>
+            <td>stunnel（Proxy1→2 / Proxy2→3）</td>
+          </tr>
+          <tr>
+            <td>コンテンツ検査</td>
+            <td>ウイルス・コンテンツ検査（横断機能）</td>
+            <td>ICAP / ClamAV</td>
+          </tr>
+          <tr>
+            <td>認証</td>
+            <td>ユーザ認証・認可（SSO）</td>
+            <td>OpenLDAP / Samba AD/DC / Kerberos</td>
+          </tr>
+          <tr>
+            <td>DNS / 経路制御</td>
+            <td>PAC 配布・名前解決</td>
+            <td>dnsmasq（WPAD / Split DNS）</td>
+          </tr>
+          <tr>
+            <td>ログ</td>
+            <td>アクセス・通信ログの集中管理</td>
+            <td>Promtail / Loki / Graylog / OpenSearch</td>
+          </tr>
+          <tr>
+            <td>監視</td>
+            <td>稼働・性能の可視化</td>
+            <td>Zabbix（TLS-PSK + Sidecar）</td>
+          </tr>
+          <tr>
+            <td>自動化</td>
+            <td>起動・検証・復旧の再現性確保</td>
+            <td>Bash</td>
+          </tr>
+          <tr>
+            <td>実行環境</td>
+            <td>検証用基盤</td>
+            <td>Ubuntu 24.04（WSL2 mirrored mode）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</details>
 
 ---
 
