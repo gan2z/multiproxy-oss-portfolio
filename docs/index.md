@@ -123,13 +123,23 @@ Author: gan2
 
   <!-- 画像は「同じ1枚」を2回重ねる -->
   <div class="cmp-stage">
-    <img class="cmp-img base" src="./images/実務OSS構築比較_architecture.png"
+    <img class="cmp-img base"
+         src="./images/実務OSS構築比較_architecture.png"
          alt="構成比較（参考とOSS再現）">
-    <img class="cmp-img focus" src="./images/実務OSS構築比較_architecture.png"
+
+    <img class="cmp-img focus"
+         src="./images/実務OSS構築比較_architecture.png"
          alt="" aria-hidden="true">
+
+    <!-- ✅ 非フォーカス側を“背景と同化”させる覆い -->
+    <span class="cmp-cover" aria-hidden="true"></span>
+
+    <!-- ✅ 左右の境界線（任意） -->
+    <span class="cmp-divider" aria-hidden="true"></span>
   </div>
 
-  <p class="cmp-hint">※ クリックで左/右にフォーカス（画像は1枚のまま）</p>
+  <!-- 任意：補足文を付けるなら -->
+  <!-- <p class="cmp-hint">※ ボタンで左右にフォーカス（画像は1枚のまま）</p> -->
 </div>
 
 <p style="text-align:center; font-size:.9em; opacity:.8;">
