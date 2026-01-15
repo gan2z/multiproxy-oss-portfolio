@@ -550,11 +550,11 @@ details > :not(summary) strong {
 /* 左フォーカス：右半分を“背景同化”で消す + 左半分だけ鮮明 */
 #cmp-left:checked ~ .cmp-stage .cmp-img.focus{
   opacity:1;
-  clip-path: inset(0 50% 0 0); /* 左半分だけ */
+  clip-path: inset(0 52% 0 0); /* 左半分だけ */
 }
 #cmp-left:checked ~ .cmp-stage .cmp-cover{
   opacity:1;
-  clip-path: inset(0 0 0 50%); /* 右半分だけ覆う */
+  clip-path: inset(0 0 0 48%); /* 右半分だけ覆う */
 }
 #cmp-left:checked ~ .cmp-stage .cmp-divider{
   opacity:.9;
