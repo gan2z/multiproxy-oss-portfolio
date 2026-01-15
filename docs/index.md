@@ -487,20 +487,28 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
 ### 5-3. 認証基盤（AD / LDAP / Kerberos）の切り分け
 
-✅ **結論：認証失敗を「結果」ではなく「発生レイヤ」で捉える癖が身につきました。**
+✅ <strong>結論：認証失敗を「結果」ではなく「発生レイヤ」で捉える癖が身につきました。</strong>
 
 <ul>
-  <li>SPN / keytab の参照タイミング</li>
-  <li>CN / SAN 不一致などの TLS 側要因</li>
-  <li>Kerberos の時刻同期依存</li>
+  <li>Kerberos 認証時に参照される <strong>SPN / keytab の整合性と参照タイミング</strong></li>
+  <li>TLS ハンドシェイク段階での <strong>CN / SAN 不一致など証明書起因の要因</strong></li>
+  <li>Kerberos が前提とする <strong>時刻同期（クロックずれ）への依存</strong></li>
 </ul>
 
 <details>
   <summary><strong>詳細：整理した観点（クリックで開く）</strong></summary>
 
   <ul>
-    <li>認証が失敗する際に「どのレイヤで問題が起きたか」を段階的に切り分けました</li>
-    <li>結果として、認証失敗を“結果”ではなく“発生レイヤ”で捉えられるようになった点が大きな変化でした</li>
+    <li>
+      認証が失敗した際に、まず <strong>通信・TLS が成立しているか</strong>を確認し、
+      その後 <strong>Kerberos 固有の要素（SPN・keytab・時刻）</strong>を
+      段階的に切り分けて確認しました
+    </li>
+    <li>
+      これにより、認証失敗を単なるエラー結果としてではなく、
+      <strong>どのレイヤで前提が崩れているか</strong>という観点で
+      捉えられるようになった点が大きな変化でした
+    </li>
   </ul>
 
 </details>
