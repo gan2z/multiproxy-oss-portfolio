@@ -459,10 +459,10 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
 ### 5-2. 多段 SSLBump が成立しない理由の理解
 
-✅ **結論：SSLBump は同一通信に二重適用できず、復号点の設計が必要でした。**
+✅ <strong>結論：SSLBump は同一通信に二重適用できず、復号点の設計が必要でした。</strong>
 
 <ul>
-  <li>Proxy1 と Proxy2 両方で復号すると TLS が破綻する</li>
+  <li>Proxy1 と Proxy2 の両方で復号を行うと TLS セッションが成立しなくなる</li>
   <li>復号点は <strong>通常経路：Proxy1 / DIRECT：Proxy2</strong> に分離しました</li>
 </ul>
 
@@ -470,8 +470,15 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
   <summary><strong>詳細：失敗の観測（クリックで開く）</strong></summary>
 
   <ul>
-    <li>Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 を試しましたが、通信が正常に成立しませんでした</li>
-    <li>調査の結果、一度 MITM を行った時点で TLS の文脈が完結しており、後段で再度 MITM を行うと破綻する仕様に起因することが分かりました</li>
+    <li>
+      Proxy1（SSLBump）→ Proxy2（SSLBump）→ Proxy3 の構成を試しましたが、
+      TLS ハンドシェイクが正常に完了せず、通信が成立しませんでした
+    </li>
+    <li>
+      調査の結果、SSLBump を行った時点で TLS セッションは Proxy1 で終端されており、
+      後段の Proxy2 では同一通信を TLS として再解釈できないため、
+      再度 SSLBump を適用することができない仕様に起因することが分かりました
+    </li>
   </ul>
 
 </details>
