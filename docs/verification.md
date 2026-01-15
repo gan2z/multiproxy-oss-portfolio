@@ -21,12 +21,29 @@ Author: gan2
 
 を **図とログ中心** に確認できる構成にしています。
 
-> ※ 再現手順・試験ID単位の詳細は  
-> <strong><a href="./verification_detail.html">verification_detail</a></strong> にまとめています。
+<p style="margin:.6em 0 0 0;">
+※ 再現性（構築・起動・検証・復旧の手順）は
+<strong><a href="./automation.html">automation</a></strong> に集約しています。
+本ページは <strong>動作証跡（スクリーンショット／ログ）</strong>に集中しています。
+</p>
 
 ---
 
-## 本資料の特徴（要点）
+## 目次
+
+- <a href="#highlights">要点（3分で把握）</a>
+- <a href="#map">index.md の主張 ↔ 検証証跡（対応表）</a>
+- <a href="#p1">1. 全体稼働と構成要素一致</a>
+- <a href="#p2">2. アーキテクチャと構成対応</a>
+- <a href="#p3">3. 経路制御（PAC）</a>
+- <a href="#p4">4. 復号（SSLBump）と中継TLS（stunnel）</a>
+- <a href="#p5">5. ログ基盤（Loki）での切り分け</a>
+- <a href="#p6">6. 自動化と再現性</a>
+
+---
+
+<a id="highlights"></a>
+## 要点（3分で把握）
 
 1. **全コンポーネントが稼働し、構成図と 1:1 で対応付け可能**
 2. **復号（SSLBump）と中継TLS（stunnel）を分離し、責務境界を明確化**
@@ -36,6 +53,7 @@ Author: gan2
 
 ---
 
+<a id="map"></a>
 ## index.md の主張 ↔ 検証証跡 対応（要点）
 
 > 下表は「何を証明するための図か」を整理した一覧です。  
@@ -55,61 +73,51 @@ Author: gan2
 
         <tr>
           <td>全体稼働</td>
-          <td>構成図と稼働状態が一致している</td>
+          <td>構成要素が欠けなく稼働している</td>
           <td>
-            <a href="./images/P1-proof-all.png" target="_blank">
-              <code>P1-proof-all.png</code>
-            </a>
+            <a href="./images/P1-proof-all.png" target="_blank" rel="noopener"><code>P1-proof-all.png</code></a>
           </td>
         </tr>
 
         <tr>
           <td>アーキテクチャ</td>
-          <td>設計構成と実コンテナの 1:1 対応</td>
+          <td>設計（責務/経路）と実装（稼働要素）が対応している</td>
           <td>
-            <a href="./images/P2-arch-compare.png" target="_blank">
-              <code>P2-arch-compare.png</code>
-            </a>
+            <a href="./images/P2-arch-compare.png" target="_blank" rel="noopener"><code>P2-arch-compare.png</code></a>
           </td>
         </tr>
 
         <tr>
-          <td>経路制御</td>
-          <td>PAC により経路が切り替わる</td>
+          <td>経路制御（PAC）</td>
+          <td>PAC により Proxy1 / Proxy2 / DIRECT が分岐し、ログで裏取りできる</td>
           <td>
-            <a href="./images/pac-flow-normal-vs-direct.png" target="_blank">
-              <code>pac-flow-normal-vs-direct.png</code>
-            </a>
+            <a href="./images/pac-flow-normal-vs-direct.png" target="_blank" rel="noopener"><code>pac-flow-normal-vs-direct.png</code></a>
           </td>
         </tr>
 
         <tr>
           <td>復号 / 暗号化</td>
-          <td>SSLBump と stunnel の責務分離</td>
+          <td>SSLBump と stunnel の責務分離（復号点とTLS境界が明確）</td>
           <td>
-            <a href="./images/P4-proof-compare.png" target="_blank">
-              <code>P4-proof-compare.png</code>
-            </a>
+            <a href="./images/P4-proof-compare.png" target="_blank" rel="noopener"><code>P4-proof-compare.png</code></a>
           </td>
         </tr>
 
         <tr>
-          <td>可観測性</td>
-          <td>通信異常を原因まで追跡可能</td>
+          <td>可観測性（Loki）</td>
+          <td>経路と失敗点を時系列で追い、原因レイヤで説明できる</td>
           <td>
-            <a href="./images/p6-observability-triage.png" target="_blank">
-              <code>p6-observability-triage.png</code>
-            </a>
+            <a href="./images/p6-observability-triage.png" target="_blank" rel="noopener"><code>p6-observability-triage.png</code></a>
           </td>
         </tr>
 
         <tr>
           <td>自動化</td>
-          <td>起動・確認・復旧の再現性</td>
+          <td>環境クリア→起動→初期化→監視/ログ→ヘルス確認まで再現可能</td>
           <td>
-            <a href="./images/healthcheck-output.png" target="_blank">
-              <code>healthcheck-output.png</code>
-            </a>
+            <a href="./images/all_in_one_overview.png" target="_blank" rel="noopener"><code>all_in_one_overview.png</code></a><br>
+            <a href="./images/all_in_one_summary.png" target="_blank" rel="noopener"><code>all_in_one_summary.png</code></a><br>
+            <a href="./images/healthcheck-output.png" target="_blank" rel="noopener"><code>healthcheck-output.png</code></a>
           </td>
         </tr>
 
@@ -120,9 +128,9 @@ Author: gan2
 
 ---
 
+<a id="p1"></a>
 ## 1. 全体稼働と構成要素一致の確認
 
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
 <figure style="margin: 1.2em auto; text-align:center;">
   <a href="./images/P1-proof-all.png" target="_blank" rel="noopener">
     <img
@@ -130,8 +138,10 @@ Author: gan2
       alt="全体稼働（healthcheck / docker ps）確認"
       loading="lazy"
       style="
+        display:block;
+        margin:0 auto;
         width:100%;
-        max-width:1400px;
+        max-width:1200px;
         height:auto;
         cursor:zoom-in;
         border:1px solid rgba(0,0,0,.12);
@@ -142,24 +152,19 @@ Author: gan2
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
     クリック/タップで原寸表示（別タブ）。
-    <strong>“構成図の形そのもの”ではなく、稼働対象の「構成要素（コンテナ/サービス）」が欠けていないこと</strong>を確認しています。
+    <strong>構成要素（コンテナ/サービス）が欠けていない</strong>ことを確認しています。
   </figcaption>
 </figure>
 
 **確認できること**
-- 全コンテナ（構成要素）が **running/healthy** で稼働している（部分稼働ではない）
+- 全コンテナ（構成要素）が **running/healthy** で稼働している
 - 監視・ログ・認証・DNS・Proxy/トンネル等の **横断要素も含めて**稼働している
-- 「構成図との1:1一致」ではなく、**構成要素（採用コンポーネント）単位で欠けがないこと**を確認している  
-  （※構成図は“通信経路/責務”、ここは“稼働チェック（inventory/health）”の証跡）
+- ここでの観測は「構成図そのもの」ではなく、**稼働チェック（inventory/health）**の証跡
 
 <details>
   <summary><strong>構成要素（すべて OSS）※クリックで開く</strong></summary>
 
-  <p style="margin:.8em 0 .2em 0; opacity:.9;">
-    ※ index.md にも記載していますが、本章では「稼働確認（healthcheck）」の観点として構成要素を併記します。
-  </p>
-
-  <div class="table-compact" id="stack-table">
+  <div class="table-compact" id="stack-table" style="margin-top:.8em;">
     <div class="table-wrap" style="overflow:auto;">
       <table>
         <thead>
@@ -224,18 +229,20 @@ Author: gan2
 
 ---
 
+<a id="p2"></a>
 ## 2. アーキテクチャと構成対応
 
-<!-- 画像：見やすさ（余白/枠/影）＋タップで原寸（新規タブ） -->
 <figure style="margin: 1.2em auto; text-align:center;">
   <a href="./images/P2-arch-compare.png" target="_blank" rel="noopener">
     <img
       src="./images/P2-arch-compare.png"
-      alt="アーキテクチャ図と稼働コンポーネント（docker ps/health）の対応"
+      alt="アーキテクチャ図と稼働コンポーネントの対応"
       loading="lazy"
       style="
+        display:block;
+        margin:0 auto;
         width:100%;
-        max-width:1400px;
+        max-width:1200px;
         height:auto;
         cursor:zoom-in;
         border:1px solid rgba(0,0,0,.12);
@@ -245,24 +252,23 @@ Author: gan2
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    <strong>設計（役割/責務）と、実装（起動している構成要素）が1:1で対応していること</strong>を確認しています。
+    設計（責務/経路）と、実装（起動している構成要素）が対応していることを確認します。
   </figcaption>
 </figure>
 
 **確認できること**
-- 設計した役割（入口／分岐／出口）が、実装（Proxy1/2/3・トンネル・検査・認証）に反映されている
-- 「再設計したこと」を主張したいのではなく、<strong>実務で扱うような複合システムを、未知の検証環境でも“自分で設計して構築できるか”</strong>を確認している
-- アーキテクチャ図（責務・通信経路）と、稼働コンポーネント（health/dps）が <strong>欠けなく起動している</strong>ことを示せる
+- 役割（入口／分岐／出口）が、実装（Proxy1/2/3・トンネル・検査・認証）に反映されている
+- アーキテクチャ図（責務・通信経路）と、稼働コンポーネントが **欠けなく起動**している
 
 ---
 
+<a id="p3"></a>
 ## 3. 経路制御（PAC）の検証
 
 <p style="margin:.4em 0 1em 0;">
-本章では、<strong>PAC ファイルによる経路制御の設計意図</strong>と、
-<strong>実際にクライアント通信がその意図どおりに制御されていること</strong>を、
-<strong>概要 → 設定 → 実通信ログ</strong>の順で検証します。
+本章では、<strong>PAC による「出口選択（経路）」</strong>が
+<strong>意図どおりに実通信へ反映されている</strong>ことを、
+<strong>概要 → 設定 → 実通信ログ</strong>の順に確認します。
 </p>
 
 <hr>
@@ -276,8 +282,10 @@ Author: gan2
       alt="PACによる経路制御の全体概要"
       loading="lazy"
       style="
+        display:block;
+        margin:0 auto;
         width:100%;
-        max-width:1400px;
+        max-width:1200px;
         height:auto;
         cursor:zoom-in;
         border:1px solid rgba(0,0,0,.12);
@@ -287,19 +295,15 @@ Author: gan2
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック / タップで原寸表示。<br>
-    PAC により <strong>Proxy1 / Proxy2（DIRECT相当） / DIRECT</strong>
-    のいずれを出口として選択するかを整理した全体概要図。
+    PAC により <strong>Proxy1 / Proxy2（DIRECT相当） / DIRECT</strong> のいずれを出口として選択するかを整理した概要図。
   </figcaption>
 </figure>
 
 **ここで整理しているポイント**
 - クライアントは PAC により「通信の出口（経路）」を選択する
-- 通常通信は <strong>Proxy1 → Proxy2 → Proxy3</strong> の多段経路
-- 条件により以下へ分岐する  
-  - <strong>Proxy2 直行</strong>（Proxy1 skip / DIRECT相当）  
-  - <strong>DIRECT</strong>（ルーター直通）
-- 以降の検証では、<strong>この分岐が実通信として成立しているか</strong>をログで確認する
+- 通常通信は <strong>Proxy1 → Proxy2 → Proxy3</strong>
+- 条件により <strong>Proxy2 直行（Proxy1 skip）</strong> / <strong>DIRECT（ルーター直通）</strong> に分岐する
+- 以降は、この分岐が <strong>ログの有無</strong>で裏取りできることを示す
 
 <hr>
 
@@ -325,14 +329,13 @@ Author: gan2
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クライアントに PAC（wpad.dat）を設定し、
-    自動構成スクリプトが有効化されている状態。
+    クライアントに PAC（wpad.dat）を設定し、自動構成スクリプトが有効化されている状態。
   </figcaption>
 </figure>
 
 **確認できること**
-- クライアントが PAC ファイルを正しく取得・適用している
-- 以降の通信がすべて PAC 判定を経由する前提が成立している
+- クライアントが PAC を取得・適用している
+- 以降の通信は PAC 判定を経由する前提が成立している
 
 <hr>
 
@@ -358,15 +361,13 @@ Author: gan2
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    Proxy1 → Proxy2 → Proxy3 の通常経路で通信していることを、
-    Proxy1 のアクセスログから確認。
+    Proxy1 → Proxy2 → Proxy3 の通常経路で通信していることを、Proxy1 のアクセスログで確認。
   </figcaption>
 </figure>
 
 **確認できること**
-- PAC 判定により Proxy1 が選択されている
-- Proxy1 のアクセスログに通信が記録されている
-- 通常経路が正しく機能している
+- PAC 判定により Proxy1 が選択されている（入口ログが残る）
+- 通常経路が成立している
 
 <hr>
 
@@ -392,15 +393,13 @@ Author: gan2
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    Proxy1 を経由せず Proxy2 から通信していることを、
-    Proxy1 / Proxy2 のログ差分で確認。
+    Proxy1 を経由せず Proxy2 から通信していることを、Proxy1/Proxy2 のログ差分で確認。
   </figcaption>
 </figure>
 
 **確認できること**
-- Proxy1 にはログが残らない
-- Proxy2 のみに通信ログが記録されている
-- PAC による Proxy1 skip 分岐が成立している
+- Proxy1 側にログが残らない（＝通っていない）
+- Proxy2 側にのみログが残る（＝直行が成立）
 
 <hr>
 
@@ -426,32 +425,30 @@ Author: gan2
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    Proxy1 / Proxy2 のいずれにもログが残らず、
-    ルーターへ直接通信していることを確認。
+    Proxy1/Proxy2 のいずれにもログが残らず、ルーターへ直接通信していることを確認。
   </figcaption>
 </figure>
 
 **確認できること**
-- PAC 判定により DIRECT が選択されている
-- Proxy を完全にバイパスした通信が成立している
+- PAC 判定により DIRECT が選択され、Proxy を完全にバイパスしている
 
 <hr>
 
 ### 3-5. 検証サマリ（PAC 経路制御）
 
 **本章で証明できたこと**
-- PAC により <strong>通信経路を動的に切り替えられる</strong>
-- 設計した分岐（Proxy1 / Proxy2 / DIRECT）が <strong>実通信として成立</strong>
-- 判定結果を <strong>Proxy 側ログの有無</strong>で客観的に確認できる
-- 「設定したつもり」ではなく、<strong>挙動として説明できる状態</strong>になっている
+- PAC により <strong>通信経路を動的に切り替え</strong>できる
+- 分岐（Proxy1 / Proxy2 / DIRECT）が <strong>実通信として成立</strong>している
+- 判定は <strong>Proxy 側ログの有無</strong>で客観的に裏取りできる
 
 ---
 
+<a id="p4"></a>
 ## 4. 復号（SSLBump）と中継 TLS（stunnel）
 
 <p style="margin:.4em 0 1em 0;">
-本章では、HTTPS 復号（SSLBump）に関する<strong>制約と失敗例</strong>を明示した上で、  
-その制約を踏まえて <strong>復号（SSLBump）と中継暗号化（stunnel）を分離設計</strong>したことを検証します。
+本章では、HTTPS 復号（SSLBump）の<strong>制約</strong>と<strong>失敗例</strong>を明示した上で、  
+制約を踏まえて <strong>復号（SSLBump）と中継暗号化（stunnel）を分離</strong>した設計を確認します。
 </p>
 
 <hr>
@@ -478,19 +475,18 @@ Author: gan2
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    HTTPS 復号（SSLBump）と Proxy 間 TLS（stunnel）の役割分離を示した概要図。<br>
-    SSLBump は <strong>1 通信につき 1 回のみ成立</strong>する制約を持つ。
+    SSLBump と stunnel の役割分離（復号点とTLS境界）を整理した概要図。
   </figcaption>
 </figure>
 
-**設計上の重要な前提**
-- SSLBump は同一 TLS セッションに対して <strong>二重適用できない</strong>
-- 多段 Proxy 構成では「どこで復号するか」を明確にしないと通信が破綻する
-- Proxy 間の暗号化は SSLBump ではなく <strong>stunnel（純粋な TLS）</strong>で担保する必要がある
+**設計上の重要な前提（観測に基づく）**
+- 同一 TLS セッションへの <strong>二重SSLBump</strong>は成立しない（通信が破綻する）
+- 多段 Proxy では「どこで復号するか」を明確化する必要がある
+- Proxy 間の暗号化は SSLBump ではなく <strong>stunnel（純粋なTLS）</strong>で担保する
 
 <hr>
 
-### 4-1. 失敗例：Proxy1 / Proxy2 の二重 SSLBump によるエラー
+### 4-1. 失敗例：Proxy1 / Proxy2 の二重 SSLBump によるエラー（観測）
 
 <figure style="margin: 1.2em auto; text-align:center;">
   <a href="./images/double-bump-error.png" target="_blank" rel="noopener">
@@ -517,7 +513,7 @@ Author: gan2
   <a href="./images/double-sslbump-proxy1-access-google-500.png" target="_blank" rel="noopener">
     <img
       src="./images/double-sslbump-proxy1-access-google-500.png"
-      alt="Proxy1側のエラーログ"
+      alt="Proxy1側（入口）のエラーログ"
       loading="lazy"
       style="
         display:block;
@@ -538,7 +534,7 @@ Author: gan2
   <a href="./images/double-sslbump-proxy2-access3129.png" target="_blank" rel="noopener">
     <img
       src="./images/double-sslbump-proxy2-access3129.png"
-      alt="Proxy2側のSSL再復号ログ"
+      alt="Proxy2側（3129）の観測ログ"
       loading="lazy"
       style="
         display:block;
@@ -555,259 +551,264 @@ Author: gan2
   </a>
 </figure>
 
-**ここで確認できること**
-- Proxy1 / Proxy2 の両方で SSLBump を行うと通信が成立しない
-- ブラウザエラーと Proxy 側ログから <strong>二重復号が原因</strong>であることを確認できる
-- これは「設定ミス」ではなく <strong>SSLBump の仕様上の制約</strong>である
+**ここで確認できること（面接官向け：短く）**
+- 二重SSLBump時は、ブラウザ側にエラーが出る
+- Proxy 側ログから、TLS/SSLBump 由来の失敗として追跡できる  
+  （※エラー画面の “返答者” は入口の Proxy1 に見えるが、原因は “経路内のTLS/SSLBump整合” で起こり得る）
 
 <hr>
 
 ### 4-2. 改善後の設計：復号と中継暗号化の分離
 
 **最終設計方針**
-- SSLBump（復号）は <strong>Proxy1 のみ</strong>で実施
-- Proxy 間通信は <strong>stunnel による TLS</strong>で暗号化
-- Proxy2 / Proxy3 では SSLBump を行わず、<strong>復号済み通信を制御・中継</strong>
+- SSLBump（復号）は <strong>Proxy1 のみ</strong>
+- Proxy 間通信は <strong>stunnel によるTLS</strong>で暗号化
+- Proxy2 / Proxy3 は復号せず、<strong>復号済み通信を制御・中継</strong>
 
-**この設計で得られる効果**
-- SSLBump の制約（1通信1回）を厳密に遵守
-- 復号ポイントと TLS 境界が明確
-- 多段 Proxy 構成でも HTTPS 通信が安定して成立
+**得られる効果**
+- SSLBump の制約（1通信1回）を遵守
+- 復号点と TLS 境界が明確になり、運用時の切り分けが容易
 
 <hr>
 
 ### 4-3. 検証サマリ（SSLBump / stunnel）
 
 **本章で証明できたこと**
-- SSLBump は <strong>1 通信 1 回</strong>という制約を持つ
-- 二重 SSLBump は実際に通信障害を引き起こす
-- 復号（SSLBump）と中継暗号化（stunnel）を分離することで問題を解消できる
-- 設計判断が <strong>実ログと失敗事例に基づいている</strong>ことを示せている
-
+- SSLBump は <strong>1 通信 1 回</strong>の制約を持つ
+- 二重SSLBumpは通信障害を引き起こす（観測できる）
+- 復号（SSLBump）と中継暗号化（stunnel）の分離で安定化できる
 
 ---
 
+<a id="p5"></a>
 ## 5. ログ基盤（Loki）を用いた切り分け
 
 <p style="margin:.4em 0 1em 0;">
-本章では、Loki（Promtail 収集）により <strong>Proxy1 / Proxy2 / Proxy3 の Squid ログ</strong>を横断検索し、
+本章では、Loki（Promtail 収集）で <strong>Proxy1/2/3 の Squid ログ</strong>を横断検索し、
 「どの経路を通り、どのレイヤで失敗したか」を<strong>時系列で切り分け</strong>できることを示します。<br>
-以降の検証では、<strong>アクセスログ（access.log）</strong>と<strong>キャッシュログ（cache.log）</strong>を中心に追跡します。
+基本は <strong>access.log＝経路（結果）</strong> / <strong>cache.log＝原因レイヤ（裏取り）</strong> です。
 </p>
 
 <hr>
 
-<div style="
-  width:100vw;
-  margin-left:calc(50% - 50vw);
-  margin-right:calc(50% - 50vw);
-  text-align:center;
-">
-
-  <figure style="margin: 1.2em auto;">
-    <a href="./images/p6-observability-triage.png" target="_blank" rel="noopener">
-      <img
-        src="./images/p6-observability-triage.png"
-        alt="Lokiによる経路と失敗点の切り分け"
-        loading="lazy"
-        style="
-          width:100%;
-          max-width:1600px;
-          height:auto;
-          cursor:zoom-in;
-          border:1px solid rgba(0,0,0,.12);
-          border-radius:10px;
-          box-shadow:0 6px 18px rgba(0,0,0,.10);
-        "
-      >
-    </a>
-    <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-      クリック / タップで原寸表示。<br>
-      Proxy1/2/3 のログを Loki で横断し、経路と失敗点を<strong>時系列で追跡</strong>するイメージ。
-    </figcaption>
-  </figure>
-
-</div>
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/p6-observability-triage.png" target="_blank" rel="noopener">
+    <img
+      src="./images/p6-observability-triage.png"
+      alt="Lokiによる経路と失敗点の切り分け"
+      loading="lazy"
+      style="
+        display:block;
+        margin:0 auto;
+        width:100%;
+        max-width:1200px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    Proxy1/2/3 のログを横断し、経路と失敗点を時系列で追跡するイメージ（クリックで原寸表示）。
+  </figcaption>
+</figure>
 
 **確認できること**
-- どの経路を通り、どこで失敗したかを <strong>時系列で追跡可能</strong>
-- 「結果」ではなく「原因レイヤ（認証 / TLS / 経路 / ICAP / ACL）」で <strong>説明できる</strong>
+- 経路と失敗点を <strong>時系列で追跡</strong>できる
+- HTTPコードの結果だけでなく、<strong>原因レイヤ（認証 / ACL / TLS / ICAP）</strong>で説明できる
 
 <hr>
 
 ### 5-1. 収集対象（Promtail → Loki）
 
-<p style="margin:.2em 0 1em 0;">
-Promtail は 3段 Squid のログ（squid1/2/3）を<strong>別ラベル</strong>で収集し、Loki に格納します。<br>
-（例：access.log / cache.log をコンテナ別に追跡できる）
-</p>
-
-<ul>
-  <li><strong>Squid（Proxy1 / Proxy2 / Proxy3）</strong>：access.log / cache.log</li>
-  <li><strong>ICAP</strong>：c-icap / clamav のログ（必要に応じて）</li>
-  <li><strong>stunnel</strong>：TLS 中継のログ（必要に応じて）</li>
-</ul>
+- Squid（Proxy1/2/3）：access.log / cache.log
+- （任意）ICAP：c-icap / clamav logs
+- （任意）stunnel：TLS中継ログ
 
 <hr>
 
-### 5-2. 切り分け手順（Lokiで見る順番）
+### 5-2. 実例（面接官向け：結論だけ）
 
-**見る順番（おすすめ）**
-1) <strong>Proxy1 access.log</strong>：クライアントの入口として最初に観測される（PAC/認証/SSLBumpの起点）  
-2) <strong>Proxy2 access.log</strong>：経路分岐・ICAP・上流中継の観測点（3129/3131 を分離して確認）  
-3) <strong>Proxy3 access.log</strong>：最終出口（上流接続の成否）  
-4) <strong>cache.log</strong>：TLS/SSLBump/ヘルパー/ICAP/ACL の詳細（失敗原因の裏取り）
+- **Case A（入口で停止）**：Proxy1 で 407 → Proxy2/3 に到達していない  
+- **Case B（出口側で停止）**：Proxy2:3131 で 403 → Proxy1 を経由していない（直行経路）
 
-<hr>
+<details>
+  <summary><strong>初学者向け：Grafana Explore（Loki）での見方 / LogQL / 具体手順（クリックで開く）</strong></summary>
 
-### 5-3. 実例：Loki で「入口(407)」と「出口側(403)」を切り分けた
+  <hr>
 
-本章では、同じクライアントからの HTTPS 通信に対して、以下 2 つの「失敗」を意図的に発生させ、  
-Loki 上で <strong>どこで止まったか</strong>／<strong>なぜ止まったか</strong>を説明できることを示します。
+  <h4>5-2-1. まずここから（画面操作：迷わない手順）</h4>
 
----
+  <ol>
+    <li>
+      <strong>Grafana を開く</strong> → 左メニューの <strong>Explore</strong> をクリック
+    </li>
+    <li>
+      画面上部のデータソースで <strong>Loki</strong> を選択
+      （見当たらない場合は、右上の datasource を開いて候補から Loki を選ぶ）
+    </li>
+    <li>
+      右上の <strong>時間範囲</strong> をテスト時刻の <strong>±2分</strong> に絞る  
+      （例：date を実行した時刻を基準に「Last 5 minutes」→さらに狭める）
+    </li>
+    <li>
+      下のクエリ欄で、まずは <strong>ラベル候補を確認</strong>：
+      <ul>
+        <li><strong>Label browser</strong>（または "Labels"）を開く</li>
+        <li>よくあるラベル：<code>job</code>, <code>container</code>, <code>filename</code>, <code>instance</code></li>
+      </ul>
+    </li>
+  </ol>
 
-#### Case A：入口（Proxy1）で 407（認証要求） → Proxy2 まで到達していない
+  <h4>5-2-2. 最初の一発（ラベルが分からない場合）</h4>
 
-**打鍵（時刻の基準）**
-- `date` : 2026-01-16 03:20:29 JST
+  <p style="margin:.3em 0 .8em 0;">
+  まずは <code>{}</code> のまま全文検索で当たりを付けます（結果が出たらラベルに絞ります）。
+  </p>
 
-**打鍵（Proxy1 経由で google に CONNECT）**
-- `curl --proxy http://proxy1.ad.lan:3128 https://www.google.com/`  
-  → 結果：<strong>HTTP/1.1 407 Proxy Authentication Required</strong>
+  <pre><code>{} |= " 407 " |= "google"
+{} |= " 403 " |= "wikipedia"</code></pre>
 
-**観測（access.log の差分）**
-- Proxy1 access.log に <strong>status=407</strong> が記録される  
-  - `url="www.google.com:443" status=407 hier=TCP_DENIED:HIER_NONE`
-- Proxy2 access_3129.log は <strong>空（NO HIT）</strong>  
-  → <strong>入口(Proxy1)で止まり、鎖（Proxy1→Proxy2）へ到達していない</strong>ことが確定
+  <p style="margin:.4em 0 0 0;">
+  結果が出たら、ログ行に付いているラベル（job/container/filename等）を見て、次から絞り込みます。
+  </p>
 
-**Loki での見方（例：LogQL）**
-- Proxy1 の 407 を拾う
-  - `{job="squid", instance="proxy1"} |= "www.google.com" |= "status=407"`
-- Proxy2 側に同一ホストが出ていないことを確認（ヒット無しが期待値）
-  - `{job="squid", instance="proxy2"} |= "www.google.com"`
+  <h4>5-2-3. access.log（結果）で追う：よく使うクエリ</h4>
 
-**スクリーンショット（差し替え）**
-- `images/p6-loki-caseA-proxy1-407.png`：Proxy1 で status=407 を確認した Explore 画面
-- `images/p6-loki-caseA-proxy2-nohit.png`：Proxy2 側で NO HIT を確認した Explore 画面
+  <pre><code>{} |= "access" |= " 407 "
+{} |= "access" |= " 403 "
+{} |= "access" |= " 502 "  # 上流到達/TLS中継が怪しいとき
+{} |= "access" |= " 503 "</code></pre>
 
----
+  <p style="margin:.4em 0 0 0;">
+  ※ <code>access</code> は filename ラベルに入っている場合が多いです。入っていない場合は消してください。
+  </p>
 
-#### Case B：出口側（Proxy2:3131）で 403（ACL 拒否） → Proxy1 を経由していない（直行）
+  <h4>5-2-4. cache.log（原因）で追う：よく使うクエリ</h4>
 
-**前提**  
-Proxy2:3131 は「クライアント直行の出口（経路②）」として利用し、認証は Kerberos（Negotiate）で通す。
+  <pre><code>{} |= "cache" |= "ERROR"
+{} |= "cache" |= "WARNING"
+{} |= "cache" |= "SslBump"
+{} |= "cache" |= "DENIED"
+{} |= "cache" |= "icap"</code></pre>
 
-**打鍵（まず失敗：認証なし）**
-- `curl --proxy http://proxy2.ad.lan:3131 https://www.example.com/`  
-  → 結果：<strong>HTTP/1.1 407</strong>（Negotiate 必須のため）
+  <h4>5-2-5. Case A：入口（Proxy1）で 407 を観測</h4>
 
-**打鍵（成功：Kerberos 認証あり）**
-- `kinit Administrator@AD.LAN` → `klist`（HTTP/proxy2.ad.lan のチケット取得）
-- `curl --proxy http://proxy2.ad.lan:3131 --proxy-negotiate -U : https://www.example.com/`  
-  → 結果：<strong>CONNECT 200 → GET 200</strong>（経路②が成立）
+  <p style="margin:.3em 0 .8em 0;">
+  <strong>狙い：</strong> Proxy1 だけに 407 が出ること（＝入口で停止）
+  </p>
 
-**デモ（意図的に 403 を作る：Proxy2:3131 だけ Wikipedia を拒否）**
-- Proxy2 に一時ルール投入（例：`98-demo-deny-wikipedia-3131.conf`）
-  - `acl demo_wiki dstdomain .wikipedia.org`
-  - `http_access deny p2_client_3131 auth_users demo_wiki`
-- その後、
-  - `curl --proxy http://proxy2.ad.lan:3131 --proxy-negotiate -U : https://www.wikipedia.org/`  
-    → 結果：<strong>HTTP/1.1 403 Forbidden</strong>
+  <pre><code>{} |= "www.google.com" |= " 407 "</code></pre>
 
-**観測（access.log の差分）**
-- Proxy1 access.log：`wikipedia` が <strong>出ない（NO HIT）</strong>  
-  → <strong>入口(Proxy1)を通っていない</strong>（=直行の証拠）
-- Proxy2 access_3131.log：以下が連続で記録される  
-  - `CONNECT www.wikipedia.org:443 status=200 user=Administrator@AD.LAN`
-  - `GET https://www.wikipedia.org/ status=403`
-  → <strong>Proxy2:3131 で「認証は通ったが ACL で拒否された」</strong>と説明できる
+  <p style="margin:.4em 0 0 0;">
+  その後、同じ条件で Proxy2/3 側のログが出ない（または薄い）ことを確認します。
+  </p>
 
-**Loki での見方（例：LogQL）**
-- Proxy2 で 403 を拾う（結果）
-  - `{job="squid", instance="proxy2"} |= "wikipedia" |= "status=403"`
-- Proxy1 に出ていないことを確認（経路②の裏取り）
-  - `{job="squid", instance="proxy1"} |= "wikipedia"`
-- cache.log 側で “DENIED” を拾う（原因レイヤ）
-  - `{job="squid", instance="proxy2"} |= "Checklist.cc" |= "DENIED"`
-  - （必要なら）`{job="squid", instance="proxy2"} |= "DENIED" |= "wikipedia"`
+  <h4>5-2-6. Case B：出口側（Proxy2:3131）で 403 を観測</h4>
 
-**スクリーンショット（差し替え）**
-- `images/p6-loki-caseB-proxy2-403.png`：Proxy2 で status=403 を確認した Explore 画面
-- `images/p6-loki-caseB-proxy1-nohit.png`：Proxy1 側で NO HIT を確認した Explore 画面
-- `images/p6-loki-caseB-proxy2-cache-denied.png`：cache.log 側の DENIED（Checklist.cc）を確認した Explore 画面
+  <p style="margin:.3em 0 .8em 0;">
+  <strong>狙い：</strong> Proxy2:3131 側に 403 が出て、Proxy1 には出ない（＝直行経路で停止）
+  </p>
 
-**後片付け**
-- 一時 deny ルールを削除し、`squid -k reconfigure` で復旧（恒久設定に影響しない形で検証）
+  <pre><code>{} |= "wikipedia" |= " 403 "</code></pre>
 
-<hr>
+  <p style="margin:.4em 0 0 0;">
+  次に cache.log 側で DENIED/ACL 系を拾って「原因レイヤ」を裏取りします。
+  </p>
 
-### 5-4. Loki での検索コツ（初学者向け：ここだけ読めば迷わない）
+  <pre><code>{} |= "wikipedia" |= "DENIED"</code></pre>
 
-**(1) Explore → Loki を選ぶ**  
-左メニュー Explore で Loki を選択する。
+  <hr>
 
-**(2) まず Label browser で “使えるラベル” を確定する**  
-- 例：`job="squid"` / `instance="proxy1|proxy2|proxy3"`  
-※ `{}` のまま検索するとエラーになりやすいので、必ず絞り込みラベルを付ける。
+  <h4>5-2-7. スクリーンショット（差し替え用のPNG）</h4>
 
-**(3) 時刻範囲を “狭く” する（±2分）**  
-`date` の実行時刻を基準に、右上の時間範囲を「前後2分」程度に絞ると追跡が速い。
+  <ul>
+    <li><code>images/p6-loki-caseA-proxy1-407.png</code>：Proxy1 で 407 を確認した Explore 画面</li>
+    <li><code>images/p6-loki-caseA-proxy2-nohit.png</code>：Proxy2 側で NO HIT（同条件で出ない）を示す画面</li>
+    <li><code>images/p6-loki-caseB-proxy2-403.png</code>：Proxy2 で 403 を確認した Explore 画面</li>
+    <li><code>images/p6-loki-caseB-proxy1-nohit.png</code>：Proxy1 側で NO HIT を示す画面</li>
+    <li><code>images/p6-loki-caseB-proxy2-cache-denied.png</code>：cache.log 側の DENIED を示す画面</li>
+  </ul>
 
-**(4) “結果→原因” の順に見る**  
-- まず access.log で `status=407/403/200` を拾う（結果）  
-- 次に cache.log で `DENIED / ERROR / SslBump / helper` を拾う（原因）
+</details>
 
 <hr>
 
-### 5-5. 検証サマリ（Loki切り分け）
+### 5-3. 検証サマリ（Loki切り分け）
 
 **本章で証明できたこと**
-- 3段プロキシ（Proxy1/2/3）のログを Loki で横断検索できる
-- 通信が「どの経路を通ったか（Proxy1経由 / Proxy2直行）」をログで裏取りできる
-- 失敗を「HTTPコード（結果）」だけでなく、<strong>認証 / ACL / TLS / ICAP</strong>などの <strong>原因レイヤ</strong>として説明できる
+- 3段プロキシのログを Loki で横断検索できる
+- 「経路（Proxy1経由 / Proxy2直行）」をログで裏取りできる
+- 失敗を <strong>原因レイヤ</strong>（認証/ACL/TLS/ICAP）として説明できる
 
 ---
 
+<a id="p6"></a>
 ## 6. 自動化と再現性（Verification）
 
-<div style="text-align:center; margin: 1.2em 0;">
+<p style="margin:.2em 0 1em 0;">
+本章は「長いログの貼り付け」ではなく、<strong>完走したことが一目で分かる証跡</strong>に絞っています。  
+詳細な説明やスクリプト一覧は <strong><a href="./automation.html">automation</a></strong> を参照してください。
+</p>
+
+<figure style="margin: 1.2em auto; text-align:center;">
   <a href="./images/all_in_one_overview.png" target="_blank" rel="noopener">
-    <img src="./images/all_in_one_overview.png" style="width:100%; max-width:1200px; cursor:zoom-in;">
+    <img
+      src="./images/all_in_one_overview.png"
+      alt="ALL-IN-ONE rebuild overview"
+      loading="lazy"
+      style="
+        display:block;
+        margin:0 auto;
+        width:100%;
+        max-width:1200px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
   </a>
-</div>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    STEP0〜17 を一括実行し、初期化・構築・検証・監視まで到達したことを示す概要ログ。
+  </figcaption>
+</figure>
 
 **確認できること**
-- **環境クリア → 起動 → 初期化 → 認証 → ログ/監視 → ヘルス確認**までを **STEP0〜17** で一括実行できる
+- **環境クリア → 起動 → 初期化 → 認証 → ログ/監視 → ヘルス確認**までを **一括で到達**できる
 - 手動介入なしで **同一状態（稼働＋検証完了）へ到達**できる
-- 失敗しやすい箇所は **Guard / Retry / Warn継続**で吸収し、最後に **総所要時間**を必ず出力する
+- 最終的に **総所要時間**を出力し、再現できたことを客観的に示せる
+
+<details>
+  <summary><strong>実行証跡（PNG）とコマンド（初学者向け：クリックで開く）</strong></summary>
+
+  <hr>
+
+  <h4>PNG（証跡）</h4>
+  <ul>
+    <li><code>images/all_in_one_overview.png</code>（概要）</li>
+    <li><code>images/all_in_one_summary.png</code>（所要時間のサマリ）</li>
+    <li><code>images/healthcheck-output.png</code>（全体ヘルスチェック）</li>
+  </ul>
+
+  <h4>コマンド（これだけ）</h4>
+
+  <pre><code>cd /home/login00/multiproxy
+
+# 1) 全再構築（STEP0〜17：クリア→起動→初期化→監視/ログ→ヘルス確認）
+./all_in_one_rebuild_and_health.sh
+
+# 2) ヘルスチェックだけ（運用時の確認）
+./scripts/multiproxy_health_all.sh</code></pre>
+
+</details>
 
 ---
 
-### 6-1. 実行証跡（完走の証明）
+## 補足（読む人向け）
 
-- **概要ログ（1枚）**：`images/all_in_one_overview.png`
-- **完了サマリ（所要時間）**：`images/all_in_one_summary.png`
-- **全体ヘルスチェック結果**：`images/healthcheck-output.png`
-
----
-
-### 6-2. コマンド（初学者向け：これだけ）
-
-    cd /home/login00/multiproxy
-
-    # 1) 全再構築（STEP0〜17：クリア→起動→初期化→監視/ログ→ヘルス確認）
-    ./all_in_one_rebuild_and_health.sh
-    
-    # 2) ヘルスチェックだけ（運用時の確認）
-    ./scripts/multiproxy_health_all.sh
-
----
-
-## 補足
-
-- 本ページは **「動いていることを一目で納得できる」** ことを重視
-- 詳細な再現手順・試験観点は `verification_detail.html` に委譲
-
----
+- 本ページは **「動いていることを一目で納得できる」** ことを優先しています  
+- 再現性・運用手順は **automation** に集約し、本ページは証跡（図/ログ）に集中しています
