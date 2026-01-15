@@ -491,9 +491,10 @@ details > :not(summary) strong {
 }
 
 /* 片側だけ見せるためのマスク（clip-path） */
+/* 左フォーカス時：右（非フォーカス側）を沈める */
 #cmp-left:checked ~ .cmp-stage .cmp-img.base{
   opacity:1;
-  filter: grayscale(.1) contrast(.95) brightness(.96);
+  filter: grayscale(1) brightness(.62) contrast(.85);
 }
 #cmp-left:checked ~ .cmp-stage .cmp-img.focus{
   opacity:1;
@@ -501,9 +502,10 @@ details > :not(summary) strong {
   filter:none;
 }
 
+/* 右フォーカス時：左（非フォーカス側）を沈める */
 #cmp-right:checked ~ .cmp-stage .cmp-img.base{
   opacity:1;
-  filter: grayscale(.1) contrast(.95) brightness(.96);
+  filter: grayscale(1) brightness(.62) contrast(.85);
 }
 #cmp-right:checked ~ .cmp-stage .cmp-img.focus{
   opacity:1;
@@ -523,4 +525,18 @@ details > :not(summary) strong {
   font-size:.9rem;
   opacity:.75;
   margin:.55rem 0 0;
+}
+
+.cmp-stage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.0);
+  pointer-events:none;
+  transition: background .2s ease;
+}
+
+#cmp-left:checked ~ .cmp-stage::after,
+#cmp-right:checked ~ .cmp-stage::after{
+  background: rgba(0,0,0,.18);
 }
