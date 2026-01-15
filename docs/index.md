@@ -702,7 +702,13 @@ Squid <code>access.log</code> は集約して検索可能。<br>
 これらの結果として、  
 <strong>環境破棄後でも約25分で同一構成を再構築できる状態</strong>を実現しました。
 
-![healthcheck-output](./images/healthcheck-output.png)
+![all-in-one-rebuild-and-health]
+(./images/all_in_one_rebuild_and_health_overview.png)
+
+<p style="text-align:center; font-size:.9em; opacity:.8;">
+STEP0〜17 を一括実行し、初期化・構築・検証・監視までを
+<strong>22分31秒で再現</strong>した実行結果（クリックで原寸表示）
+</p>
 
 スクリプトの構成・実行順・役割の整理については  
 <strong><a href="./automation.html"><code>automation.md</code></a></strong> にまとめています。
