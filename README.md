@@ -22,9 +22,4 @@
 - **Verification**  
   全体稼働・経路差・復号点・ログ追跡の要点をまとめた確認用ページ
 
-- **verification_detail（詳細版／再現用）**  
-  上記内容を、試験ID・実行コマンド・判定基準まで含めて整理した補足資料です。  
-  ※ 興味を持っていただけた方向けの詳細資料で、必須ではありません。
-
 ▶ https://gan2z.github.io/multiproxy-oss-portfolio/verification.html  
-▶ https://gan2z.github.io/multiproxy-oss-portfolio/verification_detail.html
