@@ -770,17 +770,39 @@ Proxy2:3131 は「クライアント直行の出口（経路②）」として�
 
 ---
 
-## 6. 自動化と再現性
+## 6. 自動化と再現性（Verification）
 
 <div style="text-align:center; margin: 1.2em 0;">
-  <a href="./images/healthcheck-output.png" target="_blank">
-    <img src="./images/healthcheck-output.png" style="width:100%; max-width:1200px;">
+  <a href="./images/all_in_one_overview.png" target="_blank" rel="noopener">
+    <img src="./images/all_in_one_overview.png" style="width:100%; max-width:1200px; cursor:zoom-in;">
   </a>
 </div>
 
 **確認できること**
-- 起動・確認・復旧がスクリプトで標準化されている
-- 環境破棄後でも同一状態を再現できる
+- **環境クリア → 起動 → 初期化 → 認証 → ログ/監視 → ヘルス確認**までを **STEP0〜17** で一括実行できる
+- 手動介入なしで **同一状態（稼働＋検証完了）へ到達**できる
+- 失敗しやすい箇所は **Guard / Retry / Warn継続**で吸収し、最後に **総所要時間**を必ず出力する
+
+---
+
+### 6-1. 実行証跡（完走の証明）
+
+- **概要ログ（1枚）**：`images/all_in_one_overview.png`
+- **完了サマリ（所要時間）**：`images/all_in_one_summary.png`
+- **全体ヘルスチェック結果**：`images/healthcheck-output.png`
+
+---
+
+### 6-2. コマンド（初学者向け：これだけ）
+
+```bash
+cd /home/login00/multiproxy
+
+# 1) 全再構築（STEP0〜17：クリア→起動→初期化→監視/ログ→ヘルス確認）
+./all_in_one_rebuild_and_health.sh
+
+# 2) ヘルスチェックだけ（運用時の確認）
+./scripts/multiproxy_health_all.sh
 
 ---
 
