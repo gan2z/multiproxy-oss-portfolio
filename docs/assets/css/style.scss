@@ -424,7 +424,30 @@ details > :not(summary) strong {
 
 /* =========================
  * 1枚画像の左右フォーカス切替（JSなし）
+ * - 非フォーカス側を「背景色で覆って」視界から消す
+ * - ダークモード対応（prefers-color-scheme）
  * ========================= */
+
+:root{
+  /* 背景に同化させるための“覆い色”（ライト） */
+  --cmp-cover: rgba(255,255,255,.88);
+  /* ほんのり境界を出す線 */
+  --cmp-divider: rgba(0,0,0,.12);
+  /* ボタン背景（ライト） */
+  --cmp-btn-bg: rgba(255,255,255,.92);
+  --cmp-btn-bd: rgba(0,0,0,.18);
+}
+
+/* ダークモード時：黒系の背景に同化させる */
+@media (prefers-color-scheme: dark){
+  :root{
+    --cmp-cover: rgba(13,17,23,.78);      /* GitHub Dark っぽい背景寄せ */
+    --cmp-divider: rgba(255,255,255,.12);
+    --cmp-btn-bg: rgba(13,17,23,.82);
+    --cmp-btn-bd: rgba(255,255,255,.18);
+  }
+}
+
 .cmp-wrap{
   margin: 1.2rem 0 1.6rem;
 }
@@ -444,9 +467,9 @@ details > :not(summary) strong {
   align-items:center;
   gap:.4rem;
   padding:.38rem .75rem;
-  border:1px solid rgba(0,0,0,.18);
+  border:1px solid var(--cmp-btn-bd);
   border-radius:999px;
-  background: rgba(255,255,255,.92);
+  background: var(--cmp-btn-bg);
   cursor:pointer;
   font-weight:600;
   font-size:.95rem;
@@ -466,20 +489,17 @@ details > :not(summary) strong {
   border-radius:14px;
   overflow:hidden;
   box-shadow: 0 8px 24px rgba(0,0,0,.12);
-  background:#fff;
+  background: transparent; /* 背景は“覆い”が担当する */
 }
 
+/* 元画像（常に通常表示） */
 .cmp-img{
   width:100%;
   height:auto;
   display:block;
 }
 
-.cmp-img.base{
-  filter:none;
-}
-
-/* 上に重ねる“フォーカス層”は、通常は見せない（＝両方） */
+/* フォーカス用の同一画像（半分だけ見せる） */
 .cmp-img.focus{
   position:absolute;
   inset:0;
@@ -490,34 +510,67 @@ details > :not(summary) strong {
   pointer-events:none;
 }
 
-/* 片側だけ見せるためのマスク（clip-path） */
-/* 左フォーカス時：右（非フォーカス側）を沈める */
-#cmp-left:checked ~ .cmp-stage .cmp-img.base{
-  opacity:1;
-  filter: grayscale(1) brightness(.62) contrast(.85);
-}
-#cmp-left:checked ~ .cmp-stage .cmp-img.focus{
-  opacity:1;
-  clip-path: inset(0 50% 0 0); /* 左半分だけ見せる */
-  filter:none;
-}
-
-/* 右フォーカス時：左（非フォーカス側）を沈める */
-#cmp-right:checked ~ .cmp-stage .cmp-img.base{
-  opacity:1;
-  filter: grayscale(1) brightness(.62) contrast(.85);
-}
-#cmp-right:checked ~ .cmp-stage .cmp-img.focus{
-  opacity:1;
-  clip-path: inset(0 0 0 50%); /* 右半分だけ見せる */
-  filter:none;
+/* 中央の境界線（任意：左右の意識がしやすい） */
+.cmp-stage .cmp-divider{
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:50%;
+  width:2px;
+  background: var(--cmp-divider);
+  transform: translateX(-1px);
+  pointer-events:none;
+  opacity: .0;
+  transition: opacity .18s ease;
 }
 
-#cmp-both:checked ~ .cmp-stage .cmp-img.base{
-  filter:none;
+/* 非フォーカス側を覆う“背景同化カバー” */
+.cmp-stage .cmp-cover{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:0;
+  transition: opacity .18s ease;
+  /* 覆った側を “見えにくく” する：背景色 + ほんの少しぼかし */
+  background: var(--cmp-cover);
+  backdrop-filter: blur(2px);
 }
+
+/* デフォルト（両方）：そのまま1枚表示 */
 #cmp-both:checked ~ .cmp-stage .cmp-img.focus{
   opacity:0;
+}
+#cmp-both:checked ~ .cmp-stage .cmp-cover{
+  opacity:0;
+}
+#cmp-both:checked ~ .cmp-stage .cmp-divider{
+  opacity:0;
+}
+
+/* 左フォーカス：右半分を“背景同化”で消す + 左半分だけ鮮明 */
+#cmp-left:checked ~ .cmp-stage .cmp-img.focus{
+  opacity:1;
+  clip-path: inset(0 50% 0 0); /* 左半分だけ */
+}
+#cmp-left:checked ~ .cmp-stage .cmp-cover{
+  opacity:1;
+  clip-path: inset(0 0 0 50%); /* 右半分だけ覆う */
+}
+#cmp-left:checked ~ .cmp-stage .cmp-divider{
+  opacity:.9;
+}
+
+/* 右フォーカス：左半分を“背景同化”で消す + 右半分だけ鮮明 */
+#cmp-right:checked ~ .cmp-stage .cmp-img.focus{
+  opacity:1;
+  clip-path: inset(0 0 0 50%); /* 右半分だけ */
+}
+#cmp-right:checked ~ .cmp-stage .cmp-cover{
+  opacity:1;
+  clip-path: inset(0 50% 0 0); /* 左半分だけ覆う */
+}
+#cmp-right:checked ~ .cmp-stage .cmp-divider{
+  opacity:.9;
 }
 
 .cmp-hint{
@@ -525,18 +578,4 @@ details > :not(summary) strong {
   font-size:.9rem;
   opacity:.75;
   margin:.55rem 0 0;
-}
-
-.cmp-stage::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,.0);
-  pointer-events:none;
-  transition: background .2s ease;
-}
-
-#cmp-left:checked ~ .cmp-stage::after,
-#cmp-right:checked ~ .cmp-stage::after{
-  background: rgba(0,0,0,.18);
 }
