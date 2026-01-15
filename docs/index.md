@@ -656,18 +656,42 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
 ## 7. 自動化（運用性・再現性の確保）
 
-✅ **結論：構築・検証・復旧を手順化し、25分で再現できる運用を目指しました。**
+## 7. 自動化（運用性・再現性の確保）
+
+✅ **結論：ゼロからシステムを構築し、動作確認まで含めて  
+約25分で再現できる自動化スクリプト群を作成しました。**
+
+本プロジェクトでは「一度動いた環境」ではなく、  
+**誰が・いつ・どこで実行しても同じ状態まで到達できること**を重視し、  
+構築・初期化・検証・復旧を Bash スクリプトとして整理しています。
 
 <ul>
-  <li>コンテナ群の一括起動・初期化・稼働確認（まとめて実行）</li>
-  <li>全コンテナの稼働状態を一括確認するヘルスチェック：<code>scripts/multiproxy_health_all.sh</code></li>
-  <li>監視（Zabbix）の自動登録・初期設定（オートプロビジョニング）</li>
-  <li>主系（Proxy）コンテナの安全な再起動：<code>scripts/restart_chain_proxy.sh</code></li>
+  <li>
+    <strong>初期構築～起動までを一括実行</strong>できるスクリプトを作成し、
+    手作業を極力排除
+  </li>
+  <li>
+    全コンテナの稼働状態を一括確認するヘルスチェック：
+    <code>scripts/multiproxy_health_all.sh</code>
+  </li>
+  <li>
+    監視基盤（Zabbix）の自動登録・初期設定
+    （Agent / Sidecar / PSK 切替を含む）
+  </li>
+  <li>
+    主系（Proxy）コンテナを安全に再起動し、
+    設定反映と依存関係を崩さないための制御：
+    <code>scripts/restart_chain_proxy.sh</code>
+  </li>
 </ul>
+
+これらの結果として、  
+<strong>環境破棄後でも約25分で同一構成を再構築できる状態</strong>を実現しました。
 
 ![healthcheck-output](./images/healthcheck-output.png)
 
-詳細は `automation.html` を参照してください。
+スクリプトの構成・実行順・役割の整理については  
+<strong><code>automation.md</code></strong> にまとめています。
 
 ---
 
