@@ -72,11 +72,11 @@ layout: default
 
 | 種別 | スクリプト例 | 役割 |
 |---|---|---|
-| ALL-IN-ONE | all-in-one.sh | STEP0〜17 を順序保証で実行 |
-| ヘルスチェック | multiproxy_health_all.sh | 稼働状態・依存関係確認 |
-| ブートストラップ | bootstrap_* | 構成単位の初期化・起動 |
-| 再起動制御 | restart_chain_proxy.sh | 依存関係を考慮した再起動 |
-| 監視自動化 | zbx_psk_allinone.sh | Zabbix 自動登録・PSK設定 |
+| ALL-IN-ONE | all_in_one_rebuild_and_health.sh | クリア → 初期化 → 起動 → ヘルス確認（STEP0〜17） |
+| ヘルスチェック | scripts/multiproxy_health_all.sh など | 全コンテナの稼働状態・依存関係確認 |
+| ブートストラップ | 各種 bootstrap_* など | 構成単位ごとの初期化・起動 |
+| 再起動制御 | scripts/restart_chain_proxy.sh など | Proxy / stunnel の安全な再起動（依存順序を考慮） |
+| 監視自動化 | zbx_psk_allinone.sh など | Zabbix 自動登録・PSK設定・初期設定 |
 
 各スクリプトは **単体実行可能**かつ  
 ALL-IN-ONE からも呼び出せる構成です。
@@ -85,31 +85,34 @@ ALL-IN-ONE からも呼び出せる構成です。
 
 ## 4. ALL-IN-ONE の使い方（部分実行を含めて解説）
 
+本プロジェクトの ALL-IN-ONE は  
+`all_in_one_rebuild_and_health.sh` を中心に実行します。
+
 ### 基本（全 STEP 実行）
 
-    ./all-in-one.sh
+    ./all_in_one_rebuild_and_health.sh
 
-### STEP 一覧を表示
+### STEP 一覧を表示（実装している場合）
 
-    ./all-in-one.sh --list
+    ./all_in_one_rebuild_and_health.sh --list
 
 ### 途中から最後まで（例：STEP7から）
 
-    ./all-in-one.sh --from 7
+    ./all_in_one_rebuild_and_health.sh --from 7
 
 ### 途中まで実行（例：STEP13まで）
 
-    ./all-in-one.sh --to 13
+    ./all_in_one_rebuild_and_health.sh --to 13
 
-    ./all-in-one.sh --from 6 --to 10
+    ./all_in_one_rebuild_and_health.sh --from 6 --to 10
 
 ### 特定 STEP のみ実行（例：STEP14のみ）
 
-    ./all-in-one.sh --only 14
+    ./all_in_one_rebuild_and_health.sh --only 14
 
 ### 複数 STEP を指定実行
 
-    ./all-in-one.sh --steps 0,1,7,8,14
+    ./all_in_one_rebuild_and_health.sh --steps 0,1,7,8,14
 
 ---
 
@@ -136,10 +139,181 @@ ALL-IN-ONE からも呼び出せる構成です。
 Automation のゴールは「起動完了」ではありません。
 
 - Graylog：Proxy ログを検索できる
-- Grafana：ログ・メトリクスを可視化できる
+- Grafana（Loki）：ログを時系列に追跡できる
 - Zabbix：ホストが自動登録され、監視できている
 
 **再現後の“動作証明”まで自動化している点**が特徴です。
+
+---
+
+## 6-1. 動作証明（可視化の証跡集）
+
+このセクションでは、Automation 実行後に  
+**「動いていることを第三者が確認できる証跡」**をまとめます。
+
+※ すでに他セクション（index.md / Verification 等）で  
+「実行結果」「正常性確認結果」を2回以上掲載している場合は、  
+ここでは **重複を避けてリンクのみ**にして問題ありません。  
+（このページの役割は「Automation → 可視化の到達点」を示すことのため）
+
+---
+
+### A. ALL-IN-ONE 実行結果（サマリ）
+
+- 目的：STEP0〜17 が完走し、構築〜監視まで到達したことを示す
+- 証跡（例）：`./images/all_in_one_rebuild_and_health.png`
+
+    （すでに他で掲載済みなら、ここはリンクのみでOK）
+
+    画像: all_in_one_rebuild_and_health.png  
+    リンク: ./images/all_in_one_rebuild_and_health.png
+
+例（クリックで原寸表示）:
+
+    <div style="text-align:center; margin: 1.2em 0;">
+      <a href="./images/all_in_one_rebuild_and_health.png" target="_blank">
+        <img
+          src="./images/all_in_one_rebuild_and_health.png"
+          alt="ALL-IN-ONE rebuild & healthcheck log"
+          style="width:100%; max-width:1200px; cursor:zoom-in; border-radius:12px;"
+        >
+      </a>
+    </div>
+
+---
+
+### B. 正常性確認結果（health / up & health）
+
+- 目的：起動できた「だけ」でなく、ヘルスチェックに合格していることを示す
+- 証跡（例）：`./images/healthcheck-output.png`
+
+    （同様に、他で掲載済みならリンクのみでOK）
+
+    画像: healthcheck-output.png  
+    リンク: ./images/healthcheck-output.png
+
+例（クリックで原寸表示）:
+
+    <div style="text-align:center; margin: 1.2em 0;">
+      <a href="./images/healthcheck-output.png" target="_blank">
+        <img
+          src="./images/healthcheck-output.png"
+          alt="healthcheck output"
+          style="width:100%; max-width:1200px; cursor:zoom-in; border-radius:12px;"
+        >
+      </a>
+    </div>
+
+---
+
+### C. Zabbix GUI（監視が自動登録されている証明）
+
+- 目的：スクリプト実行だけで監視が成立していることを GUI で示す
+- 何を載せるか（推奨）
+    - Hosts 一覧（Proxy1 が登録済みである）
+    - Latest data（Proxy1 の主要項目が更新されている）
+    - Triggers（異常検知の定義が反映されている）
+
+- 証跡（例）
+    - `./images/zabbix-hosts.png`
+    - `./images/zabbix-proxy1-latest.png`
+
+例（クリックで原寸表示）:
+
+    <div style="text-align:center; margin: 1.2em 0;">
+      <a href="./images/zabbix-hosts.png" target="_blank">
+        <img
+          src="./images/zabbix-hosts.png"
+          alt="Zabbix hosts"
+          style="width:100%; max-width:1200px; cursor:zoom-in; border-radius:12px;"
+        >
+      </a>
+    </div>
+
+    <div style="text-align:center; margin: 1.2em 0;">
+      <a href="./images/zabbix-proxy1-latest.png" target="_blank">
+        <img
+          src="./images/zabbix-proxy1-latest.png"
+          alt="Zabbix Proxy1 latest data"
+          style="width:100%; max-width:1200px; cursor:zoom-in; border-radius:12px;"
+        >
+      </a>
+    </div>
+
+---
+
+### D. Proxy1 コンテナの監視項目（Zabbix 側の観測点）
+
+- 目的：Proxy1 を「何で監視しているか」を具体的に示す（運用目線）
+- 掲載推奨（例）
+    - コンテナ稼働 / 再起動回数
+    - Squid のプロセス稼働
+    - ログ出力確認（またはログ転送確認）
+    - 疎通（Proxy ポート応答 / 認証失敗率など）
+
+- 証跡（例）
+    - `./images/zabbix-proxy1-items.png`
+
+例（クリックで原寸表示）:
+
+    <div style="text-align:center; margin: 1.2em 0;">
+      <a href="./images/zabbix-proxy1-items.png" target="_blank">
+        <img
+          src="./images/zabbix-proxy1-items.png"
+          alt="Zabbix Proxy1 items"
+          style="width:100%; max-width:1200px; cursor:zoom-in; border-radius:12px;"
+        >
+      </a>
+    </div>
+
+---
+
+### E. Graylog（検索できること＝ログ集約の証明）
+
+- 目的：Proxy ログを検索でき、事象追跡が可能なことを示す
+- 掲載推奨（例）
+    - Search 画面で `proxy1` `status=407` `domain=...` などで検索した結果
+    - Stream / Index / Input が有効であること
+
+- 証跡（例）
+    - `./images/graylog-search.png`
+
+例（クリックで原寸表示）:
+
+    <div style="text-align:center; margin: 1.2em 0;">
+      <a href="./images/graylog-search.png" target="_blank">
+        <img
+          src="./images/graylog-search.png"
+          alt="Graylog search"
+          style="width:100%; max-width:1200px; cursor:zoom-in; border-radius:12px;"
+        >
+      </a>
+    </div>
+
+---
+
+### F. Grafana（Loki）（時系列に追えること＝追跡性の証明）
+
+- 目的：Loki にログが入り、Grafana で追跡できることを示す
+- 掲載推奨（例）
+    - Explore で `{container="proxy1"}` の検索結果
+    - deny / sslbump / auth のキーワードでフィルタした結果
+
+- 証跡（例）
+    - `./images/grafana-loki-explore.png`
+    - `./images/grafana-proxy-deny.png`
+
+例（クリックで原寸表示）:
+
+    <div style="text-align:center; margin: 1.2em 0;">
+      <a href="./images/grafana-loki-explore.png" target="_blank">
+        <img
+          src="./images/grafana-loki-explore.png"
+          alt="Grafana Loki Explore"
+          style="width:100%; max-width:1200px; cursor:zoom-in; border-radius:12px;"
+        >
+      </a>
+    </div>
 
 ---
 
