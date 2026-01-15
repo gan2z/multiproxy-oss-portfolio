@@ -312,12 +312,15 @@ Author: gan2
       alt="クライアントでのPAC設定"
       loading="lazy"
       style="
+        display:block;
+        margin:0 auto;
         width:100%;
-        max-width:1200px;
+        max-width:1100px;
         height:auto;
         cursor:zoom-in;
         border:1px solid rgba(0,0,0,.12);
         border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
       "
     >
   </a>
@@ -335,37 +338,30 @@ Author: gan2
 
 ### 3-2. Proxy1 経由の通信（通常経路）
 
-<div style="
-  width:100vw;
-  margin-left:calc(50% - 50vw);
-  margin-right:calc(50% - 50vw);
-  text-align:center;
-">
-
-  <figure style="margin: 1.2em auto;">
-    <a href="./images/pac-proof-proxy1.png" target="_blank" rel="noopener">
-      <img
-        src="./images/pac-proof-proxy1.png"
-        alt="Proxy1経由通信の確認"
-        loading="lazy"
-        style="
-          width:100%;
-          max-width:1600px;
-          height:auto;
-          cursor:zoom-in;
-          border:1px solid rgba(0,0,0,.12);
-          border-radius:10px;
-          box-shadow:0 6px 18px rgba(0,0,0,.10);
-        "
-      >
-    </a>
-    <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-      Proxy1 → Proxy2 → Proxy3 の通常経路で通信していることを、
-      Proxy1 のアクセスログから確認。
-    </figcaption>
-  </figure>
-
-</div>
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/pac-proof-proxy1.png" target="_blank" rel="noopener">
+    <img
+      src="./images/pac-proof-proxy1.png"
+      alt="Proxy1経由通信の確認"
+      loading="lazy"
+      style="
+        display:block;
+        margin:0 auto;
+        width:100%;
+        max-width:1100px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    Proxy1 → Proxy2 → Proxy3 の通常経路で通信していることを、
+    Proxy1 のアクセスログから確認。
+  </figcaption>
+</figure>
 
 **確認できること**
 - PAC 判定により Proxy1 が選択されている
@@ -376,37 +372,30 @@ Author: gan2
 
 ### 3-3. Proxy2 経由の通信（Proxy1 skip / DIRECT 相当）
 
-<div style="
-  width:100vw;
-  margin-left:calc(50% - 50vw);
-  margin-right:calc(50% - 50vw);
-  text-align:center;
-">
-
-  <figure style="margin: 1.2em auto;">
-    <a href="./images/pac-proof-proxy2.png" target="_blank" rel="noopener">
-      <img
-        src="./images/pac-proof-proxy2.png"
-        alt="Proxy2経由通信の確認"
-        loading="lazy"
-        style="
-          width:100%;
-          max-width:1600px;
-          height:auto;
-          cursor:zoom-in;
-          border:1px solid rgba(0,0,0,.12);
-          border-radius:10px;
-          box-shadow:0 6px 18px rgba(0,0,0,.10);
-        "
-      >
-    </a>
-    <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-      Proxy1 を経由せず Proxy2 から通信していることを、
-      Proxy1 / Proxy2 のログ差分で確認。
-    </figcaption>
-  </figure>
-
-</div>
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/pac-proof-proxy2.png" target="_blank" rel="noopener">
+    <img
+      src="./images/pac-proof-proxy2.png"
+      alt="Proxy2経由通信の確認"
+      loading="lazy"
+      style="
+        display:block;
+        margin:0 auto;
+        width:100%;
+        max-width:1100px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    Proxy1 を経由せず Proxy2 から通信していることを、
+    Proxy1 / Proxy2 のログ差分で確認。
+  </figcaption>
+</figure>
 
 **確認できること**
 - Proxy1 にはログが残らない
@@ -417,37 +406,30 @@ Author: gan2
 
 ### 3-4. DIRECT（ルーター直通）通信
 
-<div style="
-  width:100vw;
-  margin-left:calc(50% - 50vw);
-  margin-right:calc(50% - 50vw);
-  text-align:center;
-">
-
-  <figure style="margin: 1.2em auto;">
-    <a href="./images/pac-proof-direct.png" target="_blank" rel="noopener">
-      <img
-        src="./images/pac-proof-direct.png"
-        alt="DIRECT通信の確認"
-        loading="lazy"
-        style="
-          width:100%;
-          max-width:1600px;
-          height:auto;
-          cursor:zoom-in;
-          border:1px solid rgba(0,0,0,.12);
-          border-radius:10px;
-          box-shadow:0 6px 18px rgba(0,0,0,.10);
-        "
-      >
-    </a>
-    <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-      Proxy1 / Proxy2 のいずれにもログが残らず、
-      ルーターへ直接通信していることを確認。
-    </figcaption>
-  </figure>
-
-</div>
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/pac-proof-direct.png" target="_blank" rel="noopener">
+    <img
+      src="./images/pac-proof-direct.png"
+      alt="DIRECT通信の確認"
+      loading="lazy"
+      style="
+        display:block;
+        margin:0 auto;
+        width:100%;
+        max-width:1100px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    Proxy1 / Proxy2 のいずれにもログが残らず、
+    ルーターへ直接通信していることを確認。
+  </figcaption>
+</figure>
 
 **確認できること**
 - PAC 判定により DIRECT が選択されている
@@ -483,8 +465,10 @@ Author: gan2
       alt="SSLBump と TLS 境界の整理"
       loading="lazy"
       style="
+        display:block;
+        margin:0 auto;
         width:100%;
-        max-width:1200px;
+        max-width:1100px;
         height:auto;
         cursor:zoom-in;
         border:1px solid rgba(0,0,0,.12);
@@ -515,12 +499,15 @@ Author: gan2
       alt="二重SSLBumpによるブラウザエラー"
       loading="lazy"
       style="
+        display:block;
+        margin:0 auto;
         width:100%;
-        max-width:1200px;
+        max-width:1100px;
         height:auto;
         cursor:zoom-in;
         border:1px solid rgba(0,0,0,.12);
         border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
       "
     >
   </a>
@@ -533,12 +520,15 @@ Author: gan2
       alt="Proxy1側のエラーログ"
       loading="lazy"
       style="
+        display:block;
+        margin:0 auto;
         width:100%;
-        max-width:1200px;
+        max-width:1100px;
         height:auto;
         cursor:zoom-in;
         border:1px solid rgba(0,0,0,.12);
         border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
       "
     >
   </a>
@@ -551,12 +541,15 @@ Author: gan2
       alt="Proxy2側のSSL再復号ログ"
       loading="lazy"
       style="
+        display:block;
+        margin:0 auto;
         width:100%;
-        max-width:1200px;
+        max-width:1100px;
         height:auto;
         cursor:zoom-in;
         border:1px solid rgba(0,0,0,.12);
         border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
       "
     >
   </a>
@@ -590,6 +583,7 @@ Author: gan2
 - 二重 SSLBump は実際に通信障害を引き起こす
 - 復号（SSLBump）と中継暗号化（stunnel）を分離することで問題を解消できる
 - 設計判断が <strong>実ログと失敗事例に基づいている</strong>ことを示せている
+
 
 ---
 
