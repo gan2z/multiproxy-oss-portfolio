@@ -584,22 +584,23 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
   </li>
   <li>
     エラー発生時は、まず Squid の <code>access.log</code> で
-    <strong>HTTP ステータス（403/407/503 等）と経路情報</strong>を確認し、
+    <strong>HTTP ステータス（403/407/503 など）と経路情報</strong>を確認し、
     「拒否／未認証／上流不達」を切り分ける
   </li>
   <li>
     次に Squid の <code>cache.log</code> を確認し、
-    <strong>TLS（SSLBump/splice）判断・上流接続失敗・ICAP 連携失敗</strong>など
+    <strong>TLS（SSLBump / splice）判断・上流接続失敗・ICAP 連携失敗</strong>など、
     “原因寄り”のログで絞り込める
   </li>
   <li>
-    さらに必要に応じて stunnel / DNS / Kerberos は
+    さらに必要に応じて stunnel / DNS / Kerberos については、
     <strong>コンポーネント単位の接続ログ</strong>を確認し、
-    「TLS 中継・名前解決・時刻/SPN/keytab」観点で前提崩れを確認する
+    「TLS 中継・名前解決・時刻 / SPN / keytab」の観点で前提崩れを確認する
   </li>
   <li>
     GUI（Grafana / Graylog）上で <strong>ログ検索とメトリクス参照</strong>を行い、
-    事象発生時刻・対象プロキシ・対象経路を素早く特定できる
+    事象発生時刻・対象プロキシ・対象経路を
+    <strong>時系列で特定できる</strong>
   </li>
 </ul>
 
@@ -617,7 +618,7 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
         <tr>
           <td>アクセス拒否</td>
           <td>Squid access.log</td>
-          <td>403 / ACL / 経路（通常/DIRECT）</td>
+          <td>403 / ACL / 経路（通常 / DIRECT）</td>
         </tr>
         <tr>
           <td>認証が通らない</td>
@@ -626,12 +627,12 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
         </tr>
         <tr>
           <td>上流に繋がらない</td>
-          <td>access.log → cache.log</td>
-          <td>503 / 上流不達 / CONNECT失敗</td>
+          <td>Squid access.log → cache.log</td>
+          <td>503 / 上流不達 / CONNECT 失敗</td>
         </tr>
         <tr>
-          <td>中継TLSの疑い</td>
-          <td>stunnelログ（必要時）</td>
+          <td>中継 TLS の疑い</td>
+          <td>stunnel ログ（必要時）</td>
           <td>TLS handshake / cert verify / reset</td>
         </tr>
       </tbody>
@@ -768,4 +769,3 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
 これにより、  
 **可用性を含めた商用運用に近い検証**へ発展させる予定です。
-
