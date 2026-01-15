@@ -337,7 +337,7 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
 ### 4-1. 復号（SSLBump）位置の整理
 
-✅ **結論：SSLBump（MITM復号）は 1通信につき1回しか成立しないため、復号ポイントを分離しました。**
+✅ **結論：SSLBump（中間者としての復号）は 1通信につき1回しか成立しないため、復号ポイントを分離しました。**
 
 <ul>
   <li>通常経路：<strong>Proxy1 で復号</strong>（Proxy2 は復号除外）</li>
@@ -348,9 +348,14 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
   <summary><strong>詳細：なぜ多段SSLBumpが成立しないのか（クリックで開く）</strong></summary>
 
   <ul>
-    <li>HTTPS 復号（SSLBump）は TLS セッションに対する <strong>MITM</strong> に該当します</li>
-    <li>同一通信に対して後段でも復号を行うと <strong>TLS の文脈が破綻</strong>して通信が成立しません</li>
-    <li>そのため本構成では復号処理を <strong>入口となるプロキシに集約</strong>し、中継側では再復号を行わない設計としています</li>
+    <li>HTTPS 復号（SSLBump）は TLS 通信に対して  
+        <strong>通信途中でサーバ・クライアント双方を代理する「中間者方式の復号」</strong>に該当します</li>
+
+    <li>同一通信に対して後段のプロキシでも復号を行うと、  
+        <strong>すでに終端された TLS セッションを再度終端しようとするため、TLS の前提構造が破綻</strong>します</li>
+
+    <li>そのため本構成では、復号処理は <strong>入口となるプロキシでのみ実施</strong>し、  
+        中継側のプロキシでは暗号化された通信をそのまま転送する設計としています</li>
   </ul>
 
 </details>
