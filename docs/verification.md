@@ -259,15 +259,126 @@ Author: gan2
 
 ## 3. 経路制御（PAC）の検証
 
-<div style="text-align:center; margin: 1.2em 0;">
-  <a href="./images/pac-flow-normal-vs-direct.png" target="_blank">
-    <img src="./images/pac-flow-normal-vs-direct.png" style="width:100%; max-width:1200px;">
+<p style="margin:.4em 0 1em 0;">
+本章では、<strong>PAC ファイルによる経路制御が「設定上の意図どおりに動作している」こと</strong>を、  
+<strong>クライアント設定 → 実通信 → Proxy/ルータ側ログ</strong>の対応関係で検証します。
+</p>
+
+<hr>
+
+### 3-1. クライアント側：PAC ファイルの有効化
+
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/pac-client-setting.png" target="_blank" rel="noopener">
+    <img
+      src="./images/pac-client-setting.png"
+      alt="クライアントでのPACファイル設定"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
   </a>
-</div>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    クライアントに PAC ファイル（wpad.dat）を設定し、以降の通信が PAC 判定を経由する状態にしていることを示します。
+  </figcaption>
+</figure>
+
+<hr>
+
+### 3-2. Proxy1 経由の通信（通常経路）
+
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/pac-proof-proxy1.png" target="_blank" rel="noopener">
+    <img
+      src="./images/pac-proof-proxy1.png"
+      alt="PACによりProxy1経由となった通信とProxy1ログ"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    PAC 判定により Proxy1 が選択され、Proxy1 → Proxy2 → Proxy3 の経路で通信していることを、
+    <strong>Proxy1/2/3 のアクセスログ</strong>から確認できます。
+  </figcaption>
+</figure>
+
+<hr>
+
+### 3-3. Proxy2 経由の通信（Proxy1 skip / DIRECT相当）
+
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/pac-proof-proxy2.png" target="_blank" rel="noopener">
+    <img
+      src="./images/pac-proof-proxy2.png"
+      alt="PACによりProxy2経由となった通信とProxy2ログ"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    PAC により Proxy1 を経由せず Proxy2 が選択されているケースです。  
+    <strong>Proxy1 のログが存在せず、Proxy2/3 のみログが出力されている</strong>ことで、
+    経路分岐が正しく機能していることを示します。
+  </figcaption>
+</figure>
+
+<hr>
+
+### 3-4. DIRECT（ルーター直通）通信
+
+<figure style="margin: 1.2em auto; text-align:center;">
+  <a href="./images/pac-proof-direct.png" target="_blank" rel="noopener">
+    <img
+      src="./images/pac-proof-direct.png"
+      alt="PACによりDIRECTとなった通信とProxy非通過の確認"
+      loading="lazy"
+      style="
+        width:100%;
+        max-width:1400px;
+        height:auto;
+        cursor:zoom-in;
+        border:1px solid rgba(0,0,0,.12);
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(0,0,0,.10);
+      "
+    >
+  </a>
+  <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
+    PAC 判定により DIRECT が返され、<strong>Proxy1/2/3 のいずれにもログが出力されない</strong>ことから、
+    ルーターへ直接通信していることを確認できます。
+  </figcaption>
+</figure>
+
+<hr>
 
 **確認できること**
-- PAC により通常経路 / DIRECT 経路が切り替わる
-- Proxy ごとのログ差から、通過経路を客観的に判断できる
+- クライアントに設定した PAC が実際に評価されている
+- PAC の判定結果に応じて、<strong>Proxy1 / Proxy2 / DIRECT</strong> が切り替わる
+- 通信経路は <strong>Proxy 側のアクセスログ有無</strong>により客観的に判別できる
+- 設計した経路制御が「設定だけでなく、実通信として成立している」ことを示せる
 
 ---
 
