@@ -22,7 +22,7 @@ Author: gan2
 を **図とログ中心** に確認できる構成にしています。
 
 > ※ 再現手順・試験ID単位の詳細は  
-> `verification_detail.html` に切り出しています。
+> <strong><a href="./verification_detail.html">verification_detail</a></strong> にまとめています。
 
 ---
 
