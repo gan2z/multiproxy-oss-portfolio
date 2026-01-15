@@ -427,7 +427,6 @@ details > :not(summary) strong {
  *  - 余計な“帯”をやめ、セグメントUIで自然に
  *  - 非フォーカス側は“薄化”して主役を立てる
  *  - 区切り位置は --cmp-split で微調整可能
- *  - ダークモード対応（prefers-color-scheme）
  * ========================================================= */
 
 .cmp-wrap{
@@ -441,7 +440,7 @@ details > :not(summary) strong {
   pointer-events:none;
 }
 
-/* ✅ グレーの帯はやめる（必要最小のセグメント枠） */
+/* セグメント枠 */
 .cmp-controls{
   display:inline-flex;
   gap:0;
@@ -487,7 +486,7 @@ details > :not(summary) strong {
   color: rgba(0,0,0,.85);
 }
 
-/* ✅ 選択状態：Caymanの緑に寄せて“自然に” */
+/* 選択状態：Caymanの緑に寄せて“自然に” */
 #cmp-both:checked ~ .cmp-controls label[for="cmp-both"],
 #cmp-left:checked ~ .cmp-controls label[for="cmp-left"],
 #cmp-right:checked ~ .cmp-controls label[for="cmp-right"]{
@@ -563,29 +562,4 @@ details > :not(summary) strong {
   font-size:.9rem;
   opacity:.72;
   margin:.55rem 0 0;
-}
-
-/* ダークモード対応（OS設定） */
-@media (prefers-color-scheme: dark){
-  .cmp-controls{
-    background: rgba(20,20,20,.75);
-    border-color: rgba(255,255,255,.16);
-    box-shadow: 0 10px 26px rgba(0,0,0,.35);
-  }
-  .cmp-btn{
-    color: rgba(255,255,255,.78);
-  }
-  .cmp-btn + .cmp-btn{
-    border-left-color: rgba(255,255,255,.14);
-  }
-  .cmp-btn:hover{
-    background: rgba(46,160,67,.20);
-    color: rgba(255,255,255,.92);
-  }
-  #cmp-both:checked ~ .cmp-controls label[for="cmp-both"],
-  #cmp-left:checked ~ .cmp-controls label[for="cmp-left"],
-  #cmp-right:checked ~ .cmp-controls label[for="cmp-right"]{
-    background: rgba(46,160,67,.28);
-    color: rgba(255,255,255,.92);
-  }
 }
