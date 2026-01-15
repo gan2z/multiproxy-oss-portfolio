@@ -400,8 +400,8 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 ✅ <strong>結論：Kerberos / DNS の前提を崩さないため、WSL2 mirrored mode を採用しました。</strong>
 
 <ul>
-  <li>NAT 越しでは認証や名前解決の挙動が変わりやすい</li>
-  <li>実務に近い前提条件で <strong>安定して再現する</strong>ことを優先しました</li>
+  <li>NAT 環境では認証や名前解決の前提が崩れやすい</li>
+  <li>実務に近い前提条件で <strong>安定して再現</strong>できることを優先しました</li>
 </ul>
 
 <details>
@@ -409,17 +409,17 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
   <ul>
     <li>
-      Kerberos・DNS は <strong>クライアントの IP／FQDN／逆引き結果</strong>を前提とする要素が多く、
+      Kerberos・DNS は <strong>IP／FQDN／逆引きの一貫性</strong>を前提とする要素が多く、
       同一ネットワークセグメントでの動作を想定しています
     </li>
     <li>
-      NAT 越しや L2 分断環境では、
-      <strong>SPN 不一致・逆引き不整合・認証失敗</strong>などが発生しやすく、
-      再現性を落とします
+      NAT 越しや L2 分断環境では
+      <strong>SPN 不一致・逆引き不整合・認証失敗</strong>が発生しやすく、
+      再現性を損ないます
     </li>
     <li>
       そのため本構成では WSL2 mirrored mode を採用し、
-      実務に近いネットワーク前提で安定した検証が行えるようにしています
+      実務に近い前提で安定した検証が行えるようにしています
     </li>
   </ul>
 
