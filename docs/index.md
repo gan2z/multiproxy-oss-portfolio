@@ -665,21 +665,22 @@ Proxy 間は stunnel で TLS 中継し、ログは経路ごとに分離してい
 
 <ul>
   <li>
-    <strong>初期構築～起動までを一括実行</strong>できるスクリプトを作成し、
-    手作業を極力排除
+    <strong>初期構築～起動までを一括実行</strong>できる
+    複数のスクリプトを作成し、
+    手作業を極力排除（例：全体 bootstrap スクリプト など）
   </li>
   <li>
-    全コンテナの稼働状態を一括確認するヘルスチェック：
-    <code>scripts/multiproxy_health_all.sh</code>
+    全コンテナの稼働状態を一括確認するヘルスチェック
+    （例：<code>scripts/multiproxy_health_all.sh</code> など）
   </li>
   <li>
     監視基盤（Zabbix）の自動登録・初期設定
-    （Agent / Sidecar / PSK 切替を含む）
+    （Agent / Sidecar / PSK 切替 等）
   </li>
   <li>
     主系（Proxy）コンテナを安全に再起動し、
-    設定反映と依存関係を崩さないための制御：
-    <code>scripts/restart_chain_proxy.sh</code>
+    設定反映と依存関係を崩さないための制御
+    （例：<code>scripts/restart_chain_proxy.sh</code> など）
   </li>
 </ul>
 
