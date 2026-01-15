@@ -58,11 +58,7 @@ Author: gan2
           <td>構成図と稼働状態が一致している</td>
           <td>
             <a href="./images/P1-proof-all.png" target="_blank">
-              <img
-                src="./images/P1-proof-all.png"
-                alt="全体稼働・構成一致"
-                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
-              >
+              <code>P1-proof-all.png</code>
             </a>
           </td>
         </tr>
@@ -72,11 +68,7 @@ Author: gan2
           <td>設計構成と実コンテナの 1:1 対応</td>
           <td>
             <a href="./images/P2-arch-compare.png" target="_blank">
-              <img
-                src="./images/P2-arch-compare.png"
-                alt="アーキテクチャ比較"
-                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
-              >
+              <code>P2-arch-compare.png</code>
             </a>
           </td>
         </tr>
@@ -86,11 +78,7 @@ Author: gan2
           <td>PAC により経路が切り替わる</td>
           <td>
             <a href="./images/pac-flow-normal-vs-direct.png" target="_blank">
-              <img
-                src="./images/pac-flow-normal-vs-direct.png"
-                alt="PAC 経路差"
-                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
-              >
+              <code>pac-flow-normal-vs-direct.png</code>
             </a>
           </td>
         </tr>
@@ -100,11 +88,7 @@ Author: gan2
           <td>SSLBump と stunnel の責務分離</td>
           <td>
             <a href="./images/P4-proof-compare.png" target="_blank">
-              <img
-                src="./images/P4-proof-compare.png"
-                alt="SSLBump / stunnel 分離"
-                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
-              >
+              <code>P4-proof-compare.png</code>
             </a>
           </td>
         </tr>
@@ -114,11 +98,7 @@ Author: gan2
           <td>通信異常を原因まで追跡可能</td>
           <td>
             <a href="./images/p6-observability-triage.png" target="_blank">
-              <img
-                src="./images/p6-observability-triage.png"
-                alt="可観測性・切り分け"
-                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
-              >
+              <code>p6-observability-triage.png</code>
             </a>
           </td>
         </tr>
@@ -128,11 +108,7 @@ Author: gan2
           <td>起動・確認・復旧の再現性</td>
           <td>
             <a href="./images/healthcheck-output.png" target="_blank">
-              <img
-                src="./images/healthcheck-output.png"
-                alt="自動化ヘルスチェック"
-                style="width:100%; max-width:260px; border-radius:8px; cursor:zoom-in;"
-              >
+              <code>healthcheck-output.png</code>
             </a>
           </td>
         </tr>
