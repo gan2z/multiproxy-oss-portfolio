@@ -681,8 +681,7 @@ Squid <code>access.log</code> は集約して検索可能。<br>
 <ul>
   <li>
     <strong>初期構築～起動までを一括実行</strong>できる
-    複数のスクリプトを作成し、
-    手作業を極力排除（例：全体 bootstrap スクリプト など）
+    複数のスクリプトを作成し、手作業を極力排除
   </li>
   <li>
     全コンテナの稼働状態を一括確認するヘルスチェック
@@ -698,9 +697,6 @@ Squid <code>access.log</code> は集約して検索可能。<br>
     （例：<code>scripts/restart_chain_proxy.sh</code> など）
   </li>
 </ul>
-
-これらの結果として、  
-<strong>環境破棄後でも約25分で同一構成を再構築できる状態</strong>を実現しました。
 
 ### 実行ログ（ALL-IN-ONE 再構築）
 
