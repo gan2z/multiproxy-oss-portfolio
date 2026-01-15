@@ -105,7 +105,7 @@ Author: gan2
 
 ### ✅ 構成比較（実務環境 ↔ OSS再現）
 
-> **左：実務環境（参考）** … 役割が統合された構成  
+> **左：実務環境（参考）**
 > **右：OSS再現** … 入口/分岐/出口・認証・暗号化・検査・ログを分解した構成
 
 <!-- ✅ 図面はタップで原寸表示 -->
@@ -218,9 +218,19 @@ Author: gan2
   <summary><strong>補足：責務分離の狙い（クリックで開く）</strong></summary>
 
   <ul>
-    <li><strong>入口／分岐／出口</strong>を分けることで「どこで何が起きたか」を追いやすくする</li>
-    <li><strong>認証・暗号化・検査・ログ</strong>を分離し、障害時に俯瞰で切り分けできるようにする</li>
-    <li><strong>統合された商用構成</strong>を、OSSで責務単位に再構成して理解する</li>
+    <li>
+      <strong>入口／分岐／出口</strong>を分けることで、
+      「どこで・何が・なぜ起きたか」をログと挙動から追いやすくする
+    </li>
+    <li>
+      <strong>認証・暗号化・検査・ログ</strong>を独立させ、
+      障害発生時に責務単位で俯瞰・切り分けできる構造にする
+    </li>
+    <li>
+      <strong>商用プロキシに近い要件・振る舞い</strong>を持つシステムを、
+      自身が事前に把握していない環境条件の中で、
+      <strong>OSSのみを用いて一から設計・構築・検証できる力を身につける</strong>
+    </li>
   </ul>
 
 </details>
@@ -229,23 +239,54 @@ Author: gan2
 
 ## ✅ 動作検証（スクリーンショット集）
 
-**実際に動作している証拠（スクショ／ログ）**も合わせて提示しています。
+本プロジェクトでは、**実際に動作している証拠（スクリーンショット／ログ）**を  
+目的別に 2 つのドキュメントに分けて整理しています。
 
-- テストの観点（P1〜P13）
-- 経路別 SSLBump（通常：Proxy1 / DIRECT：Proxy2）の証拠
-- stunnel による中継TLSの証拠
-- AD / LDAP / Kerberos の疎通・ユーザ可視化
-- Graylog / Loki / Zabbix による可観測性
+- 経路制御・復号・中継TLSなどの **要点を確認するページ**
+- 同じ内容を **第三者が再現できる粒度で整理した詳細版（Runbook）**
 
-📌 **検証ページはこちら**：  
-- [Verification（検証観点 & スクショ一覧）](./verification.html)
+---
+
+### 📌 検証ページ（要点）
+
+- [Verification](./verification.html)
+
+**確認できる内容**
+- 全体稼働と構成図の一致
+- 経路別 SSLBump（通常：Proxy1 / DIRECT：Proxy2）
+- stunnel によるプロキシ間 TLS
+- ログ基盤（Loki）を用いた切り分けの流れ
+
+---
+
+### 📌 検証ページ（詳細・再現用）
+
+- [verification_detail.md](./verification_detail.html)
+
+**確認できる内容**
+- 試験ID（P1〜）単位の検証観点
+- 実行コマンド／判定基準／取得すべき証跡の明示
+- PAC 経路差・SSLBump・stunnel・認証（AD / LDAP / Kerberos）の個別検証
+- Loki を用いたログ追跡と原因特定の具体手順
+
+---
 
 <details>
-  <summary><strong>補足：面接官向け見どころ（クリックで開く）</strong></summary>
+  <summary><strong>補足：読みどころ（クリックで開く）</strong></summary>
 
   <ul>
-    <li><strong>“動いた”だけでなく</strong>、ログや画面で根拠を示しています</li>
-    <li><strong>失敗 → 原因 → 改善</strong>の流れが追えるように整理しています</li>
+    <li>
+      <strong>Verification</strong> は
+      「設計どおりに動いているか」を短時間で確認するための要点版です
+    </li>
+    <li>
+      <strong>verification_detail.md</strong> は
+      「なぜそう判断できるのか」を再現可能な形で示す詳細版です
+    </li>
+    <li>
+      単に “動いた” ではなく、
+      <strong>ログ・画面・経路差</strong>から根拠を説明できる構成にしています
+    </li>
   </ul>
 
 </details>
