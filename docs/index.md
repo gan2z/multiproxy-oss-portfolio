@@ -109,17 +109,27 @@ Author: gan2
 > **右：OSS再現** … 入口/分岐/出口・認証・暗号化・検査・ログを分解した構成
 
 <!-- ✅ 図面はタップで原寸表示 -->
-<div style="text-align:center; margin: 1.2em 0;">
-  <a href="./images/実務OSS構築比較_architecture.png" target="_blank">
-    <img
-      src="./images/実務OSS構築比較_architecture.png"
-      alt="実務環境（参考）とOSS再現構成の比較アーキテクチャ"
-      style="width:100%; max-width:1200px; height:auto;
-             border-radius:12px;
-             box-shadow:0 6px 18px rgba(0,0,0,.15);
-             cursor: zoom-in;"
-    >
-  </a>
+<div class="cmp-wrap" id="cmp-arch">
+  <!-- 切り替え（JSなし：radioで実現） -->
+  <input class="cmp-radio" type="radio" name="cmp" id="cmp-both" checked>
+  <input class="cmp-radio" type="radio" name="cmp" id="cmp-left">
+  <input class="cmp-radio" type="radio" name="cmp" id="cmp-right">
+
+  <div class="cmp-controls" aria-label="比較のフォーカス切替">
+    <label for="cmp-both" class="cmp-btn">両方</label>
+    <label for="cmp-left" class="cmp-btn">左（参考）</label>
+    <label for="cmp-right" class="cmp-btn">右（OSS再現）</label>
+  </div>
+
+  <!-- 画像は「同じ1枚」を2回重ねる -->
+  <div class="cmp-stage">
+    <img class="cmp-img base" src="./images/実務OSS構築比較_architecture.png"
+         alt="構成比較（参考とOSS再現）">
+    <img class="cmp-img focus" src="./images/実務OSS構築比較_architecture.png"
+         alt="" aria-hidden="true">
+  </div>
+
+  <p class="cmp-hint">※ クリックで左/右にフォーカス（画像は1枚のまま）</p>
 </div>
 
 <p style="text-align:center; font-size:.9em; opacity:.8;">
