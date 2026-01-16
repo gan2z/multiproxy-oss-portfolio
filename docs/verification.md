@@ -792,13 +792,15 @@ Author: gan2
       alt="Case B Loki（Proxy1でNO HIT）"
       loading="lazy"
       style="
-        width:100%;
-        max-width:1400px;
-        height:auto;
-        cursor:zoom-in;
-        border:1px solid rgba(0,0,0,.12);
-        border-radius:10px;
-        box-shadow:0 6px 18px rgba(0,0,0,.10);
+        max-width: 1200px;
+        max-height: 520px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        cursor: zoom-in;
+        border: 1px solid rgba(0,0,0,.12);
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.10);
       "
     >
   </a>
