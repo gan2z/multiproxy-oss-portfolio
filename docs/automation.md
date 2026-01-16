@@ -243,7 +243,7 @@ Automation のゴールは「起動完了」ではありません。
 - 目的：Graylog の **Web UI にアクセスできる**／**ログ（Search結果）が表示できる**状態であることを示す  
   （※このセクションでは「検索式や解析」までは踏み込まず、**GUI 到達＋ログ閲覧できる**ことだけを証跡化します）
 
-- 証跡（推奨スクリーンショット：どれか1枚でOK）
+- 証跡
   - `./images/graylog-gui-access.png`（Graylog のトップ/ダッシュボードが開ける）
   - `./images/graylog-search-result.png`（Search でログ行が表示されている）
 
@@ -279,7 +279,7 @@ Automation のゴールは「起動完了」ではありません。
 <strong>Grafana の UI にアクセスでき、Loki をデータソースとしてログが表示できる</strong>ことだけを証跡化します。  
 （※Case A / Case B の追跡・LogQL の再現は Verification 側に集約する想定）
 
-- 証跡（推奨スクリーンショット：どれか2枚でOK）
+- 証跡
   - `./images/grafana-gui-access.png`（Grafana トップが開ける）
   - `./images/grafana-loki-datasource.png`（Loki datasource が有効/選択できる）
   - `./images/grafana-loki-explore-result.png`（Explore でログが表示される）
