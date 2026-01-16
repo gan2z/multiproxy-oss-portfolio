@@ -684,7 +684,7 @@ Author: gan2
   </figcaption>
 </figure>
 
-<!-- ④CaseA：Loki画面② -->
+<!-- ④ CaseA：Loki画面②（Proxy2 NO HIT） -->
 <figure style="margin: 1.2em auto; text-align:center;">
   <a href="./images/p6-loki-caseA-proxy2-nohit.png" target="_blank" rel="noopener">
     <img
@@ -692,19 +692,22 @@ Author: gan2
       alt="Case A Loki（Proxy2でNO HIT）"
       loading="lazy"
       style="
-        width:100%;
-        max-width:1400px;
-        height:auto;
-        cursor:zoom-in;
-        border:1px solid rgba(0,0,0,.12);
-        border-radius:10px;
-        box-shadow:0 6px 18px rgba(0,0,0,.10);
+        max-width: 1200px;
+        max-height: 520px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        cursor: zoom-in;
+        border: 1px solid rgba(0,0,0,.12);
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.10);
       "
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
-    クリック/タップで原寸表示（別タブ）。
-    同一条件で Proxy2 を見ると <strong>ヒットしない（NO HIT）</strong>ことを確認（鎖に到達していない裏取り）。
+    クリック/タップで原寸表示（別タブ）。  
+    同一条件で Proxy2 を確認しても <strong>ヒットしない（NO HIT）</strong>ことから、  
+    <strong>入口（Proxy1）で停止し、鎖に到達していない</strong>ことを裏取りしています。
   </figcaption>
 </figure>
 
@@ -805,30 +808,31 @@ Author: gan2
   </figcaption>
 </figure>
 
-<!-- ⑧CaseB：Loki画面③ -->
+<!-- ④CaseA：Loki画面② -->
 <figure style="margin: 1.2em auto; text-align:center;">
-  <a href="./images/p6-loki-caseB-proxy2-cache-denied.png" target="_blank" rel="noopener">
+  <a href="./images/p6-loki-caseA-proxy2-nohit.png" target="_blank" rel="noopener">
     <img
-      src="./images/p6-loki-caseB-proxy2-cache-denied.png"
-      alt="Case B Loki（cache.log相当でDENIED）"
+      src="./images/p6-loki-caseA-proxy2-nohit.png"
+      alt="Case A Loki（Proxy2でNO HIT）"
       loading="lazy"
       style="
-        width:100%;
-        max-width:1400px;
-        height:auto;
-        cursor:zoom-in;
-        border:1px solid rgba(0,0,0,.12);
-        border-radius:10px;
-        box-shadow:0 6px 18px rgba(0,0,0,.10);
+        max-width: 1200px;
+        max-height: 520px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        cursor: zoom-in;
+        border: 1px solid rgba(0,0,0,.12);
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.10);
       "
     >
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
     クリック/タップで原寸表示（別タブ）。
-    cache.log 側（原因）で <strong>DENIED</strong> を拾い、ACL 拒否であることを裏取り（結果→原因）。
+    同一条件で Proxy2 を見ると <strong>ヒットしない（NO HIT）</strong>ことを確認（鎖に到達していない裏取り）。
   </figcaption>
 </figure>
-
 <hr>
 
 ### 5-5. Loki で迷わない操作（最小）
