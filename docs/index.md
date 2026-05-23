@@ -6,7 +6,7 @@ layout: default
 # OSS Multi-Layer Proxy & Authentication System  
 ── 構築・課題・設計思想まとめ
 
-Version: 2025-01-16
+Version: 2026-05-23
 Author: gan2
 
 ---
