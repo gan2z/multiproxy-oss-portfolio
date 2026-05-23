@@ -246,7 +246,7 @@ Author: gan2
   </a>
   <figcaption style="margin-top:.6em; font-size:.92em; opacity:.85;">
     クリック/タップで原寸表示（別タブ）。
-    <strong>設計上の役割・責務と、起動している構成要素の対応関係を確認しています</strong>を確認しています。
+    <strong>設計上の役割・責務と、起動している構成要素の対応関係</strong>を確認しています。
   </figcaption>
 </figure>
 
