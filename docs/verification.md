@@ -6,7 +6,7 @@ layout: default
 # Verification
 （OSS Multi-Layer Proxy & Authentication System）
 
-Version: 2025-01-16
+Version: 2026-05-23
 Author: gan2
 
 ---
