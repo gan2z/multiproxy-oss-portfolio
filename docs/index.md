@@ -133,7 +133,7 @@ Author: gan2
          alt="構成比較（参考とOSS再現）">
 
     <img class="cmp-img focus"
-         src="./images/実務OSS構築比較_architecture.png"
+         src="./images/generalized-oss-architecture.png"
          alt="" aria-hidden="true">
 
     <!-- ✅ 非フォーカス側を“背景と同化”させる覆い -->
